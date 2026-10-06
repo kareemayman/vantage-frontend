@@ -24,7 +24,8 @@ Frontend for **Vantage**, a tour-booking platform and Kareem's first full-stack 
 - At decision points, stop and ask, leading with a recommendation.
 - If Kareem wants to write a part personally, give hints and review instead of handing over the solution.
 - **Don't edit backend code.** Kareem writes all of `../backend` as practice; Claude only mentors there (see `../backend/CLAUDE.md`). The one exception is the checklist in `../backend/CLAUDE.md`, which Claude may update when asked. Never print secret values from `../backend/config.env`.
-- Ask before adding dependencies, committing, or pushing. Commit style: `type(scope): description`, e.g. `feat(tour card): show next start date`.
+- Ask before adding dependencies.
+- **Git is Kareem's job.** Never commit or push, and don't ask about committing. Kareem's commit style, if a message is ever requested: `type(scope): description`, e.g. `feat(tour card): show next start date`.
 
 ## Creative vision (as important as the features)
 
@@ -146,19 +147,37 @@ Theme: summer · travel · sky · beach · planes.
 | `navy` | `#1D5D9B` | primary: buttons, links, headings, dark sections |
 | `sky` | `#75C2F6` | secondary: highlights, illustrations, sky gradients |
 | `sun` | `#F4D160` | accent: CTAs, badges, highlights |
-| `sand` | `#FBEEAC` | warm surfaces and backgrounds |
+| `sand` | `#FBEEAC` | warm surfaces and backgrounds (sand-200; the page background is the lighter sand-50) |
 
 Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun 4.6 ✓ (just passes AA), navy on sky 3.5 (large text only), white on sky 1.9 ✗, white on sun 1.5 ✗. **Text on sky or sun must be navy or darker, never white.**
 
-For the design-tokens step:
-- **Colors:** keep these four as the identity. Claude may derive extra colors wherever contrast or UI states need them:
-  - lighter and darker steps of each hue;
-  - a dark "ink" text color;
-  - neutrals tinted toward navy or sand rather than plain gray;
-  - semantic success/warning/error colors that fit the palette.
-- **State and effect tokens:** hover, active/pressed, focus ring, disabled, borders and dividers, surface/elevation levels, overlays, and shadows (tinted navy, not black). Also radii and spacing where useful.
-- All of these become Tailwind `@theme` tokens. Components never use hard-coded hex values.
+**Tokens live in `src/app/globals.css`, and `/design` is the living style guide** (every token in light and dark; add each new component there).
+
+- **Palette** (`@theme static`): 11-step scales (50–950) generated in OKLCH and contrast-checked, with Tailwind's default palette removed (`--color-*: initial`).
+  - `navy`, `sky`, `sun`, `sand`; brand hexes at navy-600, sky-300, sun-300, and sand-200.
+  - `neutral` (navy-tinted gray), `lagoon` (success green), `coral` (error red).
+  - Raw colors are for illustrations, 3D, and art. **Components use semantic tokens.**
+- **Semantic tokens** follow shadcn's naming, so shadcn components inherit them:
+  - surfaces and text: `background/foreground`, `card`, `popover`, `muted`;
+  - actions: `primary`, `secondary`, `cta` (the sun button), `destructive`;
+  - `accent` (hover background for menu items);
+  - status: `success/warning/info` each plus a `-soft` background, and `destructive-soft`;
+  - lines and states: `border`, `input` (3:1 field borders), `ring` (focus), `disabled`, `overlay`;
+  - each interactive color has `-foreground` and `-hover`, and primary also has `-active`.
+- **Shadows** are navy-tinted (`shadow-xs`…`shadow-xl`). `shadow-pop` is a hard cartoon "sticker" shadow (navy in light mode, sun in dark mode).
+- **Radii and spacing:** Tailwind's defaults for now.
+- **Dark mode:** light is the default for everyone, and dark is opt-in.
+  - Dark values live under `[data-theme="dark"]`. Any element can carry `data-theme="dark"` or `"light"` to theme its subtree (themed sections).
+  - `dark:` classes follow `data-theme` via `@custom-variant`, never the OS setting.
+  - Prefer semantic tokens over `dark:` classes.
+  - The toggle (with persistence and no flash of the wrong theme) is built with the navbar.
+- **Base styles:** the page uses `background`/`foreground`, the default border color is `border`, every element gets a global `:focus-visible` ring, and text selection is sun-200.
+- **Gotcha:** Tailwind only generates classes it finds as complete strings in source files, so never build class names at runtime (`bg-${name}-500`). Use a full class name or an inline `var(--color-…)` style.
 - **Fonts: Kareem chooses them.** Claude may recommend options when asked, but never picks one.
+  - **Display (big titles): Oswald**, weights 200–700, as the free stand-in for Balboa, which Kareem wanted but which is paid (Adobe Fonts or a foundry license). Oswald was picked by rendering free candidates against real Balboa specimens. Use `letter-spacing: -0.02em` to `-0.025em` on headlines to match Balboa's tight spacing.
+  - **Accent: Shadows Into Light** (handwritten, 400 only): postcard notes, doodled callouts, easter-egg labels, game scores. Not for body text, forms, buttons, or prices.
+  - **Body: Figtree** (chosen over Nunito and DM Sans): paragraphs, forms, prices, buttons.
+  - All three load through `next/font/google` in `src/app/layout.tsx` and map to Tailwind in `globals.css`. Use `font-sans` (Figtree, the default), `font-display` (Oswald; pair it with `tracking-tight`, which is -0.025em), and `font-hand` (Shadows Into Light).
 
 ## Conventions
 
@@ -181,7 +200,7 @@ For the design-tokens step:
 
 ## Roadmap
 
-**Current phase: 0, Foundations.** Done: scaffold, Prettier. Next: settle fonts (Kareem's pick), then design tokens. Update this line as steps complete.
+**Current phase: 0, Foundations.** Done: scaffold, Prettier, fonts, design tokens (+ `/design` style guide). Next: base layout (navbar with the dark-mode toggle, footer, real homepage shell). Update this line as steps complete.
 
 Creative work is woven into every phase: each page gets its own storytelling moment as it's built. Phase 7 is for the big standalone pieces.
 

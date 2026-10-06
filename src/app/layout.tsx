@@ -1,15 +1,24 @@
 import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
+import { Figtree, Oswald, Shadows_Into_Light } from "next/font/google"
 import "./globals.css"
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Body text: forms, paragraphs, prices, buttons
+const figtree = Figtree({
+  variable: "--font-figtree",
   subsets: ["latin"],
 })
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+// Big titles: free stand-in for Balboa
+const oswald = Oswald({
+  variable: "--font-oswald",
   subsets: ["latin"],
+})
+
+// Handwritten accents: notes, doodles, easter eggs (only has weight 400)
+const shadowsIntoLight = Shadows_Into_Light({
+  variable: "--font-shadows-into-light",
+  subsets: ["latin"],
+  weight: "400",
 })
 
 export const metadata: Metadata = {
@@ -19,7 +28,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+    <html
+      lang="en"
+      className={`${figtree.variable} ${oswald.variable} ${shadowsIntoLight.variable} h-full antialiased`}
+    >
       <body className="flex min-h-full flex-col">{children}</body>
     </html>
   )

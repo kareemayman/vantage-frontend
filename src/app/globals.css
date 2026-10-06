@@ -1,26 +1,303 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* `dark:` classes follow data-theme (set on <html> or on any section), not the OS setting.
+   Light is the default; dark mode is opt-in. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* ==========================================================================
+   1. PALETTE: raw colors
+   Brand hexes sit at navy-600, sky-300, sun-300, and sand-200.
+   Scales were generated in OKLCH and every text/background pair was
+   contrast-checked (WCAG AA). Components use the semantic tokens below;
+   raw colors are for illustrations, 3D, and one-off art.
+   `static` keeps every color available as a CSS variable, even if no
+   class uses it yet (the semantic tokens reference them).
+   ========================================================================== */
+@theme static {
+  --color-*: initial; /* drop Tailwind's default palette: only Vantage colors exist */
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  /* navy */
+  --color-navy-50: #f1f8ff;
+  --color-navy-100: #e1effe;
+  --color-navy-200: #c6dffc;
+  --color-navy-300: #a3c4e8;
+  --color-navy-400: #78a2cf;
+  --color-navy-500: #4a7db3;
+  --color-navy-600: #1d5d9b;
+  --color-navy-700: #114c83;
+  --color-navy-800: #063e6f;
+  --color-navy-900: #002f5a;
+  --color-navy-950: #002244;
+
+  /* sky */
+  --color-sky-50: #e9f5fe;
+  --color-sky-100: #cdeafe;
+  --color-sky-200: #a4d9fe;
+  --color-sky-300: #75c2f6;
+  --color-sky-400: #5aa9dd;
+  --color-sky-500: #4b8db8;
+  --color-sky-600: #3f769a;
+  --color-sky-700: #34617f;
+  --color-sky-800: #294c63;
+  --color-sky-900: #1e3748;
+  --color-sky-950: #102431;
+
+  /* sun */
+  --color-sun-50: #fffaeb;
+  --color-sun-100: #fff3cf;
+  --color-sun-200: #ffe594;
+  --color-sun-300: #f4d160;
+  --color-sun-400: #d9ad55;
+  --color-sun-500: #b7884b;
+  --color-sun-600: #976c43;
+  --color-sun-700: #77533a;
+  --color-sun-800: #5d4032;
+  --color-sun-900: #462d24;
+  --color-sun-950: #331a14;
+
+  /* sand */
+  --color-sand-50: #fffcf0;
+  --color-sand-100: #fdf5d3;
+  --color-sand-200: #fbeeac;
+  --color-sand-300: #e2d3a0;
+  --color-sand-400: #c3b089;
+  --color-sand-500: #9f8d71;
+  --color-sand-600: #80705d;
+  --color-sand-700: #67594d;
+  --color-sand-800: #51453b;
+  --color-sand-900: #3e3129;
+  --color-sand-950: #2b1e18;
+
+  /* neutral */
+  --color-neutral-50: #f6f9fd;
+  --color-neutral-100: #ecf1f6;
+  --color-neutral-200: #dbe2ea;
+  --color-neutral-300: #c5cfd9;
+  --color-neutral-400: #9aa6b4;
+  --color-neutral-500: #748291;
+  --color-neutral-600: #576574;
+  --color-neutral-700: #3f4f5f;
+  --color-neutral-800: #2b3c4f;
+  --color-neutral-900: #172a3e;
+  --color-neutral-950: #07192c;
+
+  /* lagoon */
+  --color-lagoon-50: #edfef7;
+  --color-lagoon-100: #d7f9ec;
+  --color-lagoon-200: #b3f1da;
+  --color-lagoon-300: #87e3c4;
+  --color-lagoon-400: #43bd99;
+  --color-lagoon-500: #049675;
+  --color-lagoon-600: #04755b;
+  --color-lagoon-700: #005b46;
+  --color-lagoon-800: #004635;
+  --color-lagoon-900: #013125;
+  --color-lagoon-950: #001e15;
+
+  /* coral */
+  --color-coral-50: #fff7f6;
+  --color-coral-100: #ffebe8;
+  --color-coral-200: #ffd6d1;
+  --color-coral-300: #febab2;
+  --color-coral-400: #f9786c;
+  --color-coral-500: #db423c;
+  --color-coral-600: #b7191c;
+  --color-coral-700: #901114;
+  --color-coral-800: #6f0e0f;
+  --color-coral-900: #4f0a0a;
+  --color-coral-950: #320605;
 }
 
+/* ==========================================================================
+   2. SEMANTIC TOKENS: what each color is FOR
+   Names follow shadcn/ui's convention, so shadcn components we add later
+   pick up Vantage colors automatically. Dark mode only swaps these values.
+   Any element can switch theme for its subtree with data-theme="dark" or "light".
+   ========================================================================== */
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+
+  --background: var(--color-sand-50);
+  --foreground: var(--color-navy-950);
+  --card: var(--color-white);
+  --card-foreground: var(--color-navy-950);
+  --popover: var(--color-white);
+  --popover-foreground: var(--color-navy-950);
+  --primary: var(--color-navy-600);
+  --primary-hover: var(--color-navy-700);
+  --primary-active: var(--color-navy-800);
+  --primary-foreground: var(--color-white);
+  --secondary: var(--color-sky-100);
+  --secondary-hover: var(--color-sky-200);
+  --secondary-foreground: var(--color-navy-800);
+  --cta: var(--color-sun-300);
+  --cta-hover: var(--color-sun-400);
+  --cta-foreground: var(--color-navy-950);
+  --muted: var(--color-sand-100);
+  --muted-foreground: var(--color-neutral-600);
+  --accent: var(--color-sun-100);
+  --accent-foreground: var(--color-navy-950);
+  --destructive: var(--color-coral-600);
+  --destructive-hover: var(--color-coral-700);
+  --destructive-foreground: var(--color-white);
+  --success: var(--color-lagoon-700);
+  --success-soft: var(--color-lagoon-50);
+  --warning: var(--color-sun-800);
+  --warning-soft: var(--color-sun-100);
+  --info: var(--color-navy-700);
+  --info-soft: var(--color-sky-50);
+  --destructive-soft: var(--color-coral-50);
+  --border: var(--color-neutral-200);
+  --input: var(--color-neutral-500);
+  --ring: var(--color-navy-500);
+  --disabled: var(--color-neutral-100);
+  --disabled-foreground: var(--color-neutral-500);
+
+  --overlay: rgb(0 34 68 / 0.5);
+
+  /* Shadows tinted with navy instead of gray/black */
+  --elevation-xs: 0 1px 2px 0 rgb(29 93 155 / 0.08);
+  --elevation-sm: 0 1px 3px 0 rgb(29 93 155 / 0.1), 0 1px 2px -1px rgb(29 93 155 / 0.1);
+  --elevation-md: 0 4px 12px -2px rgb(29 93 155 / 0.14), 0 2px 4px -2px rgb(29 93 155 / 0.1);
+  --elevation-lg: 0 12px 28px -6px rgb(29 93 155 / 0.18), 0 4px 8px -4px rgb(29 93 155 / 0.1);
+  --elevation-xl: 0 24px 48px -12px rgb(29 93 155 / 0.25);
+  /* Cartoon "sticker" shadow: hard offset, no blur */
+  --elevation-pop: 4px 4px 0 0 var(--color-navy-950);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --background: var(--color-neutral-950);
+  --foreground: var(--color-sand-50);
+  --card: var(--color-neutral-900);
+  --card-foreground: var(--color-sand-50);
+  --popover: var(--color-neutral-800);
+  --popover-foreground: var(--color-sand-50);
+  --primary: var(--color-sky-300);
+  --primary-hover: var(--color-sky-200);
+  --primary-active: var(--color-sky-400);
+  --primary-foreground: var(--color-navy-950);
+  --secondary: var(--color-navy-800);
+  --secondary-hover: var(--color-navy-700);
+  --secondary-foreground: var(--color-sky-100);
+  --cta: var(--color-sun-300);
+  --cta-hover: var(--color-sun-200);
+  --cta-foreground: var(--color-navy-950);
+  --muted: var(--color-neutral-900);
+  --muted-foreground: var(--color-neutral-300);
+  --accent: var(--color-neutral-800);
+  --accent-foreground: var(--color-sand-50);
+  --destructive: var(--color-coral-400);
+  --destructive-hover: var(--color-coral-300);
+  --destructive-foreground: var(--color-navy-950);
+  --success: var(--color-lagoon-300);
+  --success-soft: var(--color-lagoon-950);
+  --warning: var(--color-sun-300);
+  --warning-soft: var(--color-sun-950);
+  --info: var(--color-sky-300);
+  --info-soft: var(--color-navy-950);
+  --destructive-soft: var(--color-coral-950);
+  --border: var(--color-neutral-800);
+  --input: var(--color-neutral-500);
+  --ring: var(--color-sky-300);
+  --disabled: var(--color-neutral-900);
+  --disabled-foreground: var(--color-neutral-500);
+
+  --overlay: rgb(0 6 16 / 0.7);
+
+  /* Night shadows: darker and stronger so they still read on dark surfaces */
+  --elevation-xs: 0 1px 2px 0 rgb(0 6 16 / 0.4);
+  --elevation-sm: 0 1px 3px 0 rgb(0 6 16 / 0.5), 0 1px 2px -1px rgb(0 6 16 / 0.5);
+  --elevation-md: 0 4px 12px -2px rgb(0 6 16 / 0.6), 0 2px 4px -2px rgb(0 6 16 / 0.5);
+  --elevation-lg: 0 12px 28px -6px rgb(0 6 16 / 0.7), 0 4px 8px -4px rgb(0 6 16 / 0.5);
+  --elevation-xl: 0 24px 48px -12px rgb(0 6 16 / 0.8);
+  --elevation-pop: 4px 4px 0 0 var(--color-sun-300);
+}
+
+/* ==========================================================================
+   3. TAILWIND MAPPING: semantic tokens -> utility classes
+   `inline` so each class reads the variable where it's used, which is what
+   lets data-theme sections and dark mode work (see the inline explanation).
+   ========================================================================== */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-active: var(--primary-active);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-hover: var(--secondary-hover);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-cta: var(--cta);
+  --color-cta-hover: var(--cta-hover);
+  --color-cta-foreground: var(--cta-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-hover: var(--destructive-hover);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-destructive-soft: var(--destructive-soft);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-disabled: var(--disabled);
+  --color-disabled-foreground: var(--disabled-foreground);
+  --color-overlay: var(--overlay);
+
+  --shadow-*: initial; /* replace Tailwind's gray shadows */
+  --shadow-xs: var(--elevation-xs);
+  --shadow-sm: var(--elevation-sm);
+  --shadow-md: var(--elevation-md);
+  --shadow-lg: var(--elevation-lg);
+  --shadow-xl: var(--elevation-xl);
+  --shadow-pop: var(--elevation-pop);
+
+  --font-sans: var(--font-figtree); /* default font for everything: font-sans */
+  --font-display: var(--font-oswald); /* big titles: font-display */
+  --font-hand: var(--font-shadows-into-light); /* handwritten accents: font-hand */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ==========================================================================
+   4. BASE STYLES
+   ========================================================================== */
+@layer base {
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
   }
-}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* `border` without a color class uses the theme's border color */
+  *,
+  ::before,
+  ::after {
+    border-color: var(--border);
+  }
+
+  /* One visible focus ring for every focusable element (keyboard users) */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-sun-200);
+    color: var(--color-navy-950);
+  }
 }
