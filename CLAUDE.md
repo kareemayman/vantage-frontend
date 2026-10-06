@@ -83,7 +83,7 @@ Install nothing marked _proposed_ until Kareem confirms it. Versions live in `pa
 | Maps | MapLibre GL via `react-map-gl` + OpenFreeMap vector tiles (free, no API key, restylable to the palette, smooth `flyTo`). Chosen over Leaflet (simpler, but raster tiles can't be recolored). | decided |
 | Images | Cloudinary (+ `next-cloudinary`) | decided |
 | Payments | Stripe Checkout in test mode (available to Kareem) | decided, phase 5 |
-| Tooling | npm; ESLint (scaffolded); Prettier + `prettier-plugin-tailwindcss` | ESLint decided, Prettier proposed |
+| Tooling | npm; ESLint (scaffolded); Prettier + `prettier-plugin-tailwindcss` (sorts Tailwind classes) | decided |
 | Testing | Vitest + Testing Library; Playwright for key flows | later |
 | Hosting | Vercel Hobby (frontend), Render free tier (API), MongoDB Atlas (DB) | decided |
 
@@ -168,19 +168,20 @@ For the design-tokens step:
 - Motion and 3D: honor `prefers-reduced-motion` (no Lenis smoothing or scroll-scrubbed motion; simple fades are fine). Load 3D client-only and lazily, pause it offscreen, and give low-power and mobile devices a static fallback. Animation must never block content or hurt LCP/INP.
 - Accessibility: semantic HTML first; everything keyboard-reachable with visible focus; alt text from tour data.
 - Env: server-only `API_URL`. Use `NEXT_PUBLIC_` only for values that are safe to expose (e.g. the Cloudinary cloud name). Never commit `.env*`.
-- Code style matches the backend: no semicolons, double quotes, 2-space indent, trailing commas, ~100-column lines (Prettier, once it's added; the scaffold's files still use semicolons).
+- Code style matches the backend and is enforced by Prettier (`.prettierrc`): no semicolons, double quotes, trailing commas, 100-column lines. Run `npm run format` after writing code. `endOfLine` is `"auto"` because git's `core.autocrlf=true` on this Windows machine checks files out with CRLF.
 
 ## Commands
 
 - `npm run dev`: dev server (Turbopack) at http://localhost:3000. The backend also defaults to 3000; Next picks the next free port if 3000 is taken.
 - `npm run build`: production build (also type-checks). `npm run start` serves it.
 - `npm run lint`: ESLint.
+- `npm run format` fixes formatting; `npm run format:check` only reports. Prettier skips everything in `.gitignore` (including this file) plus `.prettierignore` (`package-lock.json`, `AGENTS.md`).
 - `npm audit` reports 5 "high" findings. They're one dev-only chain under `eslint-config-next` (braces/micromatch), and `npm audit --omit=dev` is clean. **Don't run `npm audit fix --force`**: it downgrades `eslint-config-next` to v14.
 - `AGENTS.md` is managed by Next.js (`next dev` rewrites its block), and line 1 of this file imports it. Commit both.
 
 ## Roadmap
 
-**Current phase: 0, Foundations.** Done: scaffold. Next: Prettier, then design tokens. Update this line as steps complete.
+**Current phase: 0, Foundations.** Done: scaffold, Prettier. Next: settle fonts (Kareem's pick), then design tokens. Update this line as steps complete.
 
 Creative work is woven into every phase: each page gets its own storytelling moment as it's built. Phase 7 is for the big standalone pieces.
 
