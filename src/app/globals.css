@@ -158,6 +158,27 @@
 
   --overlay: rgb(0 34 68 / 0.5);
 
+  /* Homepage scene + cartoon UI (from design/HANDOFF.md) */
+  --outline: var(--color-navy-950); /* bold cartoon outlines on cards, pass, pool rim */
+  --tile: var(--color-white); /* counter tiles */
+  --chip: var(--color-sky-50);
+  --chip-foreground: var(--color-navy-950);
+  --chip-warm: var(--color-sand-100); /* rating chip */
+  --dash: var(--color-sand-300); /* perforations, dashed dividers */
+  --night: var(--color-navy-950); /* globe section, same in both themes */
+  --crab: var(--color-coral-600);
+  --nav-bg: rgb(255 252 240 / 0.86);
+  --nav-border: rgb(0 34 68 / 0.12);
+  --sky: var(--color-sky-50); /* hero sky, boarding-pass section */
+  --sky-2: var(--color-sky-100); /* journey section, sun halo */
+  --sea: var(--color-sky-300);
+  --sand: var(--color-sand-200);
+  --dune: var(--color-sand-300);
+  --cloud: var(--color-white);
+  --cloud-shade: var(--color-sky-100);
+  --ground-shadow: rgb(0 34 68 / 0.16);
+  --wave-opacity: 0.8;
+
   /* Shadows tinted with navy instead of gray/black */
   --elevation-xs: 0 1px 2px 0 rgb(29 93 155 / 0.08);
   --elevation-sm: 0 1px 3px 0 rgb(29 93 155 / 0.1), 0 1px 2px -1px rgb(29 93 155 / 0.1);
@@ -208,6 +229,26 @@
   --disabled-foreground: var(--color-neutral-500);
 
   --overlay: rgb(0 6 16 / 0.7);
+
+  --outline: var(--color-navy-500); /* navy-950 would vanish on night backgrounds */
+  --tile: var(--color-neutral-800);
+  --chip: var(--color-navy-800);
+  --chip-foreground: var(--color-sky-100);
+  --chip-warm: var(--color-sun-950);
+  --dash: var(--color-neutral-700);
+  --night: var(--color-navy-950);
+  --crab: var(--color-coral-400);
+  --nav-bg: rgb(7 25 44 / 0.82);
+  --nav-border: rgb(117 194 246 / 0.18);
+  --sky: var(--color-sky-950);
+  --sky-2: var(--color-sky-900);
+  --sea: var(--color-sky-700);
+  --sand: var(--color-sand-800);
+  --dune: var(--color-sand-900);
+  --cloud: var(--color-neutral-800);
+  --cloud-shade: var(--color-neutral-900);
+  --ground-shadow: rgb(0 6 16 / 0.5);
+  --wave-opacity: 0.35;
 
   /* Night shadows: darker and stronger so they still read on dark surfaces */
   --elevation-xs: 0 1px 2px 0 rgb(0 6 16 / 0.4);
@@ -260,6 +301,26 @@
   --color-disabled: var(--disabled);
   --color-disabled-foreground: var(--disabled-foreground);
   --color-overlay: var(--overlay);
+
+  --color-outline: var(--outline);
+  --color-tile: var(--tile);
+  --color-chip: var(--chip);
+  --color-chip-foreground: var(--chip-foreground);
+  --color-chip-warm: var(--chip-warm);
+  --color-dash: var(--dash);
+  --color-night: var(--night);
+  --color-crab: var(--crab);
+  --color-nav: var(--nav-bg);
+  --color-nav-border: var(--nav-border);
+  /* scene- prefix so bg-scene-sky can't be confused with palette bg-sky-50 */
+  --color-scene-sky: var(--sky);
+  --color-scene-sky-2: var(--sky-2);
+  --color-scene-sea: var(--sea);
+  --color-scene-sand: var(--sand);
+  --color-scene-dune: var(--dune);
+  --color-scene-cloud: var(--cloud);
+  --color-scene-cloud-shade: var(--cloud-shade);
+  --color-scene-ground-shadow: var(--ground-shadow);
 
   --shadow-*: initial; /* replace Tailwind's gray shadows */
   --shadow-xs: var(--elevation-xs);

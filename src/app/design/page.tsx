@@ -1,5 +1,8 @@
 // Living style guide: every design token in light and dark, side by side.
 // Add new components here as they're built.
+import type { Metadata } from "next"
+
+export const metadata: Metadata = { title: "Design tokens" } // -> "Design tokens | Vantage"
 
 const SCALES = ["navy", "sky", "sun", "sand", "neutral", "lagoon", "coral"]
 const STEPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950]
@@ -9,8 +12,8 @@ const SHADOWS = ["shadow-xs", "shadow-sm", "shadow-md", "shadow-lg", "shadow-xl"
 export default function DesignPage() {
   return (
     // Slightly deeper "workspace" background so the light preview panel stands out
-    <div className="flex-1 bg-muted">
-      <main className="mx-auto w-full max-w-6xl space-y-12 px-6 py-16">
+    <div className="bg-muted">
+      <div className="mx-auto w-full max-w-6xl space-y-12 px-6 py-16">
         <header className="space-y-2">
           <h1 className="font-display text-6xl font-bold tracking-tight uppercase">
             Design tokens
@@ -49,7 +52,7 @@ export default function DesignPage() {
             <Sample label="Dark" />
           </div>
         </section>
-      </main>
+      </div>
     </div>
   )
 }
@@ -134,6 +137,28 @@ function Sample({ label }: { label: string }) {
 
       <div className="rounded-xl bg-muted p-4 text-sm text-muted-foreground">
         A muted section: quieter background for side info.
+      </div>
+
+      {/* Scene tokens: a tiny beach built only from scene-* colors */}
+      <div className="overflow-hidden rounded-2xl border-2 border-outline">
+        <div className="relative h-24 bg-scene-sky">
+          <div className="absolute top-3 right-6 size-14 rounded-full bg-scene-sky-2" />
+          <div className="absolute top-6 left-6 h-6 w-16 rounded-full border-2 border-outline bg-scene-cloud" />
+        </div>
+        <div className="h-5 bg-scene-sea" />
+        <div className="relative h-12 border-t-2 border-outline bg-scene-sand">
+          <div className="absolute bottom-0 h-4 w-full bg-scene-dune" />
+          <div className="absolute top-3 left-1/2 h-2 w-14 -translate-x-1/2 rounded-full bg-scene-ground-shadow" />
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-2 text-sm font-semibold">
+        <span className="rounded-full bg-chip px-3 py-1 text-chip-foreground">7 days</span>
+        <span className="rounded-full bg-chip-warm px-3 py-1">★ 4.8 (6 reviews)</span>
+        <span className="rounded-full border-2 border-dashed border-dash px-3 py-1">dash</span>
+        <span className="rounded-full bg-night px-3 py-1 text-sand-50">night</span>
+        <span className="rounded-full bg-tile px-3 py-1 shadow-sm">tile</span>
+        <span className="rounded-full px-3 py-1 text-crab">crab 🦀</span>
       </div>
 
       <div className="flex flex-wrap gap-4">

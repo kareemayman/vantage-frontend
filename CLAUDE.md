@@ -16,6 +16,7 @@ Frontend for **Vantage**, a tour-booking platform and Kareem's first full-stack 
   - **Has used before, but not recently:** Next.js (never its advanced features) and Tailwind. Refresh these quickly instead of teaching from zero, but fully explain anything new since then: the App Router, Server Components and Server Actions, Next's caching, Tailwind v4's CSS-first config.
   - **Brand new:** Zustand, Zod, GSAP, Lenis, three.js/R3F, physics engines, native `<dialog>`/popover, shadcn/ui.
 - **Collaboration mode: Claude writes the code, in small steps, explaining everything.**
+- **Keep explanations short.** Kareem loses focus with long text. Still teach every new concept with a tiny example, but use few words, short sections, and no excessive detail.
 - **Before every step, say what you're about to do and why** (a few sentences). Then do it. Then explain what changed.
 - **Explain every new tool, API, or concept the first time it appears**: what it is, what problem it solves, how it works (with a minimal example), how it maps to something Kareem already knows (React SPA, Redux, Express; e.g. "`proxy.ts` is Next's version of Express middleware"), and the main alternative. Never introduce a library or pattern silently.
 - **Keep it simple; don't overengineer.** Pick the simplest approach that works. Add abstractions, folders, or libraries only when a concrete need shows up, and say when something is optional. If a pattern is "industry best practice" but overkill for this project, say so and skip it.
@@ -43,6 +44,7 @@ The "cool factor" is a core requirement, not end-of-project polish. Storytelling
   - a map camera that `flyTo()`s from day to day as you scroll an itinerary;
   - the booking confirmation as an animated boarding pass;
   - Konami-code and hidden-sun easter eggs.
+- **Homepage spec:** `design/HANDOFF.md` (sections, interactions, theme switching, 3D asset list), with `design/pages/*.html` for exact values and `design/screenshots/` as the visual target. These are reference files: never edit them (they're in `.prettierignore`). Rebuild them fluidly, not with their fixed pixel positions.
 - **Guardrails:** every effect has a reduced-motion and low-power fallback, content stays readable and reachable without the toys, and 3D is lazy-loaded.
 
 ## Architecture
@@ -164,6 +166,10 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
   - status: `success/warning/info` each plus a `-soft` background, and `destructive-soft`;
   - lines and states: `border`, `input` (3:1 field borders), `ring` (focus), `disabled`, `overlay`;
   - each interactive color has `-foreground` and `-hover`, and primary also has `-active`.
+- **Scene and cartoon-UI tokens** (from the handoff):
+  - `outline` (bold cartoon borders), `tile`, `chip` / `chip-foreground` / `chip-warm`, `dash`, `night`, `crab`, `nav` / `nav-border`;
+  - `scene-sky`, `scene-sky-2`, `scene-sea`, `scene-sand`, `scene-dune`, `scene-cloud`, `scene-cloud-shade`, `scene-ground-shadow`. The `scene-` prefix keeps them apart from palette classes like `bg-sky-50`;
+  - `--wave-opacity` is a plain variable with no class.
 - **Shadows** are navy-tinted (`shadow-xs`…`shadow-xl`). `shadow-pop` is a hard cartoon "sticker" shadow (navy in light mode, sun in dark mode).
 - **Radii and spacing:** Tailwind's defaults for now.
 - **Dark mode:** light is the default for everyone, and dark is opt-in.
@@ -207,7 +213,14 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
 
 ## Roadmap
 
-**Current phase: 0, Foundations.** Done: scaffold, Prettier, fonts, design tokens (+ `/design` style guide), app shell (navbar, footer, skip link, title template, homepage hero shell). Next: dark-mode toggle (first Client Component, no wrong-theme flash), then the mobile menu (the navbar hides "Tours" below 640px until then). Update this line as steps complete.
+**Current phase: 0, Foundations.** Done: scaffold, Prettier, fonts, design tokens (+ `/design` style guide), app shell (navbar, footer, skip link, title template, homepage hero shell). Now rebuilding the homepage from `design/HANDOFF.md`:
+1. scene tokens ✓
+2. theme switching: `toggleTheme()`, no flash, sunset wipe via View Transitions
+3. navbar: frosted pill, mobile version, CSS scroll-driven shrink
+4. static hero with SVG placeholders, a `Button` component
+5. footer
+
+Then the remaining sections in handoff order. Update this line as steps complete.
 
 Creative work is woven into every phase: each page gets its own storytelling moment as it's built. Phase 7 is for the big standalone pieces.
 
