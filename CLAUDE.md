@@ -182,6 +182,13 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
 ## Conventions
 
 - Server Components by default. Put `"use client"` on the smallest leaf that needs state, effects, or browser APIs.
+- **Structure:** routes live in `src/app/`; shared components in `src/components/` (layout pieces in `src/components/layout/`), as named exports. Import with the `@/` alias.
+- **Layout:**
+  - The root layout renders the skip link, `<Navbar />`, the page's single `<main id="main">`, and `<Footer />`. Pages render `<section>`s and never their own `<main>`.
+  - Page content is centered with `mx-auto max-w-6xl px-6`.
+  - Pages set `export const metadata = { title: "…" }`, and the root template turns it into "… | Vantage".
+- **Mobile-first:** unprefixed classes apply at every size; `sm:`/`lg:` add from 640px/1024px. Check every page at 320px and 390px.
+- **Screenshots:** headless Chrome can't go narrower than ~500px, so `--window-size=390,…` silently lies. For phone widths, load the page inside a fixed-width `<iframe>` on a local host page.
 - **Next.js changes fast.** Before using a Next.js API, read the version-matched docs in `node_modules/next/dist/docs/`, because training data may be outdated (e.g. `middleware.ts` is now `proxy.ts`, `params`/`searchParams` are Promises, and caching is explicit via `"use cache"`).
 - Zustand is for client UI/experience state only: menus, modals, the booking wizard, the wishlist (`persist`), the sound toggle, easter-egg progress and mini-game scores, and state shared between the R3F canvas and the DOM. Server data (tours, the current user) stays in Server Components. A store holding per-user data goes through a context provider, never a module-level singleton, because that would be shared across requests on the server.
 - Motion and 3D: honor `prefers-reduced-motion` (no Lenis smoothing or scroll-scrubbed motion; simple fades are fine). Load 3D client-only and lazily, pause it offscreen, and give low-power and mobile devices a static fallback. Animation must never block content or hurt LCP/INP.
@@ -200,7 +207,7 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
 
 ## Roadmap
 
-**Current phase: 0, Foundations.** Done: scaffold, Prettier, fonts, design tokens (+ `/design` style guide). Next: base layout (navbar with the dark-mode toggle, footer, real homepage shell). Update this line as steps complete.
+**Current phase: 0, Foundations.** Done: scaffold, Prettier, fonts, design tokens (+ `/design` style guide), app shell (navbar, footer, skip link, title template, homepage hero shell). Next: dark-mode toggle (first Client Component, no wrong-theme flash), then the mobile menu (the navbar hides "Tours" below 640px until then). Update this line as steps complete.
 
 Creative work is woven into every phase: each page gets its own storytelling moment as it's built. Phase 7 is for the big standalone pieces.
 

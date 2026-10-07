@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vantage homepage, mobile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&amp;family=Oswald:wght@600;700&amp;family=Shadows+Into+Light&amp;display=swap" rel="stylesheet">
+<style>
+body { margin: 0; background: #FFFCF0; }
+/* Theme tokens: same values as the design canvas. Map to globals.css (see HANDOFF.md). */
+[data-theme="light"] {
+  --background: #FFFCF0;
+  --foreground: #002244;
+  --card: #FFFFFF;
+  --tile: #FFFFFF;
+  --muted: #FDF5D3;
+  --muted-foreground: #576574;
+  --primary: #1D5D9B;
+  --primary-foreground: #FFFFFF;
+  --cta: #F4D160;
+  --cta-foreground: #002244;
+  --outline: #002244;
+  --pop-color: #002244;
+  --pop: 4px 4px 0 0 #002244;
+  --elev: 0 24px 40px -24px rgb(29 93 155 / 0.45);
+  --elev-md: 0 12px 28px -10px rgb(29 93 155 / 0.35);
+  --drop: 0 24px 24px rgb(29 93 155 / 0.22);
+  --nav-bg: rgb(255 252 240 / 0.88);
+  --nav-border: rgb(0 34 68 / 0.12);
+  --sky: #E9F5FE;
+  --sky-2: #CDEAFE;
+  --sea: #75C2F6;
+  --sand: #FBEEAC;
+  --dune: #E2D3A0;
+  --cloud: #FFFFFF;
+  --chip: #E9F5FE;
+  --chip-foreground: #002244;
+  --chip-warm: #FDF5D3;
+  --success: #005B46;
+  --success-soft: #EDFEF7;
+  --dash: #C3B089;
+  --night: #002244;
+  --crab: #B7191C;
+}
+[data-theme="dark"] {
+  --background: #07192C;
+  --foreground: #FFFCF0;
+  --card: #172A3E;
+  --tile: #2B3C4F;
+  --muted: #172A3E;
+  --muted-foreground: #C5CFD9;
+  --primary: #75C2F6;
+  --primary-foreground: #002244;
+  --cta: #F4D160;
+  --cta-foreground: #002244;
+  --outline: #4A7DB3;
+  --pop-color: #F4D160;
+  --pop: 4px 4px 0 0 #F4D160;
+  --elev: 0 24px 48px -16px rgb(0 6 16 / 0.8);
+  --elev-md: 0 12px 28px -6px rgb(0 6 16 / 0.7);
+  --drop: 0 24px 24px rgb(0 6 16 / 0.6);
+  --nav-bg: rgb(7 25 44 / 0.84);
+  --nav-border: rgb(117 194 246 / 0.18);
+  --sky: #102431;
+  --sky-2: #1E3748;
+  --sea: #34617F;
+  --sand: #51453B;
+  --dune: #3E3129;
+  --cloud: #2B3C4F;
+  --chip: #063E6F;
+  --chip-foreground: #CDEAFE;
+  --chip-warm: #331A14;
+  --success: #87E3C4;
+  --success-soft: #001E15;
+  --dash: #3F4F5F;
+  --night: #002244;
+  --crab: #F9786C;
+}
+.only-light, .only-dark { display: contents; }
+[data-theme="light"] .only-dark, [data-theme="dark"] .only-light { display: none; }
+html[data-theme="dark"] body { background: #07192C; }
+button:focus-visible, a:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+</style>
+</head>
+<body>
+<div data-theme="light" style="width: 390px; display: flex; flex-direction: column; background: var(--background); font-family: 'Figtree', sans-serif; color: var(--foreground);">
+
+<!-- HERO -->
+<section style="height: 860px; position: relative; overflow: hidden; background: var(--sky);">
+  <div class="only-dark">
+    <svg style="position: absolute; left: 0; top: 0; width: 390px; height: 700px;" viewBox="0 0 390 700" aria-hidden="true">
+      <path d="M40 100l3 8 8 3-8 3-3 8-3-8-8-3 8-3z M230 90l3 7 7 3-7 3-3 7-3-7-7-3 7-3z M360 300l3 8 8 3-8 3-3 8-3-8-8-3 8-3z" fill="#FFE594"></path>
+      <circle cx="120" cy="90" r="2" fill="#FFFCF0"></circle><circle cx="30" cy="250" r="2" fill="#FFE594"></circle><circle cx="350" cy="560" r="2" fill="#FFFCF0"></circle><circle cx="200" cy="230" r="2" fill="#FFFCF0"></circle>
+    </svg>
+  </div>
+  <div style="position: absolute; left: 250px; top: 60px; width: 200px; height: 200px; border-radius: 50%; background: var(--sky-2);"></div>
+  <button type="button" data-theme-toggle aria-label="Set the sun: switch to dark mode" data-label-light="Set the sun: switch to dark mode" data-label-dark="Wake the moon up: switch to light mode" style="position: absolute; z-index: 2; left: 280px; top: 92px; width: 110px; height: 110px; padding: 0; background: transparent; border: none; border-radius: 50%; cursor: pointer;">
+    <div class="only-light">
+      <svg style="display: block; width: 110px; height: 110px;" viewBox="0 0 220 220" aria-hidden="true">
+        <path d="M196 110L212 110M184.5 153L198.3 161M153 184.5L161 198.3M110 196L110 212M67 184.5L59 198.3M35.5 153L21.7 161M24 110L8 110M35.5 67L21.7 59M67 35.5L59 21.7M110 24L110 8M153 35.5L161 21.7M184.5 67L198.3 59" stroke="#002244" stroke-width="15" stroke-linecap="round"></path>
+        <path d="M196 110L212 110M184.5 153L198.3 161M153 184.5L161 198.3M110 196L110 212M67 184.5L59 198.3M35.5 153L21.7 161M24 110L8 110M35.5 67L21.7 59M67 35.5L59 21.7M110 24L110 8M153 35.5L161 21.7M184.5 67L198.3 59" stroke="#F4D160" stroke-width="8" stroke-linecap="round"></path>
+        <circle cx="110" cy="110" r="70" fill="#F4D160"></circle>
+        <path d="M173 80A70 70 0 0 1 80 173A86 86 0 0 0 173 80Z" fill="#D9AD55"></path>
+        <circle cx="110" cy="110" r="70" fill="none" stroke="#002244" stroke-width="6"></circle>
+        <ellipse cx="90" cy="104" rx="7" ry="10" fill="#002244"></ellipse>
+        <ellipse cx="130" cy="104" rx="7" ry="10" fill="#002244"></ellipse>
+        <path d="M90 126Q110 148 130 126" fill="none" stroke="#002244" stroke-width="6" stroke-linecap="round"></path>
+      </svg>
+    </div>
+    <div class="only-dark">
+      <svg style="display: block; width: 110px; height: 110px;" viewBox="0 0 220 220" aria-hidden="true">
+        <circle cx="110" cy="110" r="74" fill="#FFF3CF"></circle>
+        <path d="M176 84A74 74 0 0 1 84 180A92 92 0 0 0 176 84Z" fill="#E2D3A0"></path>
+        <circle cx="78" cy="78" r="11" fill="#E2D3A0"></circle><circle cx="138" cy="152" r="12" fill="#E2D3A0"></circle>
+        <circle cx="110" cy="110" r="74" fill="none" stroke="#002244" stroke-width="6"></circle>
+        <path d="M80 108Q91 118 102 108M118 108Q129 118 140 108" fill="none" stroke="#002244" stroke-width="6" stroke-linecap="round"></path>
+        <path d="M100 134Q110 141 120 134" fill="none" stroke="#002244" stroke-width="5" stroke-linecap="round"></path>
+      </svg>
+    </div>
+  </button>
+  <svg style="position: absolute; left: 16px; top: 116px; width: 120px; height: 60px; transform: rotate(-6deg);" viewBox="0 0 240 120" aria-label="Cartoon plane placeholder" role="img">
+    <path d="M38 58L22 18Q20 12 28 12L48 12Q54 12 58 20L74 52Z" fill="#75C2F6" stroke="#002244" stroke-width="6" stroke-linejoin="round"></path>
+    <path d="M30 60Q30 44 52 44L170 44Q214 44 222 66Q214 86 172 86L54 86Q30 86 30 70Z" fill="#FFFFFF" stroke="#002244" stroke-width="6" stroke-linejoin="round"></path>
+    <path d="M200 48Q220 54 222 66Q218 78 204 82Q194 66 200 48Z" fill="#F4D160" stroke="#002244" stroke-width="6" stroke-linejoin="round"></path>
+    <circle cx="98" cy="59" r="8" fill="#75C2F6" stroke="#002244" stroke-width="4"></circle>
+    <circle cx="134" cy="59" r="8" fill="#75C2F6" stroke="#002244" stroke-width="4"></circle>
+    <path d="M100 70L142 70L120 112Q116 118 108 118L98 118Q90 118 93 111Z" fill="#1D5D9B" stroke="#002244" stroke-width="6" stroke-linejoin="round"></path>
+  </svg>
+  <svg style="position: absolute; left: 150px; top: 230px; width: 100px; height: 55px;" viewBox="0 0 200 110" aria-hidden="true">
+    <path d="M40 95C15 95 10 62 36 58C34 30 72 20 86 42C96 14 146 14 150 48C178 44 192 72 176 88C172 94 166 95 160 95Z" stroke-width="6" stroke-linejoin="round" style="fill: var(--cloud); stroke: var(--outline);"></path>
+  </svg>
+
+  <div style="position: absolute; z-index: 1; left: 16px; right: 16px; top: 268px; display: flex; flex-direction: column; align-items: center; text-align: center;">
+    <h1 style="margin: 0; font-family: 'Oswald', sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: -0.025em; line-height: 0.84; display: flex; flex-direction: column; align-items: center;">
+      <span style="font-size: 104px;">Summer</span>
+      <span style="font-size: 54px; line-height: 1.05; display: flex; gap: 12px; align-items: center;">Starts <span style="background: var(--cta); color: var(--cta-foreground); border: 3px solid #002244; border-radius: 12px; padding: 0 10px; box-shadow: var(--pop); transform: rotate(-2deg); display: inline-block;">here</span></span>
+    </h1>
+    <div style="margin-top: 10px; font-family: 'Shadows Into Light', cursive; font-size: 22px; color: var(--primary); transform: rotate(-3deg);"><span class="only-light">(tan lines not included)</span><span class="only-dark">(night swim, anyone?)</span></div>
+    <p style="margin: 12px 0 0; font-size: 16px; line-height: 1.5; color: var(--muted-foreground);">Small-group summer tours to beaches, islands and national parks, led by local guides.</p>
+    <div style="margin-top: 20px; width: 100%; display: flex; flex-direction: column; gap: 12px;">
+      <a href="#" style="display: flex; justify-content: center; align-items: center; gap: 8px; min-height: 52px; background: var(--cta); color: var(--cta-foreground); border: 3px solid #002244; border-radius: 14px; box-shadow: var(--pop); font-weight: 800; font-size: 17px; text-decoration: none;">Explore tours
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+      </a>
+      <a href="#" style="display: flex; justify-content: center; align-items: center; min-height: 52px; background: var(--card); color: var(--foreground); border: 2px solid var(--outline); border-radius: 14px; font-weight: 700; font-size: 17px; text-decoration: none;">Create an account</a>
+    </div>
+  </div>
+
+  <div style="position: absolute; left: 0; right: 0; top: 720px; height: 40px; background: var(--sea);"></div>
+  <svg style="position: absolute; left: 0; top: 748px; width: 390px; height: 112px;" viewBox="0 0 390 112" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 16Q100 -4 200 12T390 8L390 112L0 112Z" stroke-width="3" style="fill: var(--sand); stroke: var(--outline);"></path>
+    <path d="M0 82Q120 62 240 80T390 74L390 112L0 112Z" style="fill: var(--dune);"></path>
+  </svg>
+  <svg style="position: absolute; left: -24px; top: 668px; width: 100px; height: 164px;" viewBox="0 0 220 360" aria-hidden="true">
+    <path d="M108 360C106 262 116 172 140 100L156 104C138 172 132 262 134 360Z" fill="#C3B089" stroke="#002244" stroke-width="6" stroke-linejoin="round"></path>
+    <path d="M148 100C110 60 60 60 20 96C60 82 100 88 148 100Z" fill="#005B46" stroke="#002244" stroke-width="6" stroke-linejoin="round"></path>
+    <path d="M148 100C130 50 100 20 60 14C100 40 120 66 148 100Z" fill="#005B46" stroke="#002244" stroke-width="6" stroke-linejoin="round"></path>
+    <path d="M148 100C160 50 190 30 214 30C196 52 176 76 148 100Z" fill="#005B46" stroke="#002244" stroke-width="6" stroke-linejoin="round"></path>
+    <path d="M148 100C190 80 214 100 218 140C196 116 176 106 148 100Z" fill="#005B46" stroke="#002244" stroke-width="6" stroke-linejoin="round"></path>
+  </svg>
+  <svg style="position: absolute; left: 250px; top: 752px; width: 76px; height: 76px; transform: rotate(-14deg);" viewBox="0 0 120 120" aria-label="Beach ball placeholder" role="img">
+    <path d="M60 60L110 60A50 50 0 0 1 85 103.3Z" fill="#F4D160"></path>
+    <path d="M60 60L85 103.3A50 50 0 0 1 35 103.3Z" fill="#FFFFFF"></path>
+    <path d="M60 60L35 103.3A50 50 0 0 1 10 60Z" fill="#75C2F6"></path>
+    <path d="M60 60L10 60A50 50 0 0 1 35 16.7Z" fill="#FFFFFF"></path>
+    <path d="M60 60L35 16.7A50 50 0 0 1 85 16.7Z" fill="#1D5D9B"></path>
+    <path d="M60 60L85 16.7A50 50 0 0 1 110 60Z" fill="#FFFFFF"></path>
+    <path d="M60 60L110 60M60 60L85 103.3M60 60L35 103.3M60 60L10 60M60 60L35 16.7M60 60L85 16.7" stroke="#002244" stroke-width="3"></path>
+    <circle cx="60" cy="60" r="9" fill="#FFFFFF" stroke="#002244" stroke-width="3.5"></circle>
+    <circle cx="60" cy="60" r="50" fill="none" stroke="#002244" stroke-width="5"></circle>
+  </svg>
+  <div style="position: absolute; left: 110px; top: 790px; font-family: 'Shadows Into Light', cursive; font-size: 20px; transform: rotate(-4deg); line-height: 1;">psst... tap the ball →</div>
+
+  <nav aria-label="Main" style="position: absolute; left: 12px; right: 12px; top: 12px; height: 60px; box-sizing: border-box; padding: 0 6px 0 14px; display: flex; align-items: center; justify-content: space-between; background: var(--nav-bg); backdrop-filter: blur(12px); border: 2px solid var(--nav-border); border-radius: 18px; box-shadow: var(--elev-md);">
+    <a href="#" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--foreground);">
+      <span style="width: 14px; height: 14px; border-radius: 50%; background: #F4D160; border: 3px solid #002244; box-sizing: border-box;"></span>
+      <span style="font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 24px; letter-spacing: 0.04em; line-height: 1;">VANTAGE</span>
+    </a>
+    <div style="display: flex; align-items: center; gap: 4px;">
+      <button type="button" data-theme-toggle aria-label="Switch to dark mode" data-label-light="Switch to dark mode" data-label-dark="Switch to light mode" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: transparent; color: var(--foreground); border: none; cursor: pointer; padding: 0;">
+        <div class="only-light">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"></path></svg>
+        </div>
+        <div class="only-dark">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5"></circle><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+        </div>
+      </button>
+      <a href="#" style="padding: 10px 14px; background: var(--cta); color: var(--cta-foreground); border: 2.5px solid #002244; border-radius: 10px; box-shadow: 3px 3px 0 0 var(--pop-color); font-weight: 800; font-size: 15px; text-decoration: none;">Sign up</a>
+      <button type="button" aria-label="Open menu" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: transparent; color: var(--foreground); border: none; cursor: pointer;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"></path></svg>
+      </button>
+    </div>
+  </nav>
+</section>
+
+<!-- JOURNEY -->
+<section style="position: relative; overflow: hidden; background: var(--sky-2); padding: 64px 0 48px;">
+  <div style="padding: 0 16px;">
+    <div style="font-size: 13px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: var(--primary);">The journey</div>
+    <h2 style="margin: 10px 0 0; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 52px; line-height: 0.92; letter-spacing: -0.025em; text-transform: uppercase;">Couch to coastline in four stops</h2>
+    <div style="margin-top: 10px; font-family: 'Shadows Into Light', cursive; font-size: 22px; color: var(--primary);">swipe, we're taxiing →</div>
+  </div>
+  <div style="margin-top: 36px; display: flex; gap: 16px; padding: 0 16px; overflow-x: auto;">
+    <article style="flex: 0 0 290px; box-sizing: border-box; padding: 14px; background: var(--card); border: 3px solid var(--outline); border-radius: 22px; position: relative; margin-top: 18px;">
+      <div style="position: absolute; left: -6px; top: -22px; width: 52px; height: 52px; border-radius: 50%; background: #F4D160; color: #002244; border: 3px solid #002244; display: flex; align-items: center; justify-content: center; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 22px;">01</div>
+      <div style="height: 140px; border-radius: 12px; background: var(--muted); display: flex; align-items: center; justify-content: center;">
+        <svg width="150" height="108" viewBox="0 0 180 130" aria-label="Folded map with pin placeholder" role="img">
+          <path d="M10 30L60 14L120 30L170 14L170 110L120 126L60 110L10 126Z" fill="#FBEEAC" stroke="#002244" stroke-width="4" stroke-linejoin="round"></path>
+          <path d="M60 14L120 30L120 126L60 110Z" fill="#E2D3A0" stroke="#002244" stroke-width="3" stroke-linejoin="round"></path>
+          <path d="M150 50C150 30 126 26 122 44C120 56 136 70 136 84C136 70 150 62 150 50Z" fill="#F4D160" stroke="#002244" stroke-width="4" stroke-linejoin="round"></path>
+        </svg>
+      </div>
+      <h3 style="margin: 16px 4px 0; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 30px; line-height: 1; text-transform: uppercase;">Pick a tour</h3>
+      <p style="margin: 8px 4px 4px; font-size: 15px; line-height: 1.5; color: var(--muted-foreground);">Beaches, islands or national parks. Filter by days, difficulty and how much sunscreen you own.</p>
+    </article>
+    <article style="flex: 0 0 290px; box-sizing: border-box; padding: 14px; background: var(--card); border: 3px solid var(--outline); border-radius: 22px; position: relative; margin-top: 18px;">
+      <div style="position: absolute; left: -6px; top: -22px; width: 52px; height: 52px; border-radius: 50%; background: var(--card); border: 3px solid var(--outline); display: flex; align-items: center; justify-content: center; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 22px;">02</div>
+      <div style="height: 140px; border-radius: 12px; background: var(--sky);"></div>
+      <h3 style="margin: 16px 4px 0; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 30px; line-height: 1; text-transform: uppercase;">Book your spot</h3>
+    </article>
+  </div>
+  <div style="margin: 24px 16px 0; display: flex; align-items: center; gap: 12px;">
+    <span style="font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 18px;">01 / 04</span>
+    <div style="display: flex; gap: 5px;">
+      <span style="width: 36px; height: 7px; border-radius: 4px; background: var(--primary);"></span>
+      <span style="width: 36px; height: 7px; border-radius: 4px; background: var(--card); border: 2px solid var(--primary); box-sizing: border-box;"></span>
+      <span style="width: 36px; height: 7px; border-radius: 4px; background: var(--card); border: 2px solid var(--primary); box-sizing: border-box;"></span>
+      <span style="width: 36px; height: 7px; border-radius: 4px; background: var(--card); border: 2px solid var(--primary); box-sizing: border-box;"></span>
+    </div>
+  </div>
+</section>
+
+<!-- TOURS -->
+<section id="tours" style="padding: 72px 16px 64px; background: var(--background);">
+  <div style="font-size: 13px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: var(--primary);">Featured tours</div>
+  <h2 style="margin: 10px 0 0; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 56px; line-height: 0.9; letter-spacing: -0.025em; text-transform: uppercase;">This summer's luggage tags</h2>
+  <div style="margin-top: 44px; display: flex; flex-direction: column; gap: 40px;">
+    <article style="background: var(--card); border: 3px solid var(--outline); border-radius: 22px; padding: 14px; transform: rotate(-1deg); box-shadow: var(--elev);">
+      <div style="width: 24px; height: 24px; margin: 0 auto 10px; border-radius: 50%; background: var(--background); border: 5px solid #C3B089; box-sizing: border-box;"></div>
+      <div style="height: 180px; border-radius: 14px; background: var(--sky-2); position: relative; overflow: hidden; border: 2px solid #002244;">
+        <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 70px; background: var(--sea);"></div>
+        <div style="position: absolute; right: 26px; top: 22px; width: 44px; height: 44px; border-radius: 50%; background: #F4D160; border: 3px solid #002244;"></div>
+        <svg style="position: absolute; left: 100px; top: 50px; width: 110px; height: 94px;" viewBox="0 0 140 120" aria-label="Sailboat placeholder" role="img">
+          <path d="M70 6L70 80L20 80Z" fill="#FFFFFF" stroke="#002244" stroke-width="4" stroke-linejoin="round"></path>
+          <path d="M76 20L76 80L118 80Z" fill="#F4D160" stroke="#002244" stroke-width="4" stroke-linejoin="round"></path>
+          <path d="M10 86L130 86L114 110L26 110Z" fill="#1D5D9B" stroke="#002244" stroke-width="4" stroke-linejoin="round"></path>
+        </svg>
+      </div>
+      <div style="padding: 16px 4px 0;">
+        <div style="font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--primary);">Miami, USA</div>
+        <h3 style="margin: 6px 0 0; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 34px; line-height: 1; text-transform: uppercase;">The Sea Explorer</h3>
+        <p style="margin: 8px 0 0; font-size: 15px; line-height: 1.5; color: var(--muted-foreground);">Exploring the jaw-dropping US east coast by foot and by boat.</p>
+        <div style="margin-top: 12px; display: flex; gap: 6px; flex-wrap: wrap; font-size: 13px; font-weight: 700;">
+          <span style="padding: 6px 10px; background: var(--chip); color: var(--chip-foreground); border-radius: 999px;">7 days</span>
+          <span style="padding: 6px 10px; background: var(--chip); color: var(--chip-foreground); border-radius: 999px;">Medium</span>
+          <span style="padding: 6px 10px; background: var(--chip-warm); border-radius: 999px;">★ 4.8 (6)</span>
+        </div>
+      </div>
+      <div style="margin: 16px -14px 0; padding: 14px 18px 0; border-top: 3px dashed var(--dash); display: flex; align-items: center; justify-content: space-between;">
+        <div><span style="font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 30px;">$497</span> <span style="font-size: 13px; color: var(--muted-foreground);">/ person</span></div>
+        <a href="#" style="padding: 12px 18px; background: var(--primary); color: var(--primary-foreground); border-radius: 12px; font-weight: 700; font-size: 15px; text-decoration: none;">View tour</a>
+      </div>
+    </article>
+    <article style="background: var(--card); border: 3px solid var(--outline); border-radius: 22px; padding: 14px; transform: rotate(1deg); box-shadow: var(--elev);">
+      <div style="width: 24px; height: 24px; margin: 0 auto 10px; border-radius: 50%; background: var(--background); border: 5px solid #C3B089; box-sizing: border-box;"></div>
+      <div style="height: 180px; border-radius: 14px; background: var(--sky); position: relative; overflow: hidden; border: 2px solid #002244;">
+        <svg style="position: absolute; left: 0; top: 20px; width: 100%; height: 160px;" viewBox="0 0 364 210" preserveAspectRatio="none" aria-label="Mountains and pines placeholder" role="img">
+          <path d="M-10 170L90 40L170 150L240 60L380 170Z" fill="#1D5D9B" stroke="#002244" stroke-width="4" stroke-linejoin="round"></path>
+          <rect x="-10" y="168" width="384" height="50" stroke="#002244" stroke-width="3" style="fill: var(--sea);"></rect>
+          <path d="M30 178L50 120L70 178Z M300 178L322 110L344 178Z" fill="#005B46" stroke="#002244" stroke-width="3" stroke-linejoin="round"></path>
+        </svg>
+      </div>
+      <div style="padding: 16px 4px 0;">
+        <div style="font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--primary);">Banff, Canada</div>
+        <h3 style="margin: 6px 0 0; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 34px; line-height: 1; text-transform: uppercase;">The Forest Hiker</h3>
+        <p style="margin: 8px 0 0; font-size: 15px; line-height: 1.5; color: var(--muted-foreground);">Breathtaking hike through the Canadian Banff National Park.</p>
+        <div style="margin-top: 12px; display: flex; gap: 6px; flex-wrap: wrap; font-size: 13px; font-weight: 700;">
+          <span style="padding: 6px 10px; background: var(--chip); color: var(--chip-foreground); border-radius: 999px;">5 days</span>
+          <span style="padding: 6px 10px; background: var(--success-soft); color: var(--success); border-radius: 999px;">Easy</span>
+          <span style="padding: 6px 10px; background: var(--chip-warm); border-radius: 999px;">★ 5.0 (9)</span>
+        </div>
+      </div>
+      <div style="margin: 16px -14px 0; padding: 14px 18px 0; border-top: 3px dashed var(--dash); display: flex; align-items: center; justify-content: space-between;">
+        <div><span style="font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 30px;">$397</span> <span style="font-size: 13px; color: var(--muted-foreground);">/ person</span></div>
+        <a href="#" style="padding: 12px 18px; background: var(--primary); color: var(--primary-foreground); border-radius: 12px; font-weight: 700; font-size: 15px; text-decoration: none;">View tour</a>
+      </div>
+    </article>
+    <article style="background: var(--card); border: 3px solid var(--outline); border-radius: 22px; padding: 14px; transform: rotate(-0.6deg); box-shadow: var(--elev);">
+      <div style="width: 24px; height: 24px; margin: 0 auto 10px; border-radius: 50%; background: var(--background); border: 5px solid #C3B089; box-sizing: border-box;"></div>
+      <div style="height: 180px; border-radius: 14px; background: #002244; position: relative; overflow: hidden; border: 2px solid #002244;">
+        <svg style="position: absolute; left: 0; top: 0; width: 100%; height: 180px;" viewBox="0 0 330 180" preserveAspectRatio="none" aria-label="Night sky over desert mesas placeholder" role="img">
+          <circle cx="40" cy="30" r="3" fill="#F4D160"></circle><circle cx="110" cy="56" r="2" fill="#FFFCF0"></circle><circle cx="170" cy="24" r="3" fill="#FFFCF0"></circle><circle cx="220" cy="70" r="2" fill="#F4D160"></circle>
+          <path d="M270 24A22 22 0 1 0 290 58A17 17 0 1 1 270 24Z" fill="#FFFCF0"></path>
+          <path d="M-4 180L-4 130L40 130L54 110L120 110L132 132L180 132L180 180Z" fill="#C3B089" stroke="#FFFCF0" stroke-width="3"></path>
+          <path d="M170 180L170 140L230 140L244 116L300 116L310 140L340 140L340 180Z" fill="#E2D3A0" stroke="#FFFCF0" stroke-width="3"></path>
+        </svg>
+      </div>
+      <div style="padding: 16px 4px 0;">
+        <div style="font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--primary);">Utah, USA</div>
+        <h3 style="margin: 6px 0 0; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 34px; line-height: 1; text-transform: uppercase;">The Star Gazer</h3>
+        <p style="margin: 8px 0 0; font-size: 15px; line-height: 1.5; color: var(--muted-foreground);">The most remote and stunningly beautiful places for seeing the night sky.</p>
+        <div style="margin-top: 12px; display: flex; gap: 6px; flex-wrap: wrap; font-size: 13px; font-weight: 700;">
+          <span style="padding: 6px 10px; background: var(--chip); color: var(--chip-foreground); border-radius: 999px;">9 days</span>
+          <span style="padding: 6px 10px; background: var(--chip); color: var(--chip-foreground); border-radius: 999px;">Medium</span>
+          <span style="padding: 6px 10px; background: var(--chip-warm); border-radius: 999px;">★ 4.8 (6)</span>
+        </div>
+      </div>
+      <div style="margin: 16px -14px 0; padding: 14px 18px 0; border-top: 3px dashed var(--dash); display: flex; align-items: center; justify-content: space-between;">
+        <div><span style="font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 30px;">$2,997</span> <span style="font-size: 13px; color: var(--muted-foreground);">/ person</span></div>
+        <a href="#" style="padding: 12px 18px; background: var(--primary); color: var(--primary-foreground); border-radius: 12px; font-weight: 700; font-size: 15px; text-decoration: none;">View tour</a>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- GLOBE -->
+<section style="padding: 64px 16px; background: var(--night); color: #FFFCF0; border-top: 2px solid var(--nav-border); border-bottom: 2px solid var(--nav-border);">
+  <div style="font-size: 13px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: #F4D160;">Where we go</div>
+  <h2 style="margin: 10px 0 0; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 50px; line-height: 0.92; letter-spacing: -0.025em; text-transform: uppercase;">Three starting points. One long summer.</h2>
+  <svg style="display: block; margin: 28px auto 0; width: 330px; height: 330px;" viewBox="0 0 640 640" aria-label="3D globe placeholder with flight arcs" role="img">
+    <circle cx="320" cy="320" r="300" fill="#75C2F6" stroke="#CDEAFE" stroke-width="8"></circle>
+    <ellipse cx="320" cy="320" rx="300" ry="140" fill="none" stroke="#FFFFFF" stroke-width="3" opacity="0.35"></ellipse>
+    <ellipse cx="320" cy="320" rx="140" ry="300" fill="none" stroke="#FFFFFF" stroke-width="3" opacity="0.35"></ellipse>
+    <path d="M150 170C190 120 280 110 330 140C370 160 380 200 350 230C330 250 340 280 320 300C300 330 300 360 280 370C260 340 220 330 200 300C170 280 130 250 140 210Z" fill="#FBEEAC" stroke="#002244" stroke-width="6" stroke-linejoin="round"></path>
+    <path d="M520 250Q420 90 215 196M520 250Q400 190 246 258M520 250Q440 340 316 352" fill="none" stroke="#F4D160" stroke-width="6" stroke-dasharray="6 14" stroke-linecap="round"></path>
+    <circle cx="520" cy="250" r="16" fill="#FFFCF0" stroke="#002244" stroke-width="5"></circle>
+    <circle cx="215" cy="196" r="15" fill="#75C2F6" stroke="#002244" stroke-width="5"></circle>
+    <circle cx="246" cy="258" r="15" fill="#75C2F6" stroke="#002244" stroke-width="5"></circle>
+    <circle cx="316" cy="352" r="18" fill="#F4D160" stroke="#002244" stroke-width="5"></circle>
+  </svg>
+  <ul style="margin: 24px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px;">
+    <li style="display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 14px; background: #172A3E; border: 2px solid #F4D160; font-weight: 700;"><span style="width: 14px; height: 14px; border-radius: 50%; background: #F4D160;"></span>Miami, USA <span style="font-weight: 500; color: #CDEAFE;">· Sea Explorer</span></li>
+    <li style="display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 14px; background: #172A3E; font-weight: 700;"><span style="width: 14px; height: 14px; border-radius: 50%; background: #75C2F6;"></span>Banff, Canada <span style="font-weight: 500; color: #CDEAFE;">· Forest Hiker</span></li>
+    <li style="display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 14px; background: #172A3E; font-weight: 700;"><span style="width: 14px; height: 14px; border-radius: 50%; background: #75C2F6;"></span>Utah, USA <span style="font-weight: 500; color: #CDEAFE;">· Star Gazer</span></li>
+  </ul>
+</section>
+
+<!-- NUMBERS -->
+<section style="padding: 56px 16px; background: var(--muted);">
+  <div style="font-size: 13px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: var(--primary);">By the numbers</div>
+  <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 22px;">
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <span style="width: 76px; height: 104px; display: flex; align-items: center; justify-content: center; background: var(--tile); border: 3px solid var(--outline); border-radius: 12px; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 80px;">3</span>
+      <div style="font-size: 18px; font-weight: 700;">Summer tours<br><span style="font-weight: 500; font-size: 15px; color: var(--muted-foreground);">Miami, Banff and Utah</span></div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <span style="width: 120px; height: 104px; display: flex; align-items: center; justify-content: center; background: var(--cta); color: var(--cta-foreground); border: 3px solid #002244; border-radius: 12px; box-shadow: var(--pop); font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 80px;">4.9</span>
+      <div style="font-size: 18px; font-weight: 700;">Average rating ★<br><span style="font-weight: 500; font-size: 15px; color: var(--muted-foreground);">across 21 reviews</span></div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <span style="width: 110px; height: 104px; display: flex; align-items: center; justify-content: center; background: var(--tile); border: 3px solid var(--outline); border-radius: 12px; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 80px;">21</span>
+      <div style="font-size: 18px; font-weight: 700;">Happy travelers reviewed<br><span style="font-weight: 500; font-size: 15px; color: var(--muted-foreground);">and counting</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section style="padding: 64px 16px; background: var(--background);">
+  <div style="font-size: 13px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: var(--primary);">Reviews</div>
+  <h2 style="margin: 10px 0 0; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 52px; line-height: 0.9; letter-spacing: -0.025em; text-transform: uppercase;">Postcards from travelers</h2>
+  <figure style="margin: 40px 10px 0; transform: rotate(-2deg);">
+    <div style="background: #FFFFFF; color: #002244; padding: 14px 14px 16px; border-radius: 6px; border: 1px solid #E2D3A0; box-shadow: var(--elev); position: relative;">
+      <div style="position: absolute; left: 120px; top: -14px; width: 90px; height: 26px; background: #CDEAFE; opacity: 0.85; transform: rotate(4deg);"></div>
+      <div style="height: 200px; background: #75C2F6; position: relative; overflow: hidden;">
+        <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 60px; background: #FBEEAC; border-top: 3px solid #002244;"></div>
+        <div style="position: absolute; right: 30px; top: 26px; width: 50px; height: 50px; border-radius: 50%; background: #F4D160; border: 3px solid #002244;"></div>
+      </div>
+      <div style="padding-top: 10px; font-family: 'Shadows Into Light', cursive; font-size: 24px; text-align: center;">Miami, day 2. tacos!!</div>
+    </div>
+    <blockquote style="margin: 22px 4px 0; font-size: 17px; line-height: 1.55;">"Our guide knew a taco stand that isn't on any map. I still think about it."</blockquote>
+    <figcaption style="margin: 10px 4px 0; font-size: 14px; font-weight: 700;">Maya R. <span style="font-weight: 500; color: var(--muted-foreground);">· The Sea Explorer · ★★★★★</span></figcaption>
+  </figure>
+  <div style="margin-top: 28px; display: flex; justify-content: center; gap: 8px;">
+    <span style="width: 22px; height: 8px; border-radius: 4px; background: var(--primary);"></span>
+    <span style="width: 8px; height: 8px; border-radius: 4px; background: #C3B089;"></span>
+    <span style="width: 8px; height: 8px; border-radius: 4px; background: #C3B089;"></span>
+  </div>
+</section>
+
+<!-- PLAYGROUND -->
+<section style="padding: 64px 16px; background: var(--sand); border-top: 3px solid var(--outline);">
+  <div style="font-size: 13px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: var(--primary);">The playground</div>
+  <h2 style="margin: 10px 0 0; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 52px; line-height: 0.9; letter-spacing: -0.025em; text-transform: uppercase;">Bored? Try to keep the ball up.</h2>
+  <div style="margin-top: 28px; position: relative; height: 250px; box-sizing: border-box; background: var(--card); border: 4px solid var(--outline); border-radius: 36px; padding: 16px;">
+    <div style="width: 100%; height: 100%; border-radius: 22px; background: var(--sea); border: 3px solid #002244; position: relative; overflow: hidden;">
+      <div style="position: absolute; left: 110px; top: 128px; width: 100px; height: 18px; border-radius: 50%; border: 3px solid #FFFFFF;"></div>
+      <svg style="position: absolute; left: 118px; top: 46px; width: 90px; height: 90px;" viewBox="0 0 120 120" aria-label="Beach ball floating in pool" role="img">
+        <path d="M60 60L110 60A50 50 0 0 1 85 103.3Z" fill="#F4D160"></path>
+        <path d="M60 60L85 103.3A50 50 0 0 1 35 103.3Z" fill="#FFFFFF"></path>
+        <path d="M60 60L35 103.3A50 50 0 0 1 10 60Z" fill="#75C2F6"></path>
+        <path d="M60 60L10 60A50 50 0 0 1 35 16.7Z" fill="#FFFFFF"></path>
+        <path d="M60 60L35 16.7A50 50 0 0 1 85 16.7Z" fill="#1D5D9B"></path>
+        <path d="M60 60L85 16.7A50 50 0 0 1 110 60Z" fill="#FFFFFF"></path>
+        <circle cx="60" cy="60" r="50" fill="none" stroke="#002244" stroke-width="5"></circle>
+      </svg>
+    </div>
+    <div style="position: absolute; right: 12px; top: -22px; padding: 8px 14px; background: #002244; color: #FFFCF0; border: 2px solid var(--nav-border); border-radius: 12px; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: 0.06em; text-transform: uppercase; transform: rotate(3deg);">Score <span style="color: #F4D160; font-size: 20px;">00</span></div>
+  </div>
+  <div style="margin-top: 22px; display: flex; flex-direction: column; gap: 12px;">
+    <button type="button" style="min-height: 52px; background: var(--primary); color: var(--primary-foreground); border: none; border-radius: 14px; font-family: 'Figtree', sans-serif; font-weight: 700; font-size: 17px;">Play keep-it-up</button>
+    <button type="button" style="min-height: 52px; background: transparent; color: var(--foreground); border: 2px solid var(--foreground); border-radius: 14px; font-family: 'Figtree', sans-serif; font-weight: 700; font-size: 17px;">Beach volleyball</button>
+  </div>
+  <div style="margin-top: 18px; font-family: 'Shadows Into Light', cursive; font-size: 22px; color: var(--primary);">psst... 3 easter eggs hide on this page</div>
+</section>
+
+<!-- BOARDING PASS -->
+<section style="padding: 64px 16px; background: var(--sky);">
+  <div style="filter: drop-shadow(var(--drop));">
+    <div style="background: var(--card); border: 4px solid var(--outline); border-bottom: none; border-radius: 24px 24px 0 0; padding: 24px 22px;">
+      <div style="font-size: 12px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: var(--primary);">Vantage · Boarding pass</div>
+      <h2 style="margin: 12px 0 0; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 56px; line-height: 0.9; letter-spacing: -0.025em; text-transform: uppercase;">Your seat is waiting</h2>
+      <div style="margin-top: 20px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px;">
+        <div><div style="font-size: 11px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted-foreground);">From</div><div style="font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 20px; text-transform: uppercase;">Your couch</div></div>
+        <div><div style="font-size: 11px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted-foreground);">To</div><div style="font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 20px; text-transform: uppercase;">Somewhere sunny</div></div>
+      </div>
+      <a href="#" style="margin-top: 22px; display: flex; justify-content: center; align-items: center; min-height: 52px; background: var(--cta); color: var(--cta-foreground); border: 3px solid #002244; border-radius: 14px; box-shadow: var(--pop); font-weight: 800; font-size: 17px; text-decoration: none;">Explore tours</a>
+    </div>
+    <div style="height: 0; border-top: 4px dashed var(--outline); margin: 0 4px;"></div>
+    <div style="background: #F4D160; color: #002244; border: 4px solid var(--outline); border-top: none; border-radius: 0 0 24px 24px; padding: 18px 22px; display: flex; align-items: center; justify-content: space-between;">
+      <div><div style="font-size: 11px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase;">Seat</div><div style="font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 64px; line-height: 0.9;">1A</div></div>
+      <div style="width: 130px; height: 50px; background: repeating-linear-gradient(90deg, #002244 0 4px, transparent 4px 7px, #002244 7px 9px, transparent 9px 14px);"></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer style="padding: 48px 16px 36px; background: var(--muted); border-top: 3px solid var(--outline); position: relative;">
+  <div style="display: flex; align-items: center; gap: 10px;">
+    <span style="width: 22px; height: 22px; border-radius: 50%; background: #F4D160; border: 3px solid #002244; box-sizing: border-box;"></span>
+    <span style="font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 60px; line-height: 0.9;">VANTAGE</span>
+  </div>
+  <div style="margin-top: 10px; font-family: 'Shadows Into Light', cursive; font-size: 24px; color: var(--primary);">made with sunscreen &amp; TypeScript</div>
+  <div style="margin-top: 28px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; font-size: 15px;">
+    <a href="#" style="color: var(--foreground); text-decoration: none; padding: 6px 0;">Tours</a>
+    <a href="#" style="color: var(--foreground); text-decoration: none; padding: 6px 0;">Our guides</a>
+    <a href="#" style="color: var(--foreground); text-decoration: none; padding: 6px 0;">About</a>
+    <button type="button" data-theme-toggle style="padding: 6px 0; background: none; border: none; font-family: 'Figtree', sans-serif; font-size: 15px; color: var(--foreground); text-align: left; cursor: pointer;"><span class="only-light">Dark mode</span><span class="only-dark">Light mode</span></button>
+  </div>
+  <div style="margin-top: 24px; padding-top: 18px; border-top: 2px dashed var(--dash); font-size: 13px; line-height: 1.6; color: var(--muted-foreground);">© 2026 Vantage. A portfolio project, not a real airline (yet).<br>Design &amp; code: Kareem · 3D: three.js</div>
+  <svg style="position: absolute; right: 16px; bottom: 40px; width: 34px; height: 24px; opacity: 0.6;" viewBox="0 0 42 30" aria-label="Hidden crab doodle" role="img">
+    <path d="M10 20Q21 6 32 20Z M6 12L10 18M36 12L32 18M8 24L4 28M34 24L38 28" fill="none" stroke-width="2.4" stroke-linecap="round" style="stroke: var(--crab);"></path>
+  </svg>
+</footer>
+</div>
+<script>
+(function () {
+  var root = document.querySelector('[data-theme]');
+  function apply(theme) {
+    root.setAttribute('data-theme', theme);
+    document.documentElement.setAttribute('data-theme', theme);
+    document.querySelectorAll('[data-label-light]').forEach(function (el) {
+      el.setAttribute('aria-label', el.getAttribute(theme === 'dark' ? 'data-label-dark' : 'data-label-light'));
+    });
+    try { localStorage.setItem('vantage-theme', theme); } catch (e) {}
+  }
+  var start = new URLSearchParams(location.search).get('theme');
+  if (!start) { try { start = localStorage.getItem('vantage-theme'); } catch (e) {} }
+  apply(start === 'dark' ? 'dark' : 'light');
+  document.querySelectorAll('[data-theme-toggle]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      apply(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    });
+  });
+})();
+</script>
+</body>
+</html>
