@@ -83,6 +83,25 @@ export function Suitcase({ color, ...props }: SvgProps & { color: "sky" | "sun" 
   )
 }
 
+// The footer's hidden crab doodle (asset 15, an easter egg): a dome, legs, two eyes.
+// Theme-aware (the crab token is softer by night).
+export function Crab(props: SvgProps) {
+  return (
+    <svg aria-hidden viewBox="0 0 42 30" {...props}>
+      <path
+        d="M10 20Q21 6 32 20Z M6 12L10 18M36 12L32 18M8 24L4 28M34 24L38 28M16 22L14 28M26 22L28 28"
+        fill="none"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="stroke-crab"
+      />
+      <circle cx="17" cy="11" r="1.8" className="fill-crab" />
+      <circle cx="25" cy="11" r="1.8" className="fill-crab" />
+    </svg>
+  )
+}
+
 // Beach ball. The colored panels rock gently; the shading and shine stay put,
 // so the light keeps coming from the top-left while the ball rolls.
 export function BeachBall(props: SvgProps) {

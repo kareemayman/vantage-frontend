@@ -400,6 +400,7 @@
   --animate-march: march 1s linear infinite; /* dotted trail drifting back */
   --animate-flap: flap 0.75s ease-in-out; /* one-shot: the plane's wing flaps like a bird */
   --animate-flap-hop: flap-hop 1.2s ease-in-out; /* ...while the plane (and banner) rise */
+  --animate-scuttle: scuttle 2.4s ease-in-out; /* one-shot: the footer crab runs off and back */
 
   @keyframes turn {
     to {
@@ -630,6 +631,30 @@
     }
     60% {
       translate: 0 -20px;
+    }
+  }
+  /* Sideways out and back, wobbling side to side like crab legs. translate only has
+     keyframes at 0/40/60/100%, rotate at every 10%: each moves on its own schedule. */
+  @keyframes scuttle {
+    0%,
+    100% {
+      translate: 0 0;
+      rotate: 0deg;
+    }
+    10%,
+    30%,
+    70%,
+    90% {
+      rotate: -12deg;
+    }
+    20%,
+    80% {
+      rotate: 12deg;
+    }
+    40%,
+    60% {
+      translate: -200px 0;
+      rotate: 0deg;
     }
   }
   /* Same timing as bounce-once: the shadow shrinks while the ball is up */

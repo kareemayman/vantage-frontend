@@ -254,7 +254,14 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
      - on load, it flies in towing the "Small groups · big summers" banner (desktop) along a dotted trail whose dots drift back;
      - it floats; hover makes the banner flutter fast;
      - poke it and it flaps its wing like a bird, rising a little with each flap (the banner hops along). Kareem picked this over a loop-the-loop, which felt like too much.
-5. footer
+5. footer ✓ (`src/components/layout/footer.tsx`):
+   - capped at 1440px with 80px sides on desktop, like the design (Kareem tried full width and preferred this);
+   - fluid wordmark (its dot hops on hover) and the handwritten tagline;
+   - Tours / Company / Settings columns, which become one flat grid on phones;
+   - Company links (Kareem's choice): About → his portfolio, Contact → email, GitHub → this repo;
+   - "Dark mode" is the third theme switch;
+   - the hidden crab scuttles when poked. Later it reveals the easter-egg counter (phase 7); "Sound off" waits until the site has sounds.
+5b. "Reduce motion" switch (footer Settings): a site-wide override that calms every `motion-safe:` animation
 
 Then the remaining sections in handoff order. Update this line as steps complete.
 
