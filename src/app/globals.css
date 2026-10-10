@@ -363,6 +363,115 @@
   }
 }
 
+/* ==========================================================================
+   5. MOTION: the illustrated scene's idle loops and entrances
+   Each --animate-* variable becomes an animate-* class. The keyframes move the
+   individual translate / rotate / scale properties instead of `transform`, so a
+   loop on one property never fights a hover effect on another.
+   Always use them as motion-safe:animate-* (off with reduced motion).
+   ========================================================================== */
+@theme {
+  --animate-turn: turn 80s linear infinite; /* sun rays: a slow, lazy turn */
+  --animate-blink: blink 4s ease-in-out infinite; /* sun eyes */
+  --animate-bob: bob 3s ease-in-out infinite alternate; /* floating */
+  --animate-rock: rock 5s ease-in-out infinite alternate; /* sleepy moon */
+  --animate-drift: drift 4s ease-in-out infinite alternate; /* clouds */
+  --animate-breathe: breathe 4s ease-in-out infinite alternate; /* sun halo */
+  --animate-twinkle: twinkle 3s ease-in-out infinite; /* stars */
+  --animate-snooze: snooze 3s ease-out infinite; /* the moon's z z */
+  --animate-rise: rise 0.9s ease-out both; /* sun/moon entrance, with a squash */
+  --animate-fade-in: fade-in 1.2s ease-out both;
+
+  @keyframes turn {
+    to {
+      rotate: 1turn;
+    }
+  }
+  @keyframes blink {
+    0%,
+    92%,
+    100% {
+      scale: 1 1;
+    }
+    96% {
+      scale: 1 0.1;
+    }
+  }
+  @keyframes bob {
+    from {
+      translate: 0 -3px;
+    }
+    to {
+      translate: 0 3px;
+    }
+  }
+  @keyframes rock {
+    from {
+      rotate: -5deg;
+    }
+    to {
+      rotate: 5deg;
+    }
+  }
+  @keyframes drift {
+    from {
+      translate: -10px 0;
+    }
+    to {
+      translate: 10px 0;
+    }
+  }
+  @keyframes breathe {
+    to {
+      scale: 1.06;
+    }
+  }
+  @keyframes twinkle {
+    0%,
+    100% {
+      opacity: 1;
+      scale: 1;
+    }
+    50% {
+      opacity: 0.35;
+      scale: 0.6;
+    }
+  }
+  @keyframes snooze {
+    0% {
+      opacity: 0;
+      translate: 0 0;
+    }
+    25% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      translate: 0.4em -0.9em;
+    }
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      translate: 0 40px;
+    }
+    60% {
+      opacity: 1;
+      translate: 0 -6px;
+      scale: 1.08 0.92;
+    }
+    to {
+      translate: 0 0;
+      scale: 1 1;
+    }
+  }
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+}
+
 /* Theme "sunset wipe" (src/lib/theme.ts): switch off the browser's default
    cross-fade so only our growing circle animates */
 ::view-transition-old(root),
