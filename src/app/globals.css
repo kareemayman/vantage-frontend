@@ -362,3 +362,11 @@
     color: var(--color-navy-950);
   }
 }
+
+/* Theme "sunset wipe" (src/lib/theme.ts): switch off the browser's default
+   cross-fade so only our growing circle animates */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}

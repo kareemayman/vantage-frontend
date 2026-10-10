@@ -176,7 +176,12 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
   - Dark values live under `[data-theme="dark"]`. Any element can carry `data-theme="dark"` or `"light"` to theme its subtree (themed sections).
   - `dark:` classes follow `data-theme` via `@custom-variant`, never the OS setting.
   - Prefer semantic tokens over `dark:` classes.
-  - The toggle (with persistence and no flash of the wrong theme) is built with the navbar.
+  - **How switching works:**
+    - **Theme lives in the DOM, not React state:** `data-theme` on `<html>`.
+    - Every switch calls `toggleTheme()` (`src/lib/theme.ts`). It saves to `localStorage` (`vantage-theme`) and runs the "sunset wipe": a View Transitions circle from the clicked button, or an instant swap with reduced motion or in browsers without support.
+    - Triggers use `<ThemeToggle labelLight labelDark>` (`src/components/theme-toggle.tsx`), the only Client Component involved. It wraps any children: an icon, the hero sun, footer text.
+    - Anything that differs per theme (icons, labels, copy) switches with `dark:` classes, never JavaScript, so server HTML is right for both themes.
+    - The root layout runs `themeInitScript` as a plain inline `<head>` script (not `next/script`, which runs too late), so a saved dark theme never flashes light. `<html suppressHydrationWarning>` is required for this.
 - **Base styles:** the page uses `background`/`foreground`, the default border color is `border`, every element gets a global `:focus-visible` ring, and text selection is sun-200.
 - **Gotcha:** Tailwind only generates classes it finds as complete strings in source files, so never build class names at runtime (`bg-${name}-500`). Use a full class name or an inline `var(--color-…)` style.
 - **Fonts: Kareem chooses them.** Claude may recommend options when asked, but never picks one.
@@ -194,6 +199,7 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
   - Page content is centered with `mx-auto max-w-6xl px-6`.
   - Pages set `export const metadata = { title: "…" }`, and the root template turns it into "… | Vantage".
 - **Mobile-first:** unprefixed classes apply at every size; `sm:`/`lg:` add from 640px/1024px. Check every page at 320px and 390px.
+- **Testing in the browser:** Kareem usually has `npm run dev` running on port 3000, and Next allows one dev server per project. Test against it instead of starting another, and never kill it.
 - **Screenshots:** headless Chrome can't go narrower than ~500px, so `--window-size=390,…` silently lies. For phone widths, load the page inside a fixed-width `<iframe>` on a local host page.
 - **Next.js changes fast.** Before using a Next.js API, read the version-matched docs in `node_modules/next/dist/docs/`, because training data may be outdated (e.g. `middleware.ts` is now `proxy.ts`, `params`/`searchParams` are Promises, and caching is explicit via `"use cache"`).
 - Zustand is for client UI/experience state only: menus, modals, the booking wizard, the wishlist (`persist`), the sound toggle, easter-egg progress and mini-game scores, and state shared between the R3F canvas and the DOM. Server data (tours, the current user) stays in Server Components. A store holding per-user data goes through a context provider, never a module-level singleton, because that would be shared across requests on the server.
@@ -215,7 +221,7 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
 
 **Current phase: 0, Foundations.** Done: scaffold, Prettier, fonts, design tokens (+ `/design` style guide), app shell (navbar, footer, skip link, title template, homepage hero shell). Now rebuilding the homepage from `design/HANDOFF.md`:
 1. scene tokens ✓
-2. theme switching: `toggleTheme()`, no flash, sunset wipe via View Transitions
+2. theme switching ✓ (a temporary toggle sits in the old navbar)
 3. navbar: frosted pill, mobile version, CSS scroll-driven shrink
 4. static hero with SVG placeholders, a `Button` component
 5. footer
