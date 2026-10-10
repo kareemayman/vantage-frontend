@@ -370,3 +370,23 @@
   animation: none;
   mix-blend-mode: normal;
 }
+
+/* Navbar shrink (src/components/layout/navbar.tsx): a scroll-driven animation.
+   Its progress follows the page scroll instead of time: 0px scrolled = start,
+   40px scrolled = end (60px tall). No JavaScript, no scroll listener.
+   Browsers without support (Firefox, for now) and reduced-motion users keep the full height. */
+@keyframes nav-shrink {
+  to {
+    height: 60px;
+  }
+}
+
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .nav-shrink {
+      animation: nav-shrink linear both;
+      animation-timeline: scroll(root); /* after `animation`: the shorthand resets it */
+      animation-range: 0 40px;
+    }
+  }
+}

@@ -37,11 +37,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     // suppressHydrationWarning: the head script may add data-theme before React loads,
-    // so React shouldn't complain that <html> differs from the server HTML
+    // so React shouldn't complain that <html> differs from the server HTML.
+    // scroll-pt-*: when the browser scrolls to a link target or a focused element,
+    // it stops below the fixed navbar instead of hiding it underneath.
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${figtree.variable} ${oswald.variable} ${shadowsIntoLight.variable} h-full antialiased`}
+      className={`${figtree.variable} ${oswald.variable} ${shadowsIntoLight.variable} h-full scroll-pt-24 antialiased md:scroll-pt-28`}
     >
       <head>
         {/* Plain inline script: runs while the HTML is parsed, before the first paint */}

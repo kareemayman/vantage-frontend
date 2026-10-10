@@ -6,5 +6,6 @@ package-lock.json
 # Managed by Next.js (`next dev` rewrites it)
 AGENTS.md
 
-# Design handoff from Claude Design: reference files, keep them byte-for-byte
-design/
+# Design handoff from Claude Design: reference files, keep them byte-for-byte.
+# The leading / means "only the root folder"; plain design/ also skipped src/app/design/.
+/design/

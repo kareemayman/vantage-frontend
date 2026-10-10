@@ -197,10 +197,11 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
 - **Layout:**
   - The root layout renders the skip link, `<Navbar />`, the page's single `<main id="main">`, and `<Footer />`. Pages render `<section>`s and never their own `<main>`.
   - Page content is centered with `mx-auto max-w-6xl px-6`.
+  - The navbar is `fixed` and floats over the page. Pages clear it with top padding (`pt-28 md:pt-36`); only the homepage hero sits under it on purpose. `scroll-pt-*` on `<html>` keeps anchor jumps and keyboard focus from landing under it.
   - Pages set `export const metadata = { title: "…" }`, and the root template turns it into "… | Vantage".
 - **Mobile-first:** unprefixed classes apply at every size; `sm:`/`lg:` add from 640px/1024px. Check every page at 320px and 390px.
 - **Testing in the browser:** Kareem usually has `npm run dev` running on port 3000, and Next allows one dev server per project. Test against it instead of starting another, and never kill it.
-- **Screenshots:** headless Chrome can't go narrower than ~500px, so `--window-size=390,…` silently lies. For phone widths, load the page inside a fixed-width `<iframe>` on a local host page.
+- **Screenshots:** headless Chrome's `--window-size` can't go narrower than ~500px and silently lies. For phone widths, use CDP `Emulation.setDeviceMetricsOverride` (verified: `innerWidth` reports 320) or a fixed-width `<iframe>` on a local host page. Screenshot `clip` coordinates are page coordinates, so add `scrollY` after scrolling.
 - **Next.js changes fast.** Before using a Next.js API, read the version-matched docs in `node_modules/next/dist/docs/`, because training data may be outdated (e.g. `middleware.ts` is now `proxy.ts`, `params`/`searchParams` are Promises, and caching is explicit via `"use cache"`).
 - Zustand is for client UI/experience state only: menus, modals, the booking wizard, the wishlist (`persist`), the sound toggle, easter-egg progress and mini-game scores, and state shared between the R3F canvas and the DOM. Server data (tours, the current user) stays in Server Components. A store holding per-user data goes through a context provider, never a module-level singleton, because that would be shared across requests on the server.
 - Motion and 3D: honor `prefers-reduced-motion` (no Lenis smoothing or scroll-scrubbed motion; simple fades are fine). Load 3D client-only and lazily, pause it offscreen, and give low-power and mobile devices a static fallback. Animation must never block content or hurt LCP/INP.
@@ -213,7 +214,7 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
 - `npm run dev`: dev server (Turbopack) at http://localhost:3000. The backend also defaults to 3000; Next picks the next free port if 3000 is taken.
 - `npm run build`: production build (also type-checks). `npm run start` serves it.
 - `npm run lint`: ESLint.
-- `npm run format` fixes formatting; `npm run format:check` only reports. Prettier skips everything in `.gitignore` (including this file) plus `.prettierignore` (`package-lock.json`, `AGENTS.md`).
+- `npm run format` fixes formatting; `npm run format:check` only reports. Prettier skips everything in `.gitignore` (including this file) plus `.prettierignore` (`package-lock.json`, `AGENTS.md`, `/design/`). The leading `/` matters: plain `design/` also skips `src/app/design/`.
 - `npm audit` reports 5 "high" findings. They're one dev-only chain under `eslint-config-next` (braces/micromatch), and `npm audit --omit=dev` is clean. **Don't run `npm audit fix --force`**: it downgrades `eslint-config-next` to v14.
 - `AGENTS.md` is managed by Next.js (`next dev` rewrites its block), and line 1 of this file imports it. Commit both.
 
@@ -221,8 +222,9 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
 
 **Current phase: 0, Foundations.** Done: scaffold, Prettier, fonts, design tokens (+ `/design` style guide), app shell (navbar, footer, skip link, title template, homepage hero shell). Now rebuilding the homepage from `design/HANDOFF.md`:
 1. scene tokens ✓
-2. theme switching ✓ (a temporary toggle sits in the old navbar)
-3. navbar: frosted pill, mobile version, CSS scroll-driven shrink
+2. theme switching ✓
+3. navbar ✓ (frosted pill, mobile version, CSS scroll-driven shrink; below 360px the theme icon hides to make room)
+3b. mobile menu panel (the menu button is a placeholder until then; the panel also gets the theme toggle)
 4. static hero with SVG placeholders, a `Button` component
 5. footer
 

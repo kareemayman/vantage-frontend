@@ -13,7 +13,8 @@ export default function DesignPage() {
   return (
     // Slightly deeper "workspace" background so the light preview panel stands out
     <div className="bg-muted">
-      <div className="mx-auto w-full max-w-6xl space-y-12 px-6 py-16">
+      {/* Top padding clears the floating navbar */}
+      <div className="mx-auto w-full max-w-6xl space-y-12 px-6 pt-28 pb-16 md:pt-36">
         <header className="space-y-2">
           <h1 className="font-display text-6xl font-bold tracking-tight uppercase">
             Design tokens
