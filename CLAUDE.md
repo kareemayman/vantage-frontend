@@ -172,7 +172,7 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
   - `--wave-opacity` is a plain variable with no class.
 - **Shadows** are navy-tinted (`shadow-xs`…`shadow-xl`). `shadow-pop` is a hard cartoon "sticker" shadow (navy in light mode, sun in dark mode).
 - **Radii and spacing:** Tailwind's defaults for now.
-- **Buttons:** `ButtonLink` (`src/components/button.tsx`) for links that look like buttons. Variants: `cta` (the sun sticker, which presses down on click) and `outline`. Sizes: `sm` (navbar) and `lg` (hero). There's no class-merging library, so `className` may only add layout (width, margins), never colors or sizes. A `<button>` version comes with the first form.
+- **Buttons:** `ButtonLink` (`src/components/button.tsx`) for links that look like buttons. Variants: `cta` (the sun sticker, which presses down on click) and `outline`. Sizes: `sm` (navbar) and `lg` (hero). There's no class-merging library, so `className` may only add layout (width, margins), never colors or sizes. The exception is a variant-prefixed override (e.g. `short:h-12`), because a variant class always wins over an unprefixed one. A `<button>` version comes with the first form.
 - **Dark mode:** light is the default for everyone, and dark is opt-in.
   - Dark values live under `[data-theme="dark"]`. Any element can carry `data-theme="dark"` or `"light"` to theme its subtree (themed sections).
   - `dark:` classes follow `data-theme` via `@custom-variant`, never the OS setting.
@@ -202,6 +202,7 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
   - The navbar is `fixed` and floats over the page. Pages clear it with top padding (`pt-28 md:pt-36`); only the homepage hero sits under it on purpose. `scroll-pt-*` on `<html>` keeps anchor jumps and keyboard focus from landing under it.
   - Pages set `export const metadata = { title: "…" }`, and the root template turns it into "… | Vantage".
 - **Mobile-first:** unprefixed classes apply at every size; `sm:`/`lg:` add from 640px/1024px. Check every page at 320px and 390px.
+  - `short:` is a custom **height** breakpoint (`globals.css`): phone widths under 52rem (832px) tall, e.g. iPhone SE 375×667 or 360×780 Androids. The hero uses it to tighten up so the beach fits on the first screen. Check heroes at 375×667 too.
 - **Testing in the browser:** Kareem usually has `npm run dev` running on port 3000, and Next allows one dev server per project. Test against it instead of starting another, and never kill it.
 - **Screenshots:** headless Chrome's `--window-size` can't go narrower than ~500px and silently lies. For phone widths, use CDP `Emulation.setDeviceMetricsOverride` (verified: `innerWidth` reports 320) or a fixed-width `<iframe>` on a local host page. Screenshot `clip` coordinates are page coordinates, so add `scrollY` after scrolling.
 - **Next.js changes fast.** Before using a Next.js API, read the version-matched docs in `node_modules/next/dist/docs/`, because training data may be outdated (e.g. `middleware.ts` is now `proxy.ts`, `params`/`searchParams` are Promises, and caching is explicit via `"use cache"`).
@@ -213,6 +214,9 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
   - Keyframes move the individual `translate`/`rotate`/`scale` properties, never `transform`, so a loop and a hover effect on different properties combine.
   - When two effects need the same property, nest elements: e.g. the wrapper takes the hover `scale` and the inner SVG takes the idle `translate`.
   - Always `motion-safe:animate-*`. SVG parts that spin or squash need `origin-center transform-fill`.
+  - **One-shot toy animations** (on click, tap, or hover) use `<Poke animation playOnHover?>` (`src/components/scene/poke.tsx`). It sets `data-playing` until the named keyframes end, and the CSS decides what plays (`data-playing:animate-hop` on the toy, or `group-data-playing:animate-bounce-once` on a child). The toy's markup stays in Server Components.
+    - Don't use `hover:`/`active:` for one-shots. `:active` lasts only while the button is held, and setting the same animation again never restarts it.
+    - With a `label`, the toy is a real `<button>` (the beach ball). Without one, it's decoration (the palm, suitcases): `aria-hidden`, mouse and touch only, not a Tab stop.
 - **Hero composition:** props near the headline sit inside the title "stage", whose font size is the headline size, and are positioned in `em` (`left-1/2 ml-[0.82em] top-[-1.69em]`). They scale and move with the headline at every width.
   - The hero's content layer is `pointer-events-none` so empty sky passes the pointer to the stars behind it; interactive children opt back in with `pointer-events-auto`.
 - Motion and 3D: honor `prefers-reduced-motion` (no Lenis smoothing or scroll-scrubbed motion; simple fades are fine). Load 3D client-only and lazily, pause it offscreen, and give low-power and mobile devices a static fallback. Animation must never block content or hurt LCP/INP.
@@ -239,7 +243,13 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
 4. static hero (`src/components/home/hero.tsx`):
    - 4a. text, fluid headline, `ButtonLink` ✓
    - 4b. sky ✓ (`src/components/scene/sky.tsx`): the sun/moon button (third theme switch), halo, clouds, stars and "z z", all idle-animated and interactive (hover faces, puffs, spins)
-   - 4c. ground and toys: sea, sand, palm, suitcases, beach ball, plane + banner, "Scroll to take off". Also tune the hero height on short laptop screens (1366×657 is 843px tall today).
+   - 4c. ground and toys ✓ (`src/components/home/hero-ground.tsx`, `src/components/scene/beach.tsx`):
+     - sea with rolling waves, sand and dunes;
+     - a swaying palm, hopping suitcases, and a pokeable beach ball;
+     - "Scroll to take off" (xl only);
+     - short screens: the hero is 757px at 1366×657, with the beach and buttons above the fold;
+     - short phones (`short:`): the whole hero fits 375×667 exactly.
+   - 4d. the plane + "Small groups · big summers" banner + dotted path: idle bob, hover flutter, click loop-the-loop (`Poke`)
 5. footer
 
 Then the remaining sections in handoff order. Update this line as steps complete.

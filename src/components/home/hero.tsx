@@ -1,8 +1,9 @@
 import { ButtonLink } from "@/components/button"
+import { HeroGround } from "@/components/home/hero-ground"
 import { Cloud, Moon, Snooze, Stars, Sun } from "@/components/scene/sky"
 import { ThemeToggle } from "@/components/theme-toggle"
 
-// 01 Hero: "Horizon" (design/HANDOFF.md). The ground and toys arrive in step 4c.
+// 01 Hero: "Horizon" (design/HANDOFF.md). The plane and its banner arrive in step 4d.
 export function Hero() {
   return (
     // min-h-svh: at least one screen tall, measured with the phone's browser bars showing
@@ -12,13 +13,15 @@ export function Hero() {
 
       {/* pointer-events-none: empty sky lets the pointer through to the stars behind.
           Everything interactive turns it back on with pointer-events-auto. */}
-      <div className="pointer-events-none relative z-10 flex flex-1 flex-col items-center justify-center px-4 pt-22 pb-12 text-center md:pt-24 lg:pb-0">
+      <div className="pointer-events-none relative z-10 flex flex-1 flex-col items-center justify-center px-4 pt-22 pb-12 text-center md:pt-24 lg:pb-0 short:pt-20 short:pb-4">
         {/* The title "stage". Its font size (the SUMMER size) is the unit (em) for
             everything inside, so the sun and clouds scale and move with the headline.
             Fluid size: the smallest of 26% of the screen width, a gentler 52px + 12.5%
-            of the width, 232px (the design's desktop size), and 30% of the screen height.
-            Phones and tablets: the sun sits above the title. Desktop (lg): beside SUMMER. */}
-        <div className="relative mt-[1.75em] w-full text-[min(26vw,52px+12.5vw,232px,30svh)] lg:mt-[0.37em]">
+            of the width, 232px (the design's desktop size), and 26% of the screen height
+            (short laptop screens).
+            Phones and tablets: the sun sits above the title. Desktop (lg): beside SUMMER.
+            Short phones (short:): a smaller sun, closer to the title, so the beach fits. */}
+        <div className="relative mt-[1.75em] w-full text-[min(26vw,52px+12.5vw,232px,26svh)] lg:mt-[0.37em] short:mt-[1.12em]">
           {/* The sun is the third theme switch (with the nav button and the footer).
               peer: lets the halo react to its hover. group: lets its face react.
               z-5: in front of the halo and clouds, behind the headline (z-10), so the R
@@ -26,7 +29,7 @@ export function Hero() {
           <ThemeToggle
             labelLight="Set the sun: switch to dark mode"
             labelDark="Wake the moon up: switch to light mode"
-            className="peer group pointer-events-auto absolute top-[-1.69em] left-1/2 z-5 ml-[0.82em] size-[1.06em] cursor-pointer rounded-full transition-[scale] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-safe:hover:scale-105 motion-safe:active:scale-x-110 motion-safe:active:scale-y-90 lg:top-[-0.27em] lg:ml-[1.6em] lg:size-[0.95em]"
+            className="peer group pointer-events-auto absolute top-[-1.69em] left-1/2 z-5 ml-[0.82em] size-[1.06em] cursor-pointer rounded-full transition-[scale] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-safe:hover:scale-105 motion-safe:active:scale-x-110 motion-safe:active:scale-y-90 lg:top-[-0.27em] lg:ml-[1.6em] lg:size-[0.95em] short:top-[-1.02em] short:ml-[0.93em] short:size-[0.85em]"
           >
             {/* Each rises (with a squash) when it appears: on load and after every switch */}
             <span className="block size-full motion-safe:animate-rise dark:hidden">
@@ -41,7 +44,7 @@ export function Hero() {
           {/* Halo: breathes, and grows while the sun is hovered (peer-hover) */}
           <span
             aria-hidden
-            className="absolute top-[-2em] left-1/2 ml-[0.53em] size-[1.92em] transition-[scale] duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-safe:peer-hover:scale-110 lg:top-[-0.61em] lg:ml-[1.25em] lg:size-[1.64em]"
+            className="absolute top-[-2em] left-1/2 ml-[0.53em] size-[1.92em] transition-[scale] duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-safe:peer-hover:scale-110 lg:top-[-0.61em] lg:ml-[1.25em] lg:size-[1.64em] short:top-[-1.29em] short:ml-[0.6em] short:size-[1.5em]"
           >
             <span className="block size-full rounded-full bg-scene-sky-2 motion-safe:animate-breathe" />
           </span>
@@ -77,7 +80,7 @@ export function Hero() {
                   wide ones. Decoration, so screen readers skip it. */}
               <span
                 aria-hidden
-                className="mt-2.5 basis-full -rotate-3 font-hand text-[22px] font-normal text-primary normal-case lg:absolute lg:top-1/4 lg:left-full lg:mt-0 lg:ml-2 lg:basis-auto lg:-rotate-7 lg:text-[30px] lg:whitespace-nowrap"
+                className="mt-2.5 basis-full -rotate-3 font-hand text-[22px] font-normal text-primary normal-case lg:absolute lg:top-1/4 lg:left-full lg:mt-0 lg:ml-2 lg:basis-auto lg:-rotate-7 lg:text-[30px] lg:whitespace-nowrap short:mt-1.5"
               >
                 <span className="dark:hidden">(tan lines not included)</span>
                 <span className="hidden dark:inline">(night swim, anyone?)</span>
@@ -87,14 +90,15 @@ export function Hero() {
         </div>
 
         {/* The design shortens this on phones: the extra bits only show from md up */}
-        <p className="pointer-events-auto mt-3 max-w-140 text-muted-foreground md:mt-7.5 md:text-xl">
+        <p className="pointer-events-auto mt-3 max-w-140 text-muted-foreground md:mt-7.5 md:text-xl short:mt-2">
           Small-group summer tours to beaches, islands
           <span className="hidden md:inline">, coastlines</span> and national parks, led by local
           guides<span className="hidden md:inline"> who know where the good snacks are</span>.
         </p>
 
-        <div className="pointer-events-auto mt-5 flex w-full max-w-sm flex-col gap-3 md:mt-7.5 md:w-auto md:max-w-none md:flex-row md:gap-4.5">
-          <ButtonLink href="/tours">
+        {/* short:h-12 overrides the button's own height: 48px is still a comfy tap target */}
+        <div className="pointer-events-auto mt-5 flex w-full max-w-sm flex-col gap-3 md:mt-7.5 md:w-auto md:max-w-none md:flex-row md:gap-4.5 short:mt-4 short:gap-2.5">
+          <ButtonLink href="/tours" className="short:h-12">
             Explore tours
             <svg
               aria-hidden
@@ -106,14 +110,13 @@ export function Hero() {
               <path d="M5 12h14M13 6l6 6-6 6" />
             </svg>
           </ButtonLink>
-          <ButtonLink href="/signup" variant="outline">
+          <ButtonLink href="/signup" variant="outline" className="short:h-12">
             Create an account
           </ButtonLink>
         </div>
       </div>
 
-      {/* Keeps the ground's space (sea + sand arrive in step 4c) */}
-      <div aria-hidden className="h-35 md:h-48" />
+      <HeroGround />
     </section>
   )
 }
