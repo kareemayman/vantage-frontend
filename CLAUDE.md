@@ -172,6 +172,7 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
   - `--wave-opacity` is a plain variable with no class.
 - **Shadows** are navy-tinted (`shadow-xs`…`shadow-xl`). `shadow-pop` is a hard cartoon "sticker" shadow (navy in light mode, sun in dark mode).
 - **Radii and spacing:** Tailwind's defaults for now.
+- **Buttons:** `ButtonLink` (`src/components/button.tsx`) for links that look like buttons. Variants: `cta` (the sun sticker, which presses down on click) and `outline`. Sizes: `sm` (navbar) and `lg` (hero). There's no class-merging library, so `className` may only add layout (width, margins), never colors or sizes. A `<button>` version comes with the first form.
 - **Dark mode:** light is the default for everyone, and dark is opt-in.
   - Dark values live under `[data-theme="dark"]`. Any element can carry `data-theme="dark"` or `"light"` to theme its subtree (themed sections).
   - `dark:` classes follow `data-theme` via `@custom-variant`, never the OS setting.
@@ -185,7 +186,8 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
 - **Base styles:** the page uses `background`/`foreground`, the default border color is `border`, every element gets a global `:focus-visible` ring, and text selection is sun-200.
 - **Gotcha:** Tailwind only generates classes it finds as complete strings in source files, so never build class names at runtime (`bg-${name}-500`). Use a full class name or an inline `var(--color-…)` style.
 - **Fonts: Kareem chooses them.** Claude may recommend options when asked, but never picks one.
-  - **Display (big titles): Oswald**, weights 200–700, as the free stand-in for Balboa, which Kareem wanted but which is paid (Adobe Fonts or a foundry license). Oswald was picked by rendering free candidates against real Balboa specimens. Use `letter-spacing: -0.02em` to `-0.025em` on headlines to match Balboa's tight spacing.
+  - **Display (big titles): Oswald**, weights 200–700, as the free stand-in for Balboa, which Kareem wanted but which is paid (Adobe Fonts or a foundry license). Oswald was picked by rendering free candidates against real Balboa specimens. Use `letter-spacing: -0.02em` to `-0.025em` on headlines to match Balboa's tight spacing, except very large type (the hero's ~100–232px headline), which uses normal tracking to match the design.
+    - Gotcha: an `em` letter-spacing is computed on the element that declares it, and children inherit the pixel value. Put `tracking-*` on the element that has the font size, not on a parent with a different size.
   - **Accent: Shadows Into Light** (handwritten, 400 only): postcard notes, doodled callouts, easter-egg labels, game scores. Not for body text, forms, buttons, or prices.
   - **Body: Figtree** (chosen over Nunito and DM Sans): paragraphs, forms, prices, buttons.
   - All three load through `next/font/google` in `src/app/layout.tsx` and map to Tailwind in `globals.css`. Use `font-sans` (Figtree, the default), `font-display` (Oswald; pair it with `tracking-tight`, which is -0.025em), and `font-hand` (Shadows Into Light).
@@ -228,7 +230,10 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
 2. theme switching ✓
 3. navbar ✓ (frosted pill, mobile version, CSS scroll-driven shrink; below 360px the theme icon hides to make room)
 3b. mobile menu ✓ (native popover; `MenuPanel` closes it on link taps)
-4. static hero with SVG placeholders, a `Button` component
+4. static hero (`src/components/home/hero.tsx`):
+   - 4a. text, fluid headline, `ButtonLink` ✓
+   - 4b. sun/moon button (the third theme switch), halo, clouds, night stars and "z z"
+   - 4c. ground and toys: sea, sand, palm, suitcases, beach ball, plane + banner, "Scroll to take off". Also tune the hero height on short laptop screens (1366×657 is 843px tall today).
 5. footer
 
 Then the remaining sections in handoff order. Update this line as steps complete.

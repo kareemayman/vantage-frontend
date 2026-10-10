@@ -1,6 +1,7 @@
 // Living style guide: every design token in light and dark, side by side.
 // Add new components here as they're built.
 import type { Metadata } from "next"
+import { ButtonLink } from "@/components/button"
 
 export const metadata: Metadata = { title: "Design tokens" } // -> "Design tokens | Vantage"
 
@@ -107,6 +108,17 @@ function Sample({ label }: { label: string }) {
         >
           Disabled
         </button>
+      </div>
+
+      {/* The real component: src/components/button.tsx */}
+      <div className="flex flex-wrap items-center gap-3">
+        <ButtonLink href="#" size="sm">
+          Sign up
+        </ButtonLink>
+        <ButtonLink href="#">Explore tours</ButtonLink>
+        <ButtonLink href="#" variant="outline">
+          Create an account
+        </ButtonLink>
       </div>
 
       <label className="block space-y-1.5">

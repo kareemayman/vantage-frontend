@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { ButtonLink } from "@/components/button"
 import { MenuPanel } from "@/components/layout/menu-panel"
 import { ThemeToggle } from "@/components/theme-toggle"
 
@@ -53,13 +54,9 @@ export function Navbar() {
             <SunIcon className="hidden size-5.5 md:size-5 dark:block" />
           </ThemeToggle>
 
-          {/* Sticker CTA. Becomes <Button> in the hero step. Navy border in both themes. */}
-          <Link
-            href="/signup"
-            className="rounded-xl border-[2.5px] border-navy-950 bg-cta px-3.5 py-2.5 text-[15px] leading-5 font-extrabold whitespace-nowrap text-cta-foreground shadow-pop transition-colors hover:bg-cta-hover md:px-5.5 md:py-3 md:text-base"
-          >
+          <ButtonLink href="/signup" size="sm">
             Sign up
-          </Link>
+          </ButtonLink>
 
           {/* Phones only. popoverTarget opens/closes the panel with no JavaScript,
               and the browser tells screen readers whether it's expanded. */}
