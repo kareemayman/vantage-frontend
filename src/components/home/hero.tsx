@@ -1,9 +1,10 @@
 import { ButtonLink } from "@/components/button"
 import { HeroGround } from "@/components/home/hero-ground"
+import { HeroPlane } from "@/components/home/hero-plane"
 import { Cloud, Moon, Snooze, Stars, Sun } from "@/components/scene/sky"
 import { ThemeToggle } from "@/components/theme-toggle"
 
-// 01 Hero: "Horizon" (design/HANDOFF.md). The plane and its banner arrive in step 4d.
+// 01 Hero: "Horizon" (design/HANDOFF.md)
 export function Hero() {
   return (
     // min-h-svh: at least one screen tall, measured with the phone's browser bars showing
@@ -87,6 +88,9 @@ export function Hero() {
               </span>
             </span>
           </h1>
+
+          {/* After the headline in the code, so screen readers read the title first */}
+          <HeroPlane />
         </div>
 
         {/* The design shortens this on phones: the extra bits only show from md up */}

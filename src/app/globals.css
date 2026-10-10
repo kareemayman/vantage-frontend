@@ -393,6 +393,13 @@
   --animate-hop: hop 0.6s ease-out; /* one-shot: suitcase squash-and-stretch jump */
   --animate-bounce-once: bounce-once 0.9s both; /* one-shot: the poked beach ball */
   --animate-shadow-bounce: shadow-bounce 0.9s both; /* its shadow, in sync */
+  --animate-float: float 3s ease-in-out infinite alternate; /* the plane and its banner */
+  --animate-fly-in: fly-in 1.6s cubic-bezier(0.22, 1, 0.36, 1) both; /* entrance from the left */
+  --animate-flutter: flutter 1.4s ease-in-out infinite alternate; /* banner in the wind */
+  --animate-flutter-fast: flutter 0.2s ease-in-out infinite alternate; /* ...faster on hover */
+  --animate-march: march 1s linear infinite; /* dotted trail drifting back */
+  --animate-flap: flap 0.75s ease-in-out; /* one-shot: the plane's wing flaps like a bird */
+  --animate-flap-hop: flap-hop 1.2s ease-in-out; /* ...while the plane (and banner) rise */
 
   @keyframes turn {
     to {
@@ -563,6 +570,66 @@
     100% {
       translate: 0 0;
       scale: 1 1;
+    }
+  }
+  @keyframes float {
+    from {
+      translate: 0 -5px;
+    }
+    to {
+      translate: 0 5px;
+    }
+  }
+  /* Starts a full screen to the left (fill "both" keeps it there during the delay) */
+  @keyframes fly-in {
+    from {
+      translate: -100vw 0;
+    }
+  }
+  @keyframes flutter {
+    from {
+      rotate: -1deg;
+    }
+    to {
+      rotate: 1.5deg;
+    }
+  }
+  /* The trail's dash pattern repeats every 14 units (2 dash + 12 gap): moving it by
+     exactly one period loops seamlessly */
+  @keyframes march {
+    to {
+      stroke-dashoffset: 14;
+    }
+  }
+  /* Three flaps: a negative scaleY flips the wing up over the body (around its
+     root), then back down */
+  @keyframes flap {
+    0%,
+    33%,
+    66%,
+    100% {
+      scale: 1 1;
+    }
+    16%,
+    50%,
+    83% {
+      scale: 1 -0.85;
+    }
+  }
+  /* A little higher with each flap, then a lazy glide back down */
+  @keyframes flap-hop {
+    0%,
+    100% {
+      translate: 0 0;
+    }
+    20% {
+      translate: 0 -8px;
+    }
+    40% {
+      translate: 0 -14px;
+    }
+    60% {
+      translate: 0 -20px;
     }
   }
   /* Same timing as bounce-once: the shadow shrinks while the ball is up */

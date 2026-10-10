@@ -219,6 +219,7 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
     - With a `label`, the toy is a real `<button>` (the beach ball). Without one, it's decoration (the palm, suitcases): `aria-hidden`, mouse and touch only, not a Tab stop.
 - **Hero composition:** props near the headline sit inside the title "stage", whose font size is the headline size, and are positioned in `em` (`left-1/2 ml-[0.82em] top-[-1.69em]`). They scale and move with the headline at every width.
   - The hero's content layer is `pointer-events-none` so empty sky passes the pointer to the stars behind it; interactive children opt back in with `pointer-events-auto`.
+  - **Gotcha:** the headline's tight `leading-[0.84]` makes its text catch clicks about 0.3em above its own box, because Chrome hit-tests by the font's full height. Toys that sit just above the headline need a layer above it (the plane layer is `z-20` and `pointer-events-none`).
 - Motion and 3D: honor `prefers-reduced-motion` (no Lenis smoothing or scroll-scrubbed motion; simple fades are fine). Load 3D client-only and lazily, pause it offscreen, and give low-power and mobile devices a static fallback. Animation must never block content or hurt LCP/INP.
 - Accessibility: semantic HTML first; everything keyboard-reachable with visible focus; alt text from tour data.
 - Env: server-only `API_URL`. Use `NEXT_PUBLIC_` only for values that are safe to expose (e.g. the Cloudinary cloud name). Never commit `.env*`.
@@ -249,7 +250,10 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
      - "Scroll to take off" (xl only);
      - short screens: the hero is 757px at 1366×657, with the beach and buttons above the fold;
      - short phones (`short:`): the whole hero fits 375×667 exactly.
-   - 4d. the plane + "Small groups · big summers" banner + dotted path: idle bob, hover flutter, click loop-the-loop (`Poke`)
+   - 4d. the plane ✓ (`src/components/home/hero-plane.tsx`, `src/components/scene/plane.tsx`):
+     - on load, it flies in towing the "Small groups · big summers" banner (desktop) along a dotted trail whose dots drift back;
+     - it floats; hover makes the banner flutter fast;
+     - poke it and it flaps its wing like a bird, rising a little with each flap (the banner hops along). Kareem picked this over a loop-the-loop, which felt like too much.
 5. footer
 
 Then the remaining sections in handoff order. Update this line as steps complete.
