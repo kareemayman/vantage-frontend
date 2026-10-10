@@ -204,6 +204,9 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
 - **Screenshots:** headless Chrome's `--window-size` can't go narrower than ~500px and silently lies. For phone widths, use CDP `Emulation.setDeviceMetricsOverride` (verified: `innerWidth` reports 320) or a fixed-width `<iframe>` on a local host page. Screenshot `clip` coordinates are page coordinates, so add `scrollY` after scrolling.
 - **Next.js changes fast.** Before using a Next.js API, read the version-matched docs in `node_modules/next/dist/docs/`, because training data may be outdated (e.g. `middleware.ts` is now `proxy.ts`, `params`/`searchParams` are Promises, and caching is explicit via `"use cache"`).
 - Zustand is for client UI/experience state only: menus, modals, the booking wizard, the wishlist (`persist`), the sound toggle, easter-egg progress and mini-game scores, and state shared between the R3F canvas and the DOM. Server data (tours, the current user) stays in Server Components. A store holding per-user data goes through a context provider, never a module-level singleton, because that would be shared across requests on the server.
+- **Popovers and menus** use the native `popover` attribute (`popoverTarget` on the button), so open/close, Esc, tap-outside, and the screen-reader "expanded" state come free.
+  - Never put a display class (`flex`, `grid`, `block`) on the `[popover]` element itself: it overrides the browser's hidden-while-closed rule. Style an inner wrapper instead.
+  - The layout (navbar) stays mounted across Next.js navigations, so a popover in it must close itself on link clicks (see `src/components/layout/menu-panel.tsx`).
 - Motion and 3D: honor `prefers-reduced-motion` (no Lenis smoothing or scroll-scrubbed motion; simple fades are fine). Load 3D client-only and lazily, pause it offscreen, and give low-power and mobile devices a static fallback. Animation must never block content or hurt LCP/INP.
 - Accessibility: semantic HTML first; everything keyboard-reachable with visible focus; alt text from tour data.
 - Env: server-only `API_URL`. Use `NEXT_PUBLIC_` only for values that are safe to expose (e.g. the Cloudinary cloud name). Never commit `.env*`.
@@ -224,7 +227,7 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
 1. scene tokens ✓
 2. theme switching ✓
 3. navbar ✓ (frosted pill, mobile version, CSS scroll-driven shrink; below 360px the theme icon hides to make room)
-3b. mobile menu panel (the menu button is a placeholder until then; the panel also gets the theme toggle)
+3b. mobile menu ✓ (native popover; `MenuPanel` closes it on link taps)
 4. static hero with SVG placeholders, a `Button` component
 5. footer
 
