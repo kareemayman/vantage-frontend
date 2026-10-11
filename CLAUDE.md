@@ -267,6 +267,13 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
    - "Dark mode" is the third theme switch;
    - the hidden crab scuttles when poked. Later it reveals the easter-egg counter (phase 7); "Sound off" waits until the site has sounds.
 5b. "Reduce motion" switch ✓ (footer Settings, `src/components/motion-toggle.tsx`, `src/lib/motion.ts`)
+6. The Journey (`src/components/home/journey.tsx`, `journey-track.tsx`, `src/components/scene/journey-props.tsx`):
+   - 6a. the section ✓:
+     - phones swipe the cards (CSS scroll-snap), and an IntersectionObserver drives the "01 / 04" progress and the badges;
+     - md+ shows a calm grid (2 columns, 3 at xl), which is also the reduced-motion layout;
+     - six stops (Kareem's call, for a longer scroll ride): the design's four plus "Meet your guide" (flag) and "Bring home stories" (postcard). Stops 4–6 have draft copy and new art.
+   - 6b. GSAP + ScrollTrigger + Lenis: pin the section on desktop (motion allowed) so vertical scroll slides the track sideways; progress follows
+   - 6c. the plane flies the dashed path and lands on each stop; each card's prop does its trick
 
 Then the remaining sections in handoff order. Update this line as steps complete.
 
