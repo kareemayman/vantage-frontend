@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { Figtree, Oswald, Shadows_Into_Light } from "next/font/google"
 import { Footer } from "@/components/layout/footer"
 import { Navbar } from "@/components/layout/navbar"
+import { SmoothScroll } from "@/components/smooth-scroll"
 import { motionInitScript } from "@/lib/motion"
 import { themeInitScript } from "@/lib/theme"
 import "./globals.css"
@@ -41,17 +42,20 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     // so React shouldn't complain that <html> differs from the server HTML.
     // scroll-pt-*: when the browser scrolls to a link target or a focused element,
     // it stops below the fixed navbar instead of hiding it underneath.
+    // No h-full here: Lenis watches <html> grow to know how far the page scrolls.
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${figtree.variable} ${oswald.variable} ${shadowsIntoLight.variable} h-full scroll-pt-24 antialiased md:scroll-pt-28`}
+      className={`${figtree.variable} ${oswald.variable} ${shadowsIntoLight.variable} scroll-pt-24 antialiased md:scroll-pt-28`}
     >
       <head>
         {/* Plain inline script: runs while the HTML is parsed, before the first paint.
             Restores the saved theme and the "Reduce motion" switch. */}
         <script>{themeInitScript + motionInitScript}</script>
       </head>
-      <body className="flex min-h-full flex-col">
+      {/* min-h-svh + flex-1 on <main>: short pages still push the footer to the bottom */}
+      <body className="flex min-h-svh flex-col">
+        <SmoothScroll />
         {/* Invisible until focused: lets keyboard users jump past the navbar */}
         <a
           href="#main"

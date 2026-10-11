@@ -79,8 +79,8 @@ Install nothing marked _proposed_ until Kareem confirms it. Versions live in `pa
 | Client state | Zustand, for UI/experience state only (see Conventions) | decided |
 | Server data | Server Components + Server Actions; TanStack Query only if a feature needs client-side caching or polling | proposed |
 | Forms | Zod schemas mirroring the Mongoose validators + `useActionState`; React Hook Form only for complex forms | proposed |
-| Animation | Motion (`motion/react`) for UI, layout and page transitions; GSAP (ScrollTrigger, SplitText, MotionPath) for the scroll story and horizontal sections | proposed |
-| Smooth scroll | Lenis (`lenis/react`), driven by GSAP's ticker once GSAP is in | decided |
+| Animation | GSAP (ScrollTrigger, SplitText, MotionPath) + `@gsap/react` for the scroll story and horizontal sections; Motion (`motion/react`) for UI, layout and page transitions | GSAP installed (3.15), Motion proposed |
+| Smooth scroll | Lenis 1.3, driven by GSAP's ticker (`src/components/smooth-scroll.tsx`). Plain `lenis` for now; `lenis/react` adds a `useLenis()` hook if a component ever needs the instance | installed |
 | 3D | three.js via React Three Fiber + drei | three.js decided, R3F proposed |
 | Physics | Rapier via `@react-three/rapier` (beach ball, pool, mini-games) | proposed |
 | Maps | MapLibre GL via `react-map-gl` + OpenFreeMap vector tiles (free, no API key, restylable to the palette, smooth `flyTo`). Chosen over Leaflet (simpler, but raster tiles can't be recolored). | decided |
@@ -197,7 +197,8 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
 - Server Components by default. Put `"use client"` on the smallest leaf that needs state, effects, or browser APIs.
 - **Structure:** routes live in `src/app/`; shared components in `src/components/` (layout pieces in `src/components/layout/`), as named exports. Import with the `@/` alias.
 - **Layout:**
-  - The root layout renders the skip link, `<Navbar />`, the page's single `<main id="main">`, and `<Footer />`. Pages render `<section>`s and never their own `<main>`.
+  - The root layout renders `<SmoothScroll />` (draws nothing), the skip link, `<Navbar />`, the page's single `<main id="main">`, and `<Footer />`. Pages render `<section>`s and never their own `<main>`.
+  - `<html>` has no fixed height (no `h-full`): Lenis watches `<html>` grow to know how far the page scrolls. The body's `min-h-svh` keeps the footer at the bottom of short pages.
   - Page content is centered with `mx-auto max-w-6xl px-6`.
   - The navbar is `fixed` and floats over the page. Pages clear it with top padding (`pt-28 md:pt-36`); only the homepage hero sits under it on purpose. `scroll-pt-*` on `<html>` keeps anchor jumps and keyboard focus from landing under it.
   - Pages set `export const metadata = { title: "…" }`, and the root template turns it into "… | Vantage".
@@ -222,9 +223,11 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
   - **Gotcha:** the headline's tight `leading-[0.84]` makes its text catch clicks about 0.3em above its own box, because Chrome hit-tests by the font's full height. Toys that sit just above the headline need a layer above it (the plane layer is `z-20` and `pointer-events-none`).
 - **Reduced motion has two sources:** the device setting, and the site's "Reduce motion" switch (footer), which puts `data-motion="reduce"` on `<html>`. It works like the theme: saved to `localStorage` (`vantage-motion`) and restored by the `<head>` script before the first paint.
   - `globals.css` redefines Tailwind's `motion-safe:` and `motion-reduce:` variants to check both, so always use those variants and every animation obeys automatically.
-  - In JavaScript, use `prefersReducedMotion()` from `src/lib/motion.ts`, never `matchMedia` alone.
+  - In JavaScript, use `prefersReducedMotion()` from `src/lib/motion.ts`, never `matchMedia` alone. A component that must react when either source flips (e.g. turning Lenis off) uses `useReducedMotion()` (`src/lib/use-reduced-motion.ts`).
   - Plain-CSS animations need `:root:not([data-motion="reduce"])` (see the navbar shrink).
   - If the device already asks for reduced motion, the switch hides (`[@media(prefers-reduced-motion:reduce)]:hidden`), since there's nothing to switch.
+- **Smooth scroll (Lenis):** `<SmoothScroll />` smooths the mouse wheel site-wide; touch, keyboard and scrollbar stay native. It switches itself off with reduced motion. GSAP's ticker drives it, so scrolling and GSAP animations share one frame loop.
+  - A box that scrolls on its own with the wheel (an overflowing panel or list) needs `data-lenis-prevent`, or Lenis scrolls the page instead. Touch-only scrollers (the phone swipe track) are fine.
 - Motion and 3D: honor reduced motion (no Lenis smoothing or scroll-scrubbed motion; simple fades are fine). Load 3D client-only and lazily, pause it offscreen, and give low-power and mobile devices a static fallback. Animation must never block content or hurt LCP/INP.
 - Accessibility: semantic HTML first; everything keyboard-reachable with visible focus; alt text from tour data.
 - Env: server-only `API_URL`. Use `NEXT_PUBLIC_` only for values that are safe to expose (e.g. the Cloudinary cloud name). Never commit `.env*`.
@@ -272,7 +275,9 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
      - phones swipe the cards (CSS scroll-snap), and an IntersectionObserver drives the "01 / 04" progress and the badges;
      - md+ shows a calm grid (2 columns, 3 at xl), which is also the reduced-motion layout;
      - six stops (Kareem's call, for a longer scroll ride): the design's four plus "Meet your guide" (flag) and "Bring home stories" (postcard). Stops 4–6 have draft copy and new art.
-   - 6b. GSAP + ScrollTrigger + Lenis: pin the section on desktop (motion allowed) so vertical scroll slides the track sideways; progress follows
+   - 6b. the sideways ride:
+     - Lenis smooth scroll site-wide ✓ (driven by GSAP's ticker, off with reduced motion);
+     - GSAP ScrollTrigger: pin the section on desktop (motion allowed) so vertical scroll slides the track sideways; progress follows.
    - 6c. the plane flies the dashed path and lands on each stop; each card's prop does its trick
 
 Then the remaining sections in handoff order. Update this line as steps complete.

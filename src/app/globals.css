@@ -1,4 +1,7 @@
 @import "tailwindcss";
+/* Lenis's recommended CSS (smooth scroll, src/components/smooth-scroll.tsx). Its rules
+   only apply while Lenis runs and puts the "lenis" class on <html>. */
+@import "lenis/dist/lenis.css";
 
 /* `dark:` classes follow data-theme (set on <html> or on any section), not the OS setting.
    Light is the default; dark mode is opt-in. */
