@@ -9,6 +9,26 @@
    Phone widths only (< md), so it never fights the md:/lg: classes. */
 @custom-variant short (@media (width < 48rem) and (height < 52rem));
 
+/* Motion follows BOTH the device setting and the site's "Reduce motion" switch
+   (src/lib/motion.ts puts data-motion="reduce" on <html>). These replace Tailwind's
+   built-in variants, so every motion-safe: / motion-reduce: class obeys the switch.
+   :where() adds no specificity, so nothing else changes priority. */
+@custom-variant motion-safe {
+  @media (prefers-reduced-motion: no-preference) {
+    &:where(:not([data-motion="reduce"] *)) {
+      @slot;
+    }
+  }
+}
+@custom-variant motion-reduce {
+  @media (prefers-reduced-motion: reduce) {
+    @slot;
+  }
+  &:where([data-motion="reduce"] *) {
+    @slot;
+  }
+}
+
 /* ==========================================================================
    1. PALETTE: raw colors
    Brand hexes sit at navy-600, sky-300, sun-300, and sand-200.
@@ -689,7 +709,8 @@
 /* Navbar shrink (src/components/layout/navbar.tsx): a scroll-driven animation.
    Its progress follows the page scroll instead of time: 0px scrolled = start,
    40px scrolled = end (60px tall). No JavaScript, no scroll listener.
-   Browsers without support (Firefox, for now) and reduced-motion users keep the full height. */
+   Browsers without support (Firefox, for now) and reduced-motion users (device setting
+   or the site's switch) keep the full height. */
 @keyframes nav-shrink {
   to {
     height: 60px;
@@ -698,7 +719,7 @@
 
 @supports (animation-timeline: scroll()) {
   @media (prefers-reduced-motion: no-preference) {
-    .nav-shrink {
+    :root:not([data-motion="reduce"]) .nav-shrink {
       animation: nav-shrink linear both;
       animation-timeline: scroll(root); /* after `animation`: the shorthand resets it */
       animation-range: 0 40px;

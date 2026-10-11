@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { Figtree, Oswald, Shadows_Into_Light } from "next/font/google"
 import { Footer } from "@/components/layout/footer"
 import { Navbar } from "@/components/layout/navbar"
+import { motionInitScript } from "@/lib/motion"
 import { themeInitScript } from "@/lib/theme"
 import "./globals.css"
 
@@ -46,8 +47,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${figtree.variable} ${oswald.variable} ${shadowsIntoLight.variable} h-full scroll-pt-24 antialiased md:scroll-pt-28`}
     >
       <head>
-        {/* Plain inline script: runs while the HTML is parsed, before the first paint */}
-        <script>{themeInitScript}</script>
+        {/* Plain inline script: runs while the HTML is parsed, before the first paint.
+            Restores the saved theme and the "Reduce motion" switch. */}
+        <script>{themeInitScript + motionInitScript}</script>
       </head>
       <body className="flex min-h-full flex-col">
         {/* Invisible until focused: lets keyboard users jump past the navbar */}

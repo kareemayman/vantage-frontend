@@ -220,7 +220,12 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
 - **Hero composition:** props near the headline sit inside the title "stage", whose font size is the headline size, and are positioned in `em` (`left-1/2 ml-[0.82em] top-[-1.69em]`). They scale and move with the headline at every width.
   - The hero's content layer is `pointer-events-none` so empty sky passes the pointer to the stars behind it; interactive children opt back in with `pointer-events-auto`.
   - **Gotcha:** the headline's tight `leading-[0.84]` makes its text catch clicks about 0.3em above its own box, because Chrome hit-tests by the font's full height. Toys that sit just above the headline need a layer above it (the plane layer is `z-20` and `pointer-events-none`).
-- Motion and 3D: honor `prefers-reduced-motion` (no Lenis smoothing or scroll-scrubbed motion; simple fades are fine). Load 3D client-only and lazily, pause it offscreen, and give low-power and mobile devices a static fallback. Animation must never block content or hurt LCP/INP.
+- **Reduced motion has two sources:** the device setting, and the site's "Reduce motion" switch (footer), which puts `data-motion="reduce"` on `<html>`. It works like the theme: saved to `localStorage` (`vantage-motion`) and restored by the `<head>` script before the first paint.
+  - `globals.css` redefines Tailwind's `motion-safe:` and `motion-reduce:` variants to check both, so always use those variants and every animation obeys automatically.
+  - In JavaScript, use `prefersReducedMotion()` from `src/lib/motion.ts`, never `matchMedia` alone.
+  - Plain-CSS animations need `:root:not([data-motion="reduce"])` (see the navbar shrink).
+  - If the device already asks for reduced motion, the switch hides (`[@media(prefers-reduced-motion:reduce)]:hidden`), since there's nothing to switch.
+- Motion and 3D: honor reduced motion (no Lenis smoothing or scroll-scrubbed motion; simple fades are fine). Load 3D client-only and lazily, pause it offscreen, and give low-power and mobile devices a static fallback. Animation must never block content or hurt LCP/INP.
 - Accessibility: semantic HTML first; everything keyboard-reachable with visible focus; alt text from tour data.
 - Env: server-only `API_URL`. Use `NEXT_PUBLIC_` only for values that are safe to expose (e.g. the Cloudinary cloud name). Never commit `.env*`.
 - Code style matches the backend and is enforced by Prettier (`.prettierrc`): no semicolons, double quotes, trailing commas, 100-column lines. Run `npm run format` after writing code. `endOfLine` is `"auto"` because git's `core.autocrlf=true` on this Windows machine checks files out with CRLF.
@@ -261,7 +266,7 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
    - Company links (Kareem's choice): About → his portfolio, Contact → email, GitHub → this repo;
    - "Dark mode" is the third theme switch;
    - the hidden crab scuttles when poked. Later it reveals the easter-egg counter (phase 7); "Sound off" waits until the site has sounds.
-5b. "Reduce motion" switch (footer Settings): a site-wide override that calms every `motion-safe:` animation
+5b. "Reduce motion" switch ✓ (footer Settings, `src/components/motion-toggle.tsx`, `src/lib/motion.ts`)
 
 Then the remaining sections in handoff order. Update this line as steps complete.
 

@@ -1,5 +1,6 @@
 import Link from "next/link"
 import type { ReactNode } from "react"
+import { MotionToggle } from "@/components/motion-toggle"
 import { Crab } from "@/components/scene/beach"
 import { Poke } from "@/components/scene/poke"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -17,8 +18,8 @@ const COMPANY = [
 ]
 const PORTFOLIO = COMPANY[0].href
 
-// 09 Footer (design/HANDOFF.md). Server Component: only the theme switch and the
-// crab inside it are Client Components.
+// 09 Footer (design/HANDOFF.md). Server Component: only the two settings switches and
+// the crab inside it are Client Components.
 export function Footer() {
   return (
     // overflow-hidden: the crab can scuttle around without causing a scrollbar
@@ -61,6 +62,9 @@ export function Footer() {
               <li>
                 <ThemeSwitch className="flex min-h-11 items-center" />
               </li>
+              <li className={MOTION_SWITCH_SLOT}>
+                <MotionSwitch className="flex min-h-11 items-center" />
+              </li>
             </ul>
 
             {/* Wider screens: titled columns */}
@@ -79,10 +83,13 @@ export function Footer() {
                   </li>
                 ))}
               </FooterColumn>
-              {/* "Reduce motion" joins in step 5b; "Sound off" once the site has sounds */}
+              {/* "Sound off" joins once the site has sounds */}
               <FooterColumn title="Settings">
                 <li>
                   <ThemeSwitch />
+                </li>
+                <li className={MOTION_SWITCH_SLOT}>
+                  <MotionSwitch />
                 </li>
               </FooterColumn>
             </div>
@@ -156,6 +163,18 @@ function FooterLink({
     >
       {children}
     </a>
+  )
+}
+
+// When the device itself asks for reduced motion, the site can't add anything, so the
+// switch hides. An arbitrary variant: a media query on the device setting only.
+const MOTION_SWITCH_SLOT = "[@media(prefers-reduced-motion:reduce)]:hidden"
+
+function MotionSwitch({ className = "" }: { className?: string }) {
+  return (
+    <MotionToggle
+      className={`cursor-pointer text-left transition-colors hover:text-primary ${className}`}
+    />
   )
 }
 

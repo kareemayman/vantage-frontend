@@ -1,3 +1,5 @@
+import { prefersReducedMotion } from "@/lib/motion"
+
 export type Theme = "light" | "dark"
 
 const STORAGE_KEY = "vantage-theme"
@@ -19,9 +21,8 @@ function applyTheme(theme: Theme) {
 // `origin` is where the "sunset wipe" circle starts (the button's center).
 export function toggleTheme(origin?: { x: number; y: number }) {
   const next: Theme = document.documentElement.dataset.theme === "dark" ? "light" : "dark"
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-
-  if (!("startViewTransition" in document) || reduceMotion || !origin) {
+  // Device setting or the site's "Reduce motion" switch: swap instantly, no wipe
+  if (!("startViewTransition" in document) || prefersReducedMotion() || !origin) {
     applyTheme(next)
     return
   }
