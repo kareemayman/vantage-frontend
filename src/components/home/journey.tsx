@@ -58,26 +58,34 @@ const STEPS: JourneyStep[] = [
 ]
 
 // 02 The Journey (design/HANDOFF.md)
+// Pinned (desktop, motion allowed; see journey-track.tsx): the section fills the screen
+// and centers its content. The title, the gaps and the picture panels keep the design's
+// size on a 900px-tall screen and shrink faster than the screen below that, e.g. panels
+// are min(170px, 26svh - 64px): 170px at 900px tall, 107px at 657px (a 1366×768 laptop).
+// That way the whole section fits from 600px up. If it ever can't, the section grows
+// instead and the pin waits for its bottom, so the cards stay in view.
 export function Journey() {
   return (
     <section
       aria-labelledby="journey-title"
-      className="relative overflow-hidden bg-scene-sky-2 pt-16 pb-12 md:pt-24 md:pb-40"
+      className="relative overflow-hidden bg-scene-sky-2 pt-16 pb-12 md:pt-24 md:pb-40 pinned:flex pinned:min-h-svh pinned:flex-col pinned:justify-center pinned:pb-4"
     >
       {/* Two drifting clouds (wider screens). The bottom one sits fully inside the
           section's extra bottom padding, clear of the cards. */}
       <Cloud className="absolute top-[7%] right-[12%] hidden w-50 motion-safe:animate-drift md:block" />
       <Cloud className="absolute bottom-5 left-[53%] hidden w-40 motion-safe:animate-drift motion-safe:[animation-delay:-2s] md:block" />
 
-      <div className="relative mx-auto max-w-360 px-4 md:px-10 lg:px-20">
+      {/* w-full: as a flex item (pinned), mx-auto would otherwise shrink it to fit */}
+      <div className="relative mx-auto w-full max-w-360 px-4 md:px-10 lg:px-20">
+        {/* lg:shrink-0: the title keeps its two lines; the note beside it wraps instead */}
         <header className="lg:flex lg:items-end lg:gap-12">
-          <div>
+          <div className="lg:shrink-0">
             <p className="text-[13px] font-extrabold tracking-[0.16em] text-primary uppercase md:text-sm">
               The journey
             </p>
             <h2
               id="journey-title"
-              className="mt-2.5 font-display text-[clamp(3.25rem,6.1vw,5.5rem)] leading-[0.92] font-bold tracking-tight uppercase md:mt-3"
+              className="mt-2.5 font-display text-[clamp(3.25rem,6.1vw,5.5rem)] leading-[0.92] font-bold tracking-tight uppercase md:mt-3 pinned:text-[clamp(3.25rem,min(6.1vw,11.2svh-0.8rem),5.5rem)]"
             >
               Couch to coastline <br className="hidden md:inline" />
               in six stops
@@ -85,7 +93,7 @@ export function Journey() {
           </div>
           <p
             aria-hidden
-            className="mt-2.5 font-hand text-[22px] text-primary lg:mb-4 lg:-rotate-4 lg:text-[28px]"
+            className="mt-2.5 font-hand text-[22px] text-balance text-primary lg:mb-4 lg:-rotate-4 lg:text-[28px]"
           >
             <span className="md:hidden">swipe, we&apos;re taxiing →</span>
             <span className="hidden md:inline">keep scrolling, we&apos;re taxiing →</span>

@@ -1,8 +1,8 @@
 "use client"
 
-import gsap from "gsap"
 import Lenis from "lenis"
 import { useEffect } from "react"
+import { gsap, ScrollTrigger } from "@/lib/gsap"
 import { useReducedMotion } from "@/lib/use-reduced-motion"
 
 // Smooth scrolling for the whole site (Lenis): the mouse wheel glides instead of jumping
@@ -14,7 +14,12 @@ export function SmoothScroll() {
 
   useEffect(() => {
     if (reduced) return
-    const lenis = new Lenis()
+    // stopInertiaOnNavigate: clicking a link to another page stops the glide, so the
+    // new page doesn't keep scrolling from the old flick of the wheel
+    const lenis = new Lenis({ stopInertiaOnNavigate: true })
+    // Pinned and scrubbed sections (ScrollTrigger) re-check the scroll position the
+    // moment Lenis moves the page, not a frame later
+    lenis.on("scroll", ScrollTrigger.update)
 
     // Lenis eases the page a little closer to its target on every frame. GSAP's ticker
     // is the one frame loop behind every GSAP animation, so scroll and animation move

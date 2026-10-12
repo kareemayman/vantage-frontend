@@ -12,6 +12,21 @@
    Phone widths only (< md), so it never fights the md:/lg: classes. */
 @custom-variant short (@media (width < 48rem) and (height < 52rem));
 
+/* The Journey's sideways ride (src/components/home/journey-track.tsx).
+   `pinned:` while the desktop section is pinned: the script puts data-pinned on the
+   section only on desktop with motion allowed, and removes it otherwise.
+   `ride:` wherever the cards are visited one at a time and the current one lights up:
+   phones (swiping) and the pinned desktop ride. The calm md+ grid gets neither. */
+@custom-variant pinned (&:where([data-pinned], [data-pinned] *));
+@custom-variant ride {
+  @media (width < 48rem) {
+    @slot;
+  }
+  &:where([data-pinned], [data-pinned] *) {
+    @slot;
+  }
+}
+
 /* Motion follows BOTH the device setting and the site's "Reduce motion" switch
    (src/lib/motion.ts puts data-motion="reduce" on <html>). These replace Tailwind's
    built-in variants, so every motion-safe: / motion-reduce: class obeys the switch.

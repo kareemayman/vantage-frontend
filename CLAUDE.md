@@ -16,7 +16,7 @@ Frontend for **Vantage**, a tour-booking platform and Kareem's first full-stack 
   - **Has used before, but not recently:** Next.js (never its advanced features) and Tailwind. Refresh these quickly instead of teaching from zero, but fully explain anything new since then: the App Router, Server Components and Server Actions, Next's caching, Tailwind v4's CSS-first config.
   - **Brand new:** Zustand, Zod, GSAP, Lenis, three.js/R3F, physics engines, native `<dialog>`/popover, shadcn/ui.
 - **Collaboration mode: Claude writes the code, in small steps, explaining everything.**
-- **Keep explanations short.** Kareem loses focus with long text. Still teach every new concept with a tiny example, but use few words, short sections, and no excessive detail.
+- **Keep explanations short and simple.** Kareem loses focus with long text, and he has said that over-complicated explanations lose him. Use plain English: short sentences, everyday words, one idea at a time, no jargon. Still teach every new concept with a tiny example, ideally next to code he already writes (`useState` + `useEffect`, Redux).
 - **Before every step, say what you're about to do and why** (a few sentences). Then do it. Then explain what changed.
 - **Explain every new tool, API, or concept the first time it appears**: what it is, what problem it solves, how it works (with a minimal example), how it maps to something Kareem already knows (React SPA, Redux, Express; e.g. "`proxy.ts` is Next's version of Express middleware"), and the main alternative. Never introduce a library or pattern silently.
 - **Keep it simple; don't overengineer.** Pick the simplest approach that works. Add abstractions, folders, or libraries only when a concrete need shows up, and say when something is optional. If a pattern is "industry best practice" but overkill for this project, say so and skip it.
@@ -228,6 +228,11 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
   - If the device already asks for reduced motion, the switch hides (`[@media(prefers-reduced-motion:reduce)]:hidden`), since there's nothing to switch.
 - **Smooth scroll (Lenis):** `<SmoothScroll />` smooths the mouse wheel site-wide; touch, keyboard and scrollbar stay native. It switches itself off with reduced motion. GSAP's ticker drives it, so scrolling and GSAP animations share one frame loop.
   - A box that scrolls on its own with the wheel (an overflowing panel or list) needs `data-lenis-prevent`, or Lenis scrolls the page instead. Touch-only scrollers (the phone swipe track) are fine.
+- **Scroll animation (GSAP):** import `gsap`, `ScrollTrigger` and `useGSAP` from `src/lib/gsap.ts`, which registers the plugins once.
+  - Set up in `useGSAP` (it undoes every tween and pin on unmount, before React removes the DOM, which pins need). Use `gsap.matchMedia()` for per-breakpoint setups. Pass `useReducedMotion()` in `dependencies` with `revertOnUpdate: true`, and skip the motion setup when it's true. See `journey-track.tsx`.
+  - **The no-JS layout is the default.** JavaScript switches into the animated layout by marking the section (`data-pinned`), and CSS restyles it with the `pinned:` variant (`globals.css`). `ride:` covers "the cards are visited one at a time": phones plus pinned desktop.
+  - A pinned section must fit the screen: it's `min-h-svh`, and its big parts shrink with height via `min(<design size>, <a>svh - <b>)`, which keeps the design's size at 900px tall and still fits 657px (1366×768 laptops). The pin starts at `"bottom bottom"`, so if it ever overflows, the top is what's cut.
+  - Pinning needs no `transform` (or `filter`) on the pinned element's ancestors, since `position: fixed` breaks under one. Use `scrub: true`, not a number: Lenis already smooths the scroll.
 - Motion and 3D: honor reduced motion (no Lenis smoothing or scroll-scrubbed motion; simple fades are fine). Load 3D client-only and lazily, pause it offscreen, and give low-power and mobile devices a static fallback. Animation must never block content or hurt LCP/INP.
 - Accessibility: semantic HTML first; everything keyboard-reachable with visible focus; alt text from tour data.
 - Env: server-only `API_URL`. Use `NEXT_PUBLIC_` only for values that are safe to expose (e.g. the Cloudinary cloud name). Never commit `.env*`.
@@ -272,12 +277,13 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
 5b. "Reduce motion" switch ✓ (footer Settings, `src/components/motion-toggle.tsx`, `src/lib/motion.ts`)
 6. The Journey (`src/components/home/journey.tsx`, `journey-track.tsx`, `src/components/scene/journey-props.tsx`):
    - 6a. the section ✓:
-     - phones swipe the cards (CSS scroll-snap), and an IntersectionObserver drives the "01 / 04" progress and the badges;
+     - phones swipe the cards (CSS scroll-snap), and an IntersectionObserver drives the "01 / 06" progress and the badges;
      - md+ shows a calm grid (2 columns, 3 at xl), which is also the reduced-motion layout;
      - six stops (Kareem's call, for a longer scroll ride): the design's four plus "Meet your guide" (flag) and "Bring home stories" (postcard). Stops 4–6 have draft copy and new art.
-   - 6b. the sideways ride:
-     - Lenis smooth scroll site-wide ✓ (driven by GSAP's ticker, off with reduced motion);
-     - GSAP ScrollTrigger: pin the section on desktop (motion allowed) so vertical scroll slides the track sideways; progress follows.
+   - 6b. the sideways ride ✓:
+     - Lenis smooth scroll site-wide (driven by GSAP's ticker, off with reduced motion);
+     - desktop (≥1024 wide, ≥600 tall, motion allowed): the section pins and the row of 360px cards slides 1:1 with the scroll (1160px at 1440 wide). The current card lifts, badges fill in, "0X / 06" follows, like the design's frame. Tablets, short windows and reduced motion keep the grid;
+     - the design says "pins for ~3 viewports"; at 1:1 ours is ~1.3. Stretch it in 6c if the plane's landings need more time.
    - 6c. the plane flies the dashed path and lands on each stop; each card's prop does its trick
 
 Then the remaining sections in handoff order. Update this line as steps complete.
