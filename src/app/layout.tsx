@@ -53,8 +53,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             Restores the saved theme and the "Reduce motion" switch. */}
         <script>{themeInitScript + motionInitScript}</script>
       </head>
-      {/* min-h-svh + flex-1 on <main>: short pages still push the footer to the bottom */}
-      <body className="flex min-h-svh flex-col">
+      {/* min-h-svh + flex-1 on <main>: short pages still push the footer to the bottom.
+          suppressHydrationWarning: browser extensions (e.g. Grammarly) add attributes to
+          <body> before React loads. This only skips <body>'s own attributes; everything
+          inside it is still checked. */}
+      <body suppressHydrationWarning className="flex min-h-svh flex-col">
         <SmoothScroll />
         {/* Invisible until focused: lets keyboard users jump past the navbar */}
         <a

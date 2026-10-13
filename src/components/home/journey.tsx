@@ -38,7 +38,8 @@ const STEPS: JourneyStep[] = [
     art: (
       <>
         <Cloud aria-hidden className="absolute bottom-2 left-3 w-[30%]" />
-        <Plane className="w-[52%] -rotate-20" />
+        {/* Not in the sky until you arrive. Trick: climbs in from the runway (bottom left) */}
+        <Plane className="w-[52%] -rotate-20 motion-safe:reached:animate-take-off ahead:opacity-0" />
       </>
     ),
   },
