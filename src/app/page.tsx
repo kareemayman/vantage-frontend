@@ -1,3 +1,4 @@
+import { FeaturedTours } from "@/components/home/featured-tours"
 import { Hero } from "@/components/home/hero"
 import { Journey } from "@/components/home/journey"
 
@@ -7,6 +8,7 @@ export default function Home() {
     <>
       <Hero />
       <Journey />
+      <FeaturedTours />
     </>
   )
 }

@@ -31,7 +31,7 @@ export function FoldedMap(props: SvgProps) {
         className="stroke-navy-600"
       />
       {/* The pin. Trick: drops in and wobbles on its tip (origin-bottom) */}
-      <g className="origin-bottom transform-fill motion-safe:reached:animate-pin-drop ahead:opacity-0">
+      <g className="origin-bottom transform-fill ahead:opacity-0 motion-safe:reached:animate-pin-drop">
         <path
           d="M150 50C150 30 126 26 122 44C120 56 136 70 136 84C136 70 150 62 150 50Z"
           strokeWidth="4"
@@ -71,7 +71,7 @@ export function Ticket(props: SvgProps) {
         />
       </g>
       {/* The "booked" stamp. Trick: slams down */}
-      <g className="origin-center transform-fill motion-safe:reached:animate-stamp ahead:opacity-0">
+      <g className="origin-center transform-fill ahead:opacity-0 motion-safe:reached:animate-stamp">
         <circle
           cx="140"
           cy="96"
@@ -108,7 +108,7 @@ export function GuideFlag(props: SvgProps) {
         />
         {/* The flag: down at the bottom of the pole until you arrive. Trick: runs up
             and flaps once, turning around the pole (origin-left) */}
-        <g className="origin-left transform-fill motion-safe:reached:animate-raise ahead:translate-y-12.5">
+        <g className="origin-left transform-fill ahead:translate-y-12.5 motion-safe:reached:animate-raise">
           <path
             d="M47 18C78 6 104 30 146 20L136 48L146 74C104 84 78 60 47 72Z"
             strokeWidth="4"
@@ -169,7 +169,7 @@ export function Postcard(props: SvgProps) {
           fill="none"
           strokeWidth="2.5"
           strokeDasharray="3 4"
-          className="origin-center stroke-navy-600 transform-fill motion-safe:reached:animate-stamp ahead:opacity-0"
+          className="origin-center stroke-navy-600 transform-fill ahead:opacity-0 motion-safe:reached:animate-stamp"
         />
         <path
           d="M114 82L178 82M114 98L164 98"

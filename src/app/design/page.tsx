@@ -119,6 +119,9 @@ function Sample({ label }: { label: string }) {
         <ButtonLink href="#" variant="outline">
           Create an account
         </ButtonLink>
+        <ButtonLink href="#" variant="primary" size="sm">
+          View tour
+        </ButtonLink>
       </div>
 
       <label className="block space-y-1.5">

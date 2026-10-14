@@ -9,6 +9,9 @@ const VARIANTS = {
   cta: "border-3 border-navy-950 bg-cta font-extrabold text-cta-foreground shadow-pop hover:bg-cta-hover active:translate-x-1 active:translate-y-1 active:shadow-none",
   // The quiet partner next to a cta
   outline: "border-2 border-outline bg-card font-bold text-foreground hover:bg-accent",
+  // Navy (sky in dark mode): everyday links, e.g. "View tour"
+  primary:
+    "bg-primary font-bold text-primary-foreground hover:bg-primary-hover active:bg-primary-active",
 }
 
 const SIZES = {

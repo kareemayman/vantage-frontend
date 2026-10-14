@@ -39,7 +39,7 @@ const STEPS: JourneyStep[] = [
       <>
         <Cloud aria-hidden className="absolute bottom-2 left-3 w-[30%]" />
         {/* Not in the sky until you arrive. Trick: climbs in from the runway (bottom left) */}
-        <Plane className="w-[52%] -rotate-20 motion-safe:reached:animate-take-off ahead:opacity-0" />
+        <Plane className="w-[52%] -rotate-20 ahead:opacity-0 motion-safe:reached:animate-take-off" />
       </>
     ),
   },
@@ -96,8 +96,8 @@ export function Journey() {
             aria-hidden
             className="mt-2.5 font-hand text-[22px] text-balance text-primary lg:mb-4 lg:-rotate-4 lg:text-[28px]"
           >
-            <span className="md:hidden">swipe, we&apos;re taxiing →</span>
-            <span className="hidden md:inline">keep scrolling, we&apos;re taxiing →</span>
+            <span className="md:hidden">swipe, the beach is this way →</span>
+            <span className="hidden md:inline">keep scrolling, the beach is this way →</span>
           </p>
         </header>
 
