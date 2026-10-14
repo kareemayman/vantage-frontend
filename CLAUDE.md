@@ -222,6 +222,9 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
   - **One-shot toy animations** (on click, tap, or hover) use `<Poke animation playOnHover?>` (`src/components/scene/poke.tsx`). It sets `data-playing` until the named keyframes end, and the CSS decides what plays (`data-playing:animate-hop` on the toy, or `group-data-playing:animate-bounce-once` on a child). The toy's markup stays in Server Components.
     - Don't use `hover:`/`active:` for one-shots. `:active` lasts only while the button is held, and setting the same animation again never restarts it.
     - With a `label`, the toy is a real `<button>` (the beach ball). Without one, it's decoration (the palm, suitcases): `aria-hidden`, mouse and touch only, not a Tab stop.
+  - **Entrances that play once, on scroll into view:** wrap the thing in `<Reveal>` (`src/components/reveal.tsx`). It marks its box `data-reveal="waiting"`, then `"seen"` once the box's top is 25% up the screen, and the CSS decides the rest with the `waiting:` and `seen:` variants, e.g. `waiting:opacity-0 motion-safe:seen:animate-swing-in motion-reduce:seen:animate-fade-in`. Without JavaScript nothing gets marked, so nothing stays hidden.
+    - Give each item its own `<Reveal>` when items should wait for themselves (stacked phone cards would otherwise play off-screen). Stagger with an inline `style={{ animationDelay }}`.
+    - Something that swings or slides near the screen's edge can make the page scroll sideways mid-animation: its section gets `overflow-x-clip` (it hides only the sideways overflow, so things that stick out above, like the tags' strings, still show).
 - **Hero composition:** props near the headline sit inside the title "stage", whose font size is the headline size, and are positioned in `em` (`left-1/2 ml-[0.82em] top-[-1.69em]`). They scale and move with the headline at every width.
   - The hero's content layer is `pointer-events-none` so empty sky passes the pointer to the stars behind it; interactive children opt back in with `pointer-events-auto`.
   - **Gotcha:** the headline's tight `leading-[0.84]` makes its text catch clicks about 0.3em above its own box, because Chrome hit-tests by the font's full height. Toys that sit just above the headline need a layer above it (the plane layer is `z-20` and `pointer-events-none`).
@@ -297,8 +300,8 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
      - the tours are typed in (Kareem's call: no API until phase 2), shaped like the API's tour (`Tour` in `src/lib/tours.ts`), so phase 2 only changes that file. The pictures are SVG placeholders until real photos (backend item 1);
      - layout: phones stack (448px max), md shows two with the third centered below (a 4-column grid, two columns per tag), xl hangs three in a row (400px each at 1440). On phones the title shrinks with the screen so "This summer's" fits on one line down to 320px;
      - changes from the design: the tags hang lower, so their strings don't cross the title; phones also get the handwritten note and "See all tours" (the design dropped both), plus the stamps and pin icons; the note says "where to first?" (Kareem's pick; the design's "all 3 under 10 travelers" wasn't true for the seed data, whose group sizes are 15, 25 and 8).
-   - 7b. the swing-in (next): the tags swing in on their strings, staggered, and settle with a damped wobble. Reduced motion: fade only.
-   - 7c. hover: the tag tilts toward the cursor (max 4°) and its stamp thunks.
+   - 7b. the swing-in ✓: each tag waits, hidden, until it scrolls into view (`<Reveal>`), then drops in and swings around the top of its string (`origin-[50%_-67px]`), each swing smaller, until it hangs still (`swing-in`, 2s, in `globals.css`). Tags start 0.15s apart; on phones each one waits for its own turn. The swing is on a wrapper around the tag, so the tag's own small tilt stays. Reduced motion: a fade.
+   - 7c. hover (next): the tag tilts toward the cursor (max 4°) and its stamp thunks.
 
 Then the remaining sections in handoff order. Update this line as steps complete.
 

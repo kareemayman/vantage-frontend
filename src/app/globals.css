@@ -26,6 +26,13 @@
 @custom-variant ahead (&:where([data-stop="ahead"] *));
 @custom-variant reached (&:where([data-stop="here"] *, [data-stop="passed"] *));
 
+/* Entrances that play once, when they scroll into view (src/components/reveal.tsx).
+   `waiting:` not on screen yet (hidden, ready to come in).
+   `seen:` it has been on screen: the entrance plays.
+   The script sets both, so without JavaScript neither matches and everything just shows. */
+@custom-variant waiting (&:where([data-reveal="waiting"], [data-reveal="waiting"] *));
+@custom-variant seen (&:where([data-reveal="seen"], [data-reveal="seen"] *));
+
 /* Motion follows BOTH the device setting and the site's "Reduce motion" switch
    (src/lib/motion.ts puts data-motion="reduce" on <html>). These replace Tailwind's
    built-in variants, so every motion-safe: / motion-reduce: class obeys the switch.
@@ -447,6 +454,10 @@
   --animate-take-off: take-off 1.2s ease-in-out 0.3s both; /* the plane climbs into the sky */
   --animate-raise: raise 1.1s ease-out 0.3s both; /* the guide's flag runs up its pole */
 
+  /* Featured tours (src/components/home/featured-tours.tsx): a luggage tag drops in on
+     its string and swings to a stop. Plays once, when the tag scrolls into view (seen:). */
+  --animate-swing-in: swing-in 2s ease-in-out both;
+
   @keyframes turn {
     to {
       rotate: 1turn;
@@ -795,6 +806,32 @@
     }
     85% {
       rotate: 5deg;
+    }
+    100% {
+      rotate: 0deg;
+    }
+  }
+  /* Drops in, then swings back and forth, each swing smaller than the last, until it
+     hangs still. ease-in-out on every step: like a real swing, it slows at each end. */
+  @keyframes swing-in {
+    0% {
+      opacity: 0;
+      translate: 0 -2.5rem;
+      rotate: -10deg;
+    }
+    22% {
+      opacity: 1;
+      translate: 0 0;
+      rotate: 6deg;
+    }
+    42% {
+      rotate: -3.5deg;
+    }
+    62% {
+      rotate: 2deg;
+    }
+    80% {
+      rotate: -0.8deg;
     }
     100% {
       rotate: 0deg;

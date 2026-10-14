@@ -1,5 +1,6 @@
 import type { ReactNode } from "react"
 import { ButtonLink } from "@/components/button"
+import { Reveal } from "@/components/reveal"
 import { ForestScene, NightScene, SeaScene } from "@/components/scene/tour-scenes"
 import { FEATURED_TOURS, type Tour } from "@/lib/tours"
 
@@ -46,9 +47,14 @@ const POSES = [
 
 // 03 Featured tours (design/HANDOFF.md): the tours as luggage tags. Phones stack them,
 // md shows two with the third centered below, xl hangs all three in a row.
+// overflow-x-clip: a swinging tag can poke past the screen's edge; this hides that part
+// instead of letting the page scroll sideways.
 export function FeaturedTours() {
   return (
-    <section aria-labelledby="tours-title" className="pt-18 pb-16 md:pt-28 md:pb-36">
+    <section
+      aria-labelledby="tours-title"
+      className="overflow-x-clip pt-18 pb-16 md:pt-28 md:pb-36"
+    >
       <div className="mx-auto max-w-360 px-4 md:px-10 lg:px-20">
         <header className="lg:flex lg:items-end lg:justify-between lg:gap-12">
           <div>
@@ -86,7 +92,15 @@ export function FeaturedTours() {
               key={tour.slug}
               className="@container md:col-span-2 md:odd:last:col-start-2 md:even:mt-7.5 xl:col-span-1 xl:odd:last:col-start-auto"
             >
-              <LuggageTag tour={tour} pose={POSES[i % POSES.length]} />
+              {/* The swing-in: hidden until the tag scrolls into view, then it drops in
+                  and swings around the top of its string (origin, 67px above the tag).
+                  Each tag starts 0.15s after the one before. Reduced motion: a fade. */}
+              <Reveal
+                className="origin-[50%_-67px] waiting:opacity-0 motion-safe:seen:animate-swing-in motion-reduce:seen:animate-fade-in"
+                style={{ animationDelay: `${i * 0.15}s` }}
+              >
+                <LuggageTag tour={tour} pose={POSES[i % POSES.length]} />
+              </Reveal>
             </li>
           ))}
         </ul>
