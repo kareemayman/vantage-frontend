@@ -1,5 +1,6 @@
 import type { ReactNode } from "react"
 import { ButtonLink } from "@/components/button"
+import { TagHover } from "@/components/home/tag-hover"
 import { Reveal } from "@/components/reveal"
 import { ForestScene, NightScene, SeaScene } from "@/components/scene/tour-scenes"
 import { FEATURED_TOURS, type Tour } from "@/lib/tours"
@@ -99,7 +100,12 @@ export function FeaturedTours() {
                 className="origin-[50%_-67px] waiting:opacity-0 motion-safe:seen:animate-swing-in motion-reduce:seen:animate-fade-in"
                 style={{ animationDelay: `${i * 0.15}s` }}
               >
-                <LuggageTag tour={tour} pose={POSES[i % POSES.length]} />
+                {/* Under the mouse it leans toward it and its stamp thunks. One wrapper
+                    per effect: each turns the tag (rotate), and an element has only one
+                    rotate (the swing-in, the lean, then the tag's own tilt inside). */}
+                <TagHover>
+                  <LuggageTag tour={tour} pose={POSES[i % POSES.length]} />
+                </TagHover>
               </Reveal>
             </li>
           ))}
@@ -143,7 +149,7 @@ function LuggageTag({ tour, pose }: { tour: Tour; pose: (typeof POSES)[number] }
         {/* The difficulty again, as a stamp. Decoration: the chip below says it. */}
         <span
           aria-hidden
-          className={`absolute rounded-md border-2 border-dashed px-3 py-1.5 font-display text-sm leading-none font-bold tracking-[0.08em] uppercase ${difficulty.stamp} ${art.stamp}`}
+          className={`absolute rounded-md border-2 border-dashed px-3 py-1.5 font-display text-sm leading-none font-bold tracking-[0.08em] uppercase motion-safe:group-data-playing:animate-thunk ${difficulty.stamp} ${art.stamp}`}
         >
           {tour.difficulty}
         </span>

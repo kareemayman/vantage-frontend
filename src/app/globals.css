@@ -457,6 +457,8 @@
   /* Featured tours (src/components/home/featured-tours.tsx): a luggage tag drops in on
      its string and swings to a stop. Plays once, when the tag scrolls into view (seen:). */
   --animate-swing-in: swing-in 2s ease-in-out both;
+  /* ...and when the mouse comes over a tag, its difficulty stamp thunks (tag-hover.tsx) */
+  --animate-thunk: thunk 0.5s ease-out;
 
   @keyframes turn {
     to {
@@ -835,6 +837,19 @@
     }
     100% {
       rotate: 0deg;
+    }
+  }
+  /* A rubber stamp lifted and pressed down hard: up (bigger), down (squashed), settle.
+     Only scale moves, so the stamp keeps its own tilt (rotate). */
+  @keyframes thunk {
+    35% {
+      scale: 1.15;
+    }
+    65% {
+      scale: 0.9;
+    }
+    85% {
+      scale: 1.03;
     }
   }
 }
