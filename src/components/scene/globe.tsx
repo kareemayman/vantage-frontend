@@ -6,7 +6,8 @@ import type { ComponentProps } from "react"
 // featured tour starts.
 
 // Each tour's pin on this drawing, and the point its flight's curve bends toward.
-// The first one is highlighted, like the first row of the list next to it.
+// The first one starts lit, like the first row of the list next to it; pin-highlight.tsx
+// moves the light to the row you point at.
 const PINS = [
   { slug: "the-sea-explorer", x: 316, y: 352, bend: "440 340" }, // Miami
   { slug: "the-forest-hiker", x: 215, y: 196, bend: "420 90" }, // Banff
@@ -90,16 +91,20 @@ export function Globe(props: ComponentProps<"svg">) {
         ))}
       </g>
 
-      {/* The pins, on top of the flights */}
+      {/* The pins, on top of the flights. data-slug pairs each one with its row; when
+          it's on (data-on), it turns sun yellow, grows (r: the circle's radius) and hops,
+          squashing at its base (origin-bottom transform-fill) like the suitcases. */}
       <g strokeWidth="4" className="stroke-navy-950">
         <circle cx="520" cy="250" r="12" className="fill-sand-50" />
         {PINS.map((pin, i) => (
           <circle
             key={pin.slug}
+            data-slug={pin.slug}
+            data-on={i === 0 ? "" : undefined}
             cx={pin.x}
             cy={pin.y}
-            r={i === 0 ? 14 : 11}
-            className={i === 0 ? "fill-sun-300" : "fill-sky-300"}
+            r="11"
+            className="origin-bottom fill-sky-300 transform-fill data-on:fill-sun-300 data-on:[r:14px] motion-safe:data-on:animate-hop"
           />
         ))}
       </g>

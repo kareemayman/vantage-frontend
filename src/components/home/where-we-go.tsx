@@ -1,4 +1,6 @@
+import Link from "next/link"
 import { GlobeFlights } from "@/components/home/globe-flights"
+import { PinHighlight } from "@/components/home/pin-highlight"
 import { Globe } from "@/components/scene/globe"
 import { FEATURED_TOURS } from "@/lib/tours"
 
@@ -50,8 +52,9 @@ export function WhereWeGo() {
       ))}
 
       {/* On phones the list comes after the globe (order-1); the HTML keeps it right
-          after the title, so screen readers get title, then list. */}
-      <div className="relative mx-auto grid max-w-360 gap-7 px-4 md:px-10 lg:grid-cols-2 lg:gap-x-12 lg:gap-y-8.5 lg:px-20">
+          after the title, so screen readers get title, then list.
+          <PinHighlight>: point at a row and its pin on the globe lights up. */}
+      <PinHighlight className="relative mx-auto grid max-w-360 gap-7 px-4 md:px-10 lg:grid-cols-2 lg:gap-x-12 lg:gap-y-8.5 lg:px-20">
         <header className="lg:max-w-140 lg:self-end">
           <p className="text-[13px] font-extrabold tracking-[0.16em] text-sun-300 uppercase md:text-sm">
             Where we go
@@ -73,21 +76,25 @@ export function WhereWeGo() {
             (@lg:), so a row never wraps onto two lines */}
         <ul className="@container order-1 flex flex-col gap-2.5 md:gap-3 lg:order-0 lg:max-w-140 lg:self-start">
           {FEATURED_TOURS.map((tour, i) => (
-            <li
-              key={tour.slug}
-              className={`flex items-center gap-3 rounded-[14px] border-2 bg-card p-3.5 md:gap-4 md:rounded-2xl md:px-4.5 md:py-4 ${i === 0 ? "border-sun-300" : "border-transparent"}`}
-            >
-              {/* The pin's color on the globe */}
-              <span
-                className={`size-3.5 shrink-0 rounded-full border-sand-50 md:size-4.5 md:border-3 ${i === 0 ? "bg-sun-300" : "bg-sky-300"}`}
-              />
-              <span className="grow font-bold md:text-lg">
-                {tour.startLocation.description}{" "}
-                <span className="font-medium text-sky-100">· {tour.name}</span>
-              </span>
-              <span className="hidden text-sm text-sky-100 tabular-nums @lg:inline">
-                {coordinates(tour.startLocation.coordinates)}
-              </span>
+            <li key={tour.slug}>
+              {/* Each row opens its tour. data-slug pairs it with its pin on the globe;
+                  data-on lights it up (sun border and dot). The first row starts on. */}
+              <Link
+                href={`/tours/${tour.slug}`}
+                data-slug={tour.slug}
+                data-on={i === 0 ? "" : undefined}
+                className="group flex items-center gap-3 rounded-[14px] border-2 border-transparent bg-card p-3.5 transition-colors data-on:border-sun-300 md:gap-4 md:rounded-2xl md:px-4.5 md:py-4"
+              >
+                {/* The pin's color on the globe */}
+                <span className="size-3.5 shrink-0 rounded-full border-sand-50 bg-sky-300 group-data-on:bg-sun-300 md:size-4.5 md:border-3" />
+                <span className="grow font-bold md:text-lg">
+                  {tour.startLocation.description}{" "}
+                  <span className="font-medium text-sky-100">· {tour.name}</span>
+                </span>
+                <span className="hidden text-sm text-sky-100 tabular-nums @lg:inline">
+                  {coordinates(tour.startLocation.coordinates)}
+                </span>
+              </Link>
             </li>
           ))}
         </ul>
@@ -96,7 +103,7 @@ export function WhereWeGo() {
         <GlobeFlights className="mx-auto w-full max-w-82.5 sm:max-w-110 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mr-0 lg:max-w-160 lg:self-center">
           <Globe className="w-full" />
         </GlobeFlights>
-      </div>
+      </PinHighlight>
     </section>
   )
 }
