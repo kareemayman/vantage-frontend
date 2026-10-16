@@ -1,3 +1,4 @@
+import { GlobeFlights } from "@/components/home/globe-flights"
 import { Globe } from "@/components/scene/globe"
 import { FEATURED_TOURS } from "@/lib/tours"
 
@@ -91,7 +92,10 @@ export function WhereWeGo() {
           ))}
         </ul>
 
-        <Globe className="mx-auto w-full max-w-82.5 sm:max-w-110 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mr-0 lg:max-w-160 lg:self-center" />
+        {/* The plane flies the flights when the globe comes into view */}
+        <GlobeFlights className="mx-auto w-full max-w-82.5 sm:max-w-110 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mr-0 lg:max-w-160 lg:self-center">
+          <Globe className="w-full" />
+        </GlobeFlights>
       </div>
     </section>
   )

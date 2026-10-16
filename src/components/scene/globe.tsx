@@ -13,6 +13,9 @@ const PINS = [
   { slug: "the-star-gazer", x: 246, y: 258, bend: "400 190" }, // Utah
 ]
 
+// A flight's curve: from the white pin, bending toward `bend`, down to the tour's pin
+const flight = (pin: (typeof PINS)[number]) => `M520 250Q${pin.bend} ${pin.x} ${pin.y}`
+
 export function Globe(props: ComponentProps<"svg">) {
   return (
     <svg aria-hidden viewBox="0 0 640 640" {...props}>
@@ -49,15 +52,45 @@ export function Globe(props: ComponentProps<"svg">) {
         className="fill-navy-950 opacity-22"
       />
 
-      {/* The flights (dashed), then the pins on top */}
-      <path
-        d={PINS.map((pin) => `M520 250Q${pin.bend} ${pin.x} ${pin.y}`).join("")}
+      {/* The flights: one dashed line per pin, each seen through its own stencil (a
+          mask). The stencil is a solid line along the same curve, and the dashes only
+          show where it's drawn. Here it's drawn all the way; globe-flights.tsx draws it
+          in behind the plane. pathLength={1}: the stencil's length counts as 1. */}
+      <defs>
+        {PINS.map((pin) => (
+          <mask
+            key={pin.slug}
+            id={`flight-${pin.slug}`}
+            maskUnits="userSpaceOnUse"
+            x="0"
+            y="0"
+            width="640"
+            height="640"
+          >
+            <path
+              data-trail
+              d={flight(pin)}
+              pathLength={1}
+              fill="none"
+              strokeWidth="14"
+              className="stroke-white"
+            />
+          </mask>
+        ))}
+      </defs>
+      <g
         fill="none"
         strokeWidth="4"
         strokeDasharray="4 10"
         strokeLinecap="round"
         className="stroke-sun-300"
-      />
+      >
+        {PINS.map((pin) => (
+          <path key={pin.slug} data-flight d={flight(pin)} mask={`url(#flight-${pin.slug})`} />
+        ))}
+      </g>
+
+      {/* The pins, on top of the flights */}
       <g strokeWidth="4" className="stroke-navy-950">
         <circle cx="520" cy="250" r="12" className="fill-sand-50" />
         {PINS.map((pin, i) => (
@@ -71,22 +104,27 @@ export function Globe(props: ComponentProps<"svg">) {
         ))}
       </g>
 
-      {/* A tiny plane on its way west */}
-      <g
-        transform="translate(400 132) rotate(-28) scale(0.32)"
-        strokeWidth="10"
-        strokeLinejoin="round"
-        className="stroke-navy-950"
-      >
-        <path d="M38 58L22 18Q20 12 28 12L48 12Q54 12 58 20L74 52Z" className="fill-sky-300" />
-        <path
-          d="M30 60Q30 44 52 44L170 44Q214 44 222 66Q214 86 172 86L54 86Q30 86 30 70Z"
-          className="fill-white"
-        />
-        <path
-          d="M100 70L142 70L120 112Q116 118 108 118L98 118Q90 118 93 111Z"
-          className="fill-navy-600"
-        />
+      {/* A tiny plane heading west, the way the flights go. globe-flights.tsx flies it;
+          in the still picture it's parked a third of the way along the Banff flight,
+          turned along it. The drawing inside is flipped to face left and centered on
+          0,0, so the outer group moves and turns the plane by its middle. */}
+      <g data-plane transform="translate(437 171) rotate(26)">
+        <g
+          transform="scale(-0.32 0.32) translate(-121 -65)"
+          strokeWidth="10"
+          strokeLinejoin="round"
+          className="stroke-navy-950"
+        >
+          <path d="M38 58L22 18Q20 12 28 12L48 12Q54 12 58 20L74 52Z" className="fill-sky-300" />
+          <path
+            d="M30 60Q30 44 52 44L170 44Q214 44 222 66Q214 86 172 86L54 86Q30 86 30 70Z"
+            className="fill-white"
+          />
+          <path
+            d="M100 70L142 70L120 112Q116 118 108 118L98 118Q90 118 93 111Z"
+            className="fill-navy-600"
+          />
+        </g>
       </g>
     </svg>
   )
