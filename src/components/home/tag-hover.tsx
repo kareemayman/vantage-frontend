@@ -3,7 +3,7 @@
 import type { ReactNode } from "react"
 
 // What a luggage tag does under the mouse (mouse only: touch screens have no hover).
-// - It leans toward the mouse, up to 4°, turning around the top of its string. The script
+// - It leans toward the mouse, up to 2°, turning around the top of its string. The script
 //   only writes --lean: -1 with the mouse at the tag's left edge, 0 in the middle, 1 at
 //   the right edge. The CSS turns that into a rotation, inside motion-safe: so reduced
 //   motion switches it off like every other animation.

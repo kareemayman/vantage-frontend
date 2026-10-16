@@ -9,7 +9,10 @@ export type Tour = {
   ratingsAverage: number
   ratingsQuantity: number
   summary: string
-  startLocation: { description: string }
+  startLocation: {
+    description: string
+    coordinates: [number, number] // [longitude, latitude]: the API's (GeoJSON's) order
+  }
 }
 
 // The homepage's featured tours, typed in from design/HANDOFF.md for now. Phase 2
@@ -24,7 +27,7 @@ export const FEATURED_TOURS: Tour[] = [
     ratingsAverage: 4.8,
     ratingsQuantity: 6,
     summary: "Exploring the jaw-dropping US east coast by foot and by boat.",
-    startLocation: { description: "Miami, USA" },
+    startLocation: { description: "Miami, USA", coordinates: [-80.185942, 25.774772] },
   },
   {
     name: "The Forest Hiker",
@@ -35,7 +38,7 @@ export const FEATURED_TOURS: Tour[] = [
     ratingsAverage: 5,
     ratingsQuantity: 9,
     summary: "Breathtaking hike through the Canadian Banff National Park.",
-    startLocation: { description: "Banff, Canada" },
+    startLocation: { description: "Banff, Canada", coordinates: [-115.570154, 51.178456] },
   },
   {
     name: "The Star Gazer",
@@ -46,6 +49,6 @@ export const FEATURED_TOURS: Tour[] = [
     ratingsAverage: 4.8,
     ratingsQuantity: 6,
     summary: "The most remote and stunningly beautiful places for seeing the night sky.",
-    startLocation: { description: "Utah, USA" },
+    startLocation: { description: "Utah, USA", coordinates: [-109.55099, 37.283469] },
   },
 ]
