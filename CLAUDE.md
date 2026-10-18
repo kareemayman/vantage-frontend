@@ -133,6 +133,7 @@ Base path `/api/v1`. Local: `cd ../backend && npm run dev`. The port comes from 
 
 It lives in `../backend/CLAUDE.md`. Kareem fixes those items; Claude only mentors there. Before assuming an API problem is fixed, check that file's ticks. The items that change what the frontend can rely on:
 - images as Cloudinary public IDs;
+- tour stats over every tour, with the true average rating (4b);
 - public review reads;
 - production error messages;
 - the reset link pointing to `FRONTEND_URL/reset-password/:token`;
@@ -218,6 +219,7 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
   - Keyframes move the individual `translate`/`rotate`/`scale` properties, never `transform`, so a loop and a hover effect on different properties combine.
   - When two effects need the same property, nest elements: e.g. the wrapper takes the hover `scale` and the inner SVG takes the idle `translate`.
   - Always `motion-safe:animate-*`. SVG parts that spin or squash need `origin-center transform-fill`.
+  - **3D turns** (the flip-board tiles in `by-the-numbers.tsx`): `perspective-*` on the parent, and turn with `rotate-[x_90deg]`, which sets the `rotate` property like our keyframes. Tailwind's own `rotate-x-*` sets `transform` instead, so the two would stack. The browser draws anything turned in 3D on its own layer, where text can land a pixel off from its neighbors: once a piece has done its turn, hide it (`invisible`) instead of leaving it turned.
   - An SVG drawing whose trick moves parts outside its box gets `overflow="visible"`. **Gotcha:** inside a grid or flex box, that stops it from shrinking below its natural size (it renders far too big), so the container gives it `min-h-0` (the Journey's picture panels use `*:min-h-0`).
   - **One-shot toy animations** (on click, tap, or hover) use `<Poke animation playOnHover?>` (`src/components/scene/poke.tsx`). It sets `data-playing` until the named keyframes end, and the CSS decides what plays (`data-playing:animate-hop` on the toy, or `group-data-playing:animate-bounce-once` on a child). The toy's markup stays in Server Components.
     - Don't use `hover:`/`active:` for one-shots. `:active` lasts only while the button is held, and setting the same animation again never restarts it.
@@ -322,9 +324,9 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
      - the rating's tiles are sun-colored (the design's phone version has one sun "4.9" tile; its desktop colored only the 9);
      - every tile size is in em of the row's font size, so one `text-*` class sizes them all: 140px digits at 1440, 80px on md, shrinking with the screen on phones (`min(5rem,17vw)`) so the words beside them keep room. Phones: tiles left, words right; md+: three columns;
      - screen readers get each number as text (`sr-only`); the tiles are hidden from them.
-   - 9b. the flip (next): the tiles flip up from 0 when the section is on screen, once. Reduced motion: the final numbers right away.
+   - 9b. the flip ✓: like a real flip board, each tile holds a pile of cards from 0 up to its digit, each cut in half across the middle. When a row comes on screen (`<Reveal>`, each row on its own), its cards flip one at a time, 0.2s each (`FLIP`), each number 0.15s after the one before: a card's top half falls toward you and darkens, then the next card's bottom half drops into place (`flip-top`, `flip-bottom` in `globals.css`). Each tile stops on its own digit, so 4.9 takes about 2s (the 9 flips nine times) and 21 about 0.4s. All CSS on the server-rendered pile; the only JavaScript is `<Reveal>`. Without JavaScript, or with reduced motion, the pile starts out flipped (the final numbers). The finished tiles match 9a's pixel for pixel.
 
-Then the remaining sections in handoff order. Update this line as steps complete.
+Then the remaining sections in handoff order, next 06 Reviews (polaroids). Update this line as steps complete.
 
 Creative work is woven into every phase: each page gets its own storytelling moment as it's built. Phase 7 is for the big standalone pieces.
 
@@ -342,4 +344,4 @@ Creative work is woven into every phase: each page gets its own storytelling mom
 
 Items marked _proposed_ in the Stack table get confirmed with Kareem when we reach the step that needs them. Record new open questions here, then fold each answer into the sections above.
 
-- **`getTourStats` before phase 2** (Kareem's backend code): its `$match` keeps only tours rated ≥ 4.5 (the seed's 3.9 Sports Lover drops out of the count, the average and the review total), and `avgRating` averages the tours' averages instead of weighing each tour by its reviews. "By the numbers" wants every tour and the true average. Kareem decides whether to change it; Claude only gave hints (drop the `$match`; `$sum` + `$multiply`, then `$divide` in `$addFields`; optionally `$addToSet` for the starting places).
+- **`getTourStats` before phase 2** (Kareem's backend code, backend checklist item 4b): it only counts tours rated ≥ 4.5 (the seed's 3.9 Sports Lover drops out of the count, the average and the review total), and `avgRating` averages the tours' averages instead of weighing each tour by its reviews. "By the numbers" wants every tour and the true average. Kareem fixes it; Claude only mentors.
