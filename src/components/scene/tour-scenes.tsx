@@ -1,11 +1,24 @@
 import type { ComponentProps } from "react"
 
-// Placeholder pictures for the tour tags (design/HANDOFF.md), until the tours get real
-// photos (backend checklist item 1). Drawn at 360×240, the same 3:2 shape as the picture
-// panel. The sky and sea follow the theme (scene tokens); objects keep raw palette colors.
-// "slice": always fill the panel (like object-cover), even if it's a hair off 3:2.
+// Placeholder pictures for the tours (design/HANDOFF.md): on the luggage tags and the
+// review polaroids, until the tours get real photos (backend checklist item 1). Drawn at
+// 360×240, the tag's 3:2 picture shape. The sky and sea follow the theme (scene tokens);
+// objects keep raw palette colors. "slice": always fill the box (like object-cover), even
+// if it's a little off 3:2.
 
 type SvgProps = ComponentProps<"svg">
+
+// A tour's picture, picked by its slug. Any other tour gets the sea.
+export function TourScene({ slug, ...props }: SvgProps & { slug: string }) {
+  switch (slug) {
+    case "the-forest-hiker":
+      return <ForestScene {...props} />
+    case "the-star-gazer":
+      return <NightScene {...props} />
+    default:
+      return <SeaScene {...props} />
+  }
+}
 
 // The Sea Explorer: a sailboat, the sun and two seagulls
 export function SeaScene(props: SvgProps) {

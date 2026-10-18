@@ -1,25 +1,15 @@
-import type { ReactNode } from "react"
 import { ButtonLink } from "@/components/button"
 import { TagHover } from "@/components/home/tag-hover"
 import { Reveal } from "@/components/reveal"
-import { ForestScene, NightScene, SeaScene } from "@/components/scene/tour-scenes"
+import { TourScene } from "@/components/scene/tour-scenes"
 import { FEATURED_TOURS, type Tour } from "@/lib/tours"
 
-// Each tour's placeholder picture, and where its difficulty stamp sits so it doesn't cover
-// the drawing. Real photos replace this later (backend checklist item 1).
-const ART: Record<string, { scene: ReactNode; stamp: string }> = {
-  "the-sea-explorer": {
-    scene: <SeaScene className="size-full" />,
-    stamp: "right-3.5 bottom-3.5 rotate-6",
-  },
-  "the-forest-hiker": {
-    scene: <ForestScene className="size-full" />,
-    stamp: "top-3.5 right-3.5 -rotate-5",
-  },
-  "the-star-gazer": {
-    scene: <NightScene className="size-full" />,
-    stamp: "top-3.5 left-3.5 -rotate-4",
-  },
+// Where each tour's difficulty stamp sits, so it doesn't cover the drawing (TourScene).
+// Real photos replace the drawings later (backend checklist item 1).
+const STAMPS: Record<string, string> = {
+  "the-sea-explorer": "right-3.5 bottom-3.5 rotate-6",
+  "the-forest-hiker": "top-3.5 right-3.5 -rotate-5",
+  "the-star-gazer": "top-3.5 left-3.5 -rotate-4",
 }
 
 // Difficulty colors. The stamp is a physical object, so it looks the same in both themes;
@@ -39,7 +29,8 @@ const DIFFICULTY = {
   },
 }
 
-// Each tag hangs a little crooked, from its own wiggly string (the design's angles)
+// Each tag hangs a little crooked, from its own wiggly string (the design's angles). One
+// pose per tag: the homepage always shows three tours.
 const POSES = [
   { tilt: "-rotate-[1.5deg]", string: "M30 86C10 60 50 30 24 0" },
   { tilt: "rotate-1", string: "M30 86C50 60 10 30 36 0" },
@@ -104,7 +95,7 @@ export function FeaturedTours() {
                     per effect: each turns the tag (rotate), and an element has only one
                     rotate (the swing-in, the lean, then the tag's own tilt inside). */}
                 <TagHover>
-                  <LuggageTag tour={tour} pose={POSES[i % POSES.length]} />
+                  <LuggageTag tour={tour} pose={POSES[i]} />
                 </TagHover>
               </Reveal>
             </li>
@@ -120,7 +111,6 @@ export function FeaturedTours() {
 // The whole tag opens the tour: the "View tour" link spreads an invisible layer over the
 // tag (after:absolute after:inset-0), so a click anywhere lands on the link.
 function LuggageTag({ tour, pose }: { tour: Tour; pose: (typeof POSES)[number] }) {
-  const art = ART[tour.slug]
   const difficulty = DIFFICULTY[tour.difficulty]
 
   return (
@@ -145,11 +135,11 @@ function LuggageTag({ tour, pose }: { tour: Tour; pose: (typeof POSES)[number] }
       <div className="mx-auto mb-2.5 size-6 rounded-full border-5 border-sand-400 bg-background @sm:mb-3 @sm:size-7" />
 
       <div className="relative aspect-3/2 overflow-hidden rounded-[14px] border-2 border-navy-950 @sm:rounded-2xl">
-        {art.scene}
+        <TourScene slug={tour.slug} className="size-full" />
         {/* The difficulty again, as a stamp. Decoration: the chip below says it. */}
         <span
           aria-hidden
-          className={`absolute rounded-md border-2 border-dashed px-3 py-1.5 font-display text-sm leading-none font-bold tracking-[0.08em] uppercase motion-safe:group-data-playing:animate-thunk ${difficulty.stamp} ${art.stamp}`}
+          className={`absolute rounded-md border-2 border-dashed px-3 py-1.5 font-display text-sm leading-none font-bold tracking-[0.08em] uppercase motion-safe:group-data-playing:animate-thunk ${difficulty.stamp} ${STAMPS[tour.slug]}`}
         >
           {tour.difficulty}
         </span>

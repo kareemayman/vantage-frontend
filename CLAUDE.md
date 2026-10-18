@@ -302,6 +302,7 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
    - 7a. the section ✓:
      - three luggage tags, each with an eyelet, the string it hangs from (md+), a picture with a difficulty stamp, place, name, summary, chips (days, difficulty, rating; "New" with no reviews), a tear-off line, the price and "View tour". The whole tag is the link (to `/tours/[slug]`, which arrives in phase 2);
      - the tours are typed in (Kareem's call: no API until phase 2), shaped like the API's tour (`Tour` in `src/lib/tours.ts`), so phase 2 only changes that file. The pictures are SVG placeholders until real photos (backend item 1);
+     - the homepage always shows three tours, and Reviews three reviews (Kareem's call). Phase 2 asks the API for just three (e.g. `?limit=3`), so each one has its own pose (`POSES[i]`, no wrapping around);
      - layout: phones stack (448px max), md shows two with the third centered below (a 4-column grid, two columns per tag), xl hangs three in a row (400px each at 1440). On phones the title shrinks with the screen so "This summer's" fits on one line down to 320px;
      - changes from the design: the tags hang lower, so their strings don't cross the title; phones also get the handwritten note and "See all tours" (the design dropped both), plus the stamps and pin icons; the note says "where to first?" (Kareem's pick; the design's "all 3 under 10 travelers" wasn't true for the seed data, whose group sizes are 15, 25 and 8).
    - 7b. the swing-in ✓: each tag waits, hidden, until it scrolls into view (`<Reveal>`), then drops in and swings around the top of its string (`origin-[50%_-67px]`), each swing smaller, until it hangs still (`swing-in`, 2s, in `globals.css`). Tags start 0.15s apart; on phones each one waits for its own turn. The swing is on a wrapper around the tag, so the tag's own small tilt stays. Reduced motion: a fade.
@@ -326,7 +327,20 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
      - screen readers get each number as text (`sr-only`); the tiles are hidden from them.
    - 9b. the flip ✓: like a real flip board, each tile holds a pile of cards from 0 up to its digit, each cut in half across the middle. When a row comes on screen (`<Reveal>`, each row on its own), its cards flip one at a time, 0.2s each (`FLIP`), each number 0.15s after the one before: a card's top half falls toward you and darkens, then the next card's bottom half drops into place (`flip-top`, `flip-bottom` in `globals.css`). Each tile stops on its own digit, so 4.9 takes about 2s (the 9 flips nine times) and 21 about 0.4s. All CSS on the server-rendered pile; the only JavaScript is `<Reveal>`. Without JavaScript, or with reduced motion, the pile starts out flipped (the final numbers). The finished tiles match 9a's pixel for pixel.
 
-Then the remaining sections in handoff order, next 06 Reviews (polaroids). Update this line as steps complete.
+10. Reviews (`src/components/home/reviews.tsx`, data in `src/lib/reviews.ts`):
+   - 10a. the section ✓:
+     - "Postcards from travelers" (the design's title): three reviews as polaroids lying on a table, each with a strip of tape, then the quote and "Lourdes B. · The Sea Explorer · ★★★★★";
+     - reviews have no photos, and don't need them: the polaroid's picture is the tour's. For now that's the luggage tags' drawings, shared through `TourScene` (`tour-scenes.tsx`). After backend item 1, use a real tour photo, e.g. one of `tour.images`, so it isn't the tag's photo again;
+     - the handwritten caption is built from real data (Kareem's pick): the traveler's first name and where the tour starts, e.g. "lourdes in miami". The design's "miami, day 2. tacos!!" has no field in the API;
+     - the reviews are typed in (`FEATURED_REVIEWS`, shaped like `GET /reviews`, which sends the whole tour with each review). They're real seed reviews (same `_id`, traveler and rating) with the design's quotes, because the seed's text is lorem ipsum. Reading reviews needs a login until backend item 2;
+     - the polaroid is a physical object, so it looks the same in both themes: white, with a daytime picture (`data-theme="light"` on the picture). Screen readers skip it and get the quote, then "Lourdes B. · The Sea Explorer · 5 out of 5 stars";
+     - layout like the tags: phones stack them, md shows two with the third centered below, xl three in a row (360px each, 70px apart, the middle one lower). On phones the title shrinks with the screen so it stays on 2 lines down to 320px.
+   - 10b. (next) the polaroids drop onto the table with a little bounce, once, when they scroll into view. Reduced motion: a fade.
+   - 10c. hover: the tape lifts and the polaroid straightens.
+   - 10d. drag to shuffle (desktop).
+   - 10e. phones: a swipeable stack with dots (the design's phone version).
+
+Then the remaining sections in handoff order (07 Playground, 08 Boarding pass). Update this line as steps complete.
 
 Creative work is woven into every phase: each page gets its own storytelling moment as it's built. Phase 7 is for the big standalone pieces.
 
