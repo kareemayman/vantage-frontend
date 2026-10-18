@@ -1,3 +1,4 @@
+import { Reveal } from "@/components/reveal"
 import { TourScene } from "@/components/scene/tour-scenes"
 import { FEATURED_REVIEWS, type Review } from "@/lib/reviews"
 
@@ -12,9 +13,11 @@ const POSES = [
 
 // 06 Reviews (design/HANDOFF.md): travelers' reviews as polaroids on a table. Phones stack
 // them, md shows two with the third centered below, xl lays all three in a row.
+// overflow-x-clip: a polaroid starts its drop bigger, so it can poke past the screen's
+// edge; this hides that part instead of letting the page scroll sideways.
 export function Reviews() {
   return (
-    <section aria-labelledby="reviews-title" className="py-16 md:pt-25 md:pb-30">
+    <section aria-labelledby="reviews-title" className="overflow-x-clip py-16 md:pt-25 md:pb-30">
       <div className="mx-auto max-w-360 px-4 md:px-10 lg:px-20">
         <header className="md:text-center">
           <p className="text-[13px] font-extrabold tracking-[0.16em] text-primary uppercase md:text-sm">
@@ -39,7 +42,11 @@ export function Reviews() {
               key={review._id}
               className={`md:col-span-2 md:odd:last:col-start-2 xl:col-span-1 xl:odd:last:col-start-auto ${POSES[i].drop}`}
             >
-              <Polaroid review={review} pose={POSES[i]} />
+              {/* Each polaroid waits until it's on screen, then drops onto the table,
+                  0.15s after the one before */}
+              <Reveal>
+                <Polaroid review={review} pose={POSES[i]} delay={i * 0.15} />
+              </Reveal>
             </li>
           ))}
         </ul>
@@ -52,19 +59,31 @@ export function Reviews() {
 // object, so it looks the same in both themes: white, with a daytime picture
 // (data-theme="light" keeps the drawing's sky light). Screen readers skip it: the
 // caption below says who wrote the review and on which tour.
-function Polaroid({ review, pose }: { review: Review; pose: (typeof POSES)[number] }) {
+// Once its <Reveal> sees it, the polaroid drops in (drop-in in globals.css), and its
+// words fade in half a second later, as it lands. Reduced motion: both just fade.
+function Polaroid({
+  review,
+  pose,
+  delay,
+}: {
+  review: Review
+  pose: (typeof POSES)[number]
+  delay: number // seconds
+}) {
   const { user, tour } = review
   // "Lourdes Browning" → "Lourdes" and "Lourdes B."; "Miami, USA" → "Miami"
   const [first, ...others] = user.name.split(" ")
   const name = others.length ? `${first} ${others.at(-1)?.[0]}.` : first
   const place = tour.startLocation.description.split(",")[0]
   const stars = Math.round(review.rating)
+  const words = { animationDelay: `${delay + 0.5}s` }
 
   return (
     <figure className={`mx-2.5 md:mx-auto md:max-w-90 ${pose.tilt}`}>
       <div
         aria-hidden
-        className="relative rounded-md border border-sand-300 bg-white p-3.5 pb-4 text-navy-950 shadow-xl md:p-4 md:pb-4.5"
+        className="relative rounded-md border border-sand-300 bg-white p-3.5 pb-4 text-navy-950 shadow-xl md:p-4 md:pb-4.5 waiting:opacity-0 motion-safe:seen:animate-drop-in motion-reduce:seen:animate-fade-in"
+        style={{ animationDelay: `${delay}s` }}
       >
         <span
           className={`absolute -top-3.5 left-1/2 h-6.5 -translate-x-1/2 md:-top-4 md:h-7.5 ${pose.tape}`}
@@ -77,10 +96,16 @@ function Polaroid({ review, pose }: { review: Review; pose: (typeof POSES)[numbe
           {first} in {place}
         </p>
       </div>
-      <blockquote className="mx-1 mt-5.5 text-[17px] leading-[1.55] text-pretty md:mx-2 md:mt-6.5 md:text-lg">
+      <blockquote
+        className="mx-1 mt-5.5 text-[17px] leading-[1.55] text-pretty md:mx-2 md:mt-6.5 md:text-lg waiting:opacity-0 seen:animate-fade-in"
+        style={words}
+      >
         “{review.review}”
       </blockquote>
-      <figcaption className="mx-1 mt-2.5 text-sm font-bold md:mx-2 md:mt-3 md:text-[15px]">
+      <figcaption
+        className="mx-1 mt-2.5 text-sm font-bold md:mx-2 md:mt-3 md:text-[15px] waiting:opacity-0 seen:animate-fade-in"
+        style={words}
+      >
         {name}{" "}
         <span className="font-medium text-muted-foreground">
           · {tour.name} · <span aria-hidden>{"★".repeat(stars) + "☆".repeat(5 - stars)}</span>

@@ -429,7 +429,7 @@
   --animate-twinkle: twinkle 3s ease-in-out infinite; /* stars */
   --animate-snooze: snooze 3s ease-out infinite; /* the moon's z z */
   --animate-rise: rise 0.9s ease-out both; /* sun/moon entrance, with a squash */
-  --animate-fade-in: fade-in 1.2s ease-out both;
+  --animate-fade-in: fade-in 1.2s ease-out backwards;
   --animate-waves: waves 3s linear infinite; /* sea stripes rolling sideways */
   --animate-sway: sway 6s ease-in-out infinite alternate; /* palm trunk */
   --animate-rustle: rustle 3s ease-in-out infinite alternate; /* palm fronds */
@@ -456,7 +456,7 @@
 
   /* Featured tours (src/components/home/featured-tours.tsx): a luggage tag drops in on
      its string and swings to a stop. Plays once, when the tag scrolls into view (seen:). */
-  --animate-swing-in: swing-in 2s ease-in-out both;
+  --animate-swing-in: swing-in 2s ease-in-out backwards;
   /* ...and when the mouse comes over a tag, its difficulty stamp thunks (tag-hover.tsx) */
   --animate-thunk: thunk 0.5s ease-out;
 
@@ -466,6 +466,10 @@
      backwards = each card stays put until its delay is up. */
   --animate-flip-top: flip-top 0.1s ease-in backwards;
   --animate-flip-bottom: flip-bottom 0.1s ease-out backwards;
+
+  /* Reviews (src/components/home/reviews.tsx): a polaroid dropped onto the table. Plays
+     once, when it scrolls into view (seen:). backwards: hidden until its delay is up. */
+  --animate-drop-in: drop-in 0.9s backwards;
 
   @keyframes turn {
     to {
@@ -880,6 +884,34 @@
     }
     to {
       rotate: x 0deg;
+    }
+  }
+  /* A photo dropped onto a table, seen from above: it starts closer to you (bigger, a
+     little turned), falls flat, speeding up like a real fall, then bounces once. Only the
+     polaroid moves; its tilt is on the <figure> around it. */
+  @keyframes drop-in {
+    0% {
+      opacity: 0;
+      scale: 1.25;
+      translate: 0 -1rem;
+      rotate: 6deg;
+      animation-timing-function: ease-in;
+    }
+    20% {
+      opacity: 1;
+    }
+    60% {
+      scale: 1;
+      translate: 0 0;
+      rotate: 0deg;
+      animation-timing-function: ease-out;
+    }
+    78% {
+      scale: 1.025;
+      animation-timing-function: ease-in-out;
+    }
+    100% {
+      scale: 1;
     }
   }
 }
