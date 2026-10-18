@@ -337,8 +337,8 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
      - the polaroid is a physical object, so it looks the same in both themes: white, with a daytime picture (`data-theme="light"` on the picture). Screen readers skip it and get the quote, then "Lourdes B. · The Sea Explorer · 5 out of 5 stars";
      - layout like the tags: phones stack them, md shows two with the third centered below, xl three in a row (360px each, 70px apart, the middle one lower). On phones the title shrinks with the screen so it stays on 2 lines down to 320px.
    - 10b. the drop ✓: each polaroid waits, hidden, until it scrolls into view (`<Reveal>`, each one on its own), then drops onto the table like a photo seen from above: it starts bigger and a little turned, falls flat, speeding up, and bounces once (`drop-in`, 0.9s, in `globals.css`). Its quote and name fade in 0.5s later, as it lands. Polaroids start 0.15s apart. The section has `overflow-x-clip`, because a polaroid starts its drop bigger than its spot. Reduced motion: everything just fades. The finished section matches 10a pixel for pixel.
-   - 10c. (next) hover: the tape lifts and the polaroid straightens.
-   - 10d. drag to shuffle (desktop).
+   - 10c. hover ✓: under the mouse, the polaroid straightens (its tilt eases to 0 over 0.3s) and its tape lifts off the photo: a little bigger, 4px higher, with a soft shadow. Plain CSS: `group` on the `<figure>`, so pointing anywhere on it (picture or words) does both. Tailwind v4's `hover:` only applies on devices that can hover, so phones skip it; reduced motion turns it off.
+   - 10d. (next) drag to shuffle (desktop).
    - 10e. phones: a swipeable stack with dots (the design's phone version).
 
 Then the remaining sections in handoff order (07 Playground, 08 Boarding pass). Update this line as steps complete.

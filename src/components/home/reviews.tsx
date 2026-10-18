@@ -61,6 +61,7 @@ export function Reviews() {
 // caption below says who wrote the review and on which tour.
 // Once its <Reveal> sees it, the polaroid drops in (drop-in in globals.css), and its
 // words fade in half a second later, as it lands. Reduced motion: both just fade.
+// Under the mouse (group-hover), it straightens and its tape lifts off the photo.
 function Polaroid({
   review,
   pose,
@@ -79,14 +80,18 @@ function Polaroid({
   const words = { animationDelay: `${delay + 0.5}s` }
 
   return (
-    <figure className={`mx-2.5 md:mx-auto md:max-w-90 ${pose.tilt}`}>
+    <figure
+      className={`group mx-2.5 transition-[rotate] duration-300 ease-out motion-safe:hover:rotate-0 md:mx-auto md:max-w-90 ${pose.tilt}`}
+    >
       <div
         aria-hidden
         className="relative rounded-md border border-sand-300 bg-white p-3.5 pb-4 text-navy-950 shadow-xl md:p-4 md:pb-4.5 waiting:opacity-0 motion-safe:seen:animate-drop-in motion-reduce:seen:animate-fade-in"
         style={{ animationDelay: `${delay}s` }}
       >
+        {/* The tape. Lifting = closer to you: a little bigger, a little higher, with a
+            shadow under it. */}
         <span
-          className={`absolute -top-3.5 left-1/2 h-6.5 -translate-x-1/2 md:-top-4 md:h-7.5 ${pose.tape}`}
+          className={`absolute -top-3.5 left-1/2 h-6.5 -translate-x-1/2 transition-[translate,scale,box-shadow] duration-300 ease-out motion-safe:group-hover:-translate-y-1 motion-safe:group-hover:scale-110 motion-safe:group-hover:shadow-md md:-top-4 md:h-7.5 ${pose.tape}`}
         />
         <div data-theme="light" className="aspect-10/7 overflow-hidden rounded-xs">
           <TourScene slug={tour.slug} className="size-full" />
