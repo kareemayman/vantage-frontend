@@ -100,7 +100,7 @@ Base path `/api/v1`. Local: `cd ../backend && npm run dev`. The port comes from 
 | GET | `/tours` | public | `results`, `data.docs: Tour[]` |
 | GET | `/tours/:id` | public | `data.doc: Tour` (guides populated, **no reviews**) |
 | POST/PATCH/DEL | `/tours`, `/tours/:id` | admin, lead-guide | bare `data: Tour`; 204 on delete |
-| GET | `/tours/stats` | public | `data.stats` (aggregate over tours rated ≥ 4.5) |
+| GET | `/tours/stats` | public | `data.stats: [{ toursCount, totalRatings, avgRating, avgPrice, minPrice, maxPrice }]`: one group over tours rated ≥ 4.5 (`getTourStats`) |
 | GET | `/tours/tours-within/:distance/center/:latlng/unit/:unit` | public | `results`, `data.tours` (`latlng` = `lat,lng`, `unit` = `mi` or `km`) |
 | GET | `/tours/distances/:latlng/unit/:unit` | public | `data.distances: { name, distance }[]` |
 | GET | `/tours/:tourId/reviews` | **logged in** | `results`, `data.reviews` (user populated: name, photo) |
@@ -315,6 +315,15 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
    - 8c. rows and pins ✓ (`src/components/home/pin-highlight.tsx`): each row is a link to its tour (404 until phase 2). Pointing at a row (mouse, finger, or keyboard focus), or at a pin, moves `data-on` to that row and its pin, which share a `data-slug`. The row gets the sun border and dot; the pin turns sun yellow, grows (`r` 11 → 14) and hops (the suitcases' `hop`, squashing at its base). The last one pointed at stays lit, like a globe turned to that pin; Miami starts lit in the server HTML. Reduced motion: it lights up without the hop.
    - 8d. the real 3D globe (later, with the other three.js scenes and the loader, per the handoff's build order): drag to spin with inertia, slow auto-rotate, and it turns to a hovered row's pin. The drawn globe stays as the reduced-motion and low-power fallback. Needs Kareem's OK to install React Three Fiber (proposed).
 
+9. By the numbers (`src/components/home/by-the-numbers.tsx`):
+   - 9a. the section ✓:
+     - three numbers on flip-board tiles, one tile per digit (the line across the middle is the gap between the two flaps);
+     - the numbers come from the API's tour stats (`getTourStats`, GET `/tours/stats`), typed in as `TOUR_STATS` in `src/lib/tours.ts` until phase 2 (Kareem's call: the API does the math, the frontend only shows it). They match the design (3, 4.9, 21). The places line ("Miami, Banff and Utah") comes from `FEATURED_TOURS`;
+     - the rating's tiles are sun-colored (the design's phone version has one sun "4.9" tile; its desktop colored only the 9);
+     - every tile size is in em of the row's font size, so one `text-*` class sizes them all: 140px digits at 1440, 80px on md, shrinking with the screen on phones (`min(5rem,17vw)`) so the words beside them keep room. Phones: tiles left, words right; md+: three columns;
+     - screen readers get each number as text (`sr-only`); the tiles are hidden from them.
+   - 9b. the flip (next): the tiles flip up from 0 when the section is on screen, once. Reduced motion: the final numbers right away.
+
 Then the remaining sections in handoff order. Update this line as steps complete.
 
 Creative work is woven into every phase: each page gets its own storytelling moment as it's built. Phase 7 is for the big standalone pieces.
@@ -331,4 +340,6 @@ Creative work is woven into every phase: each page gets its own storytelling mom
 
 ## Open decisions
 
-None right now. Items marked _proposed_ in the Stack table get confirmed with Kareem when we reach the step that needs them. Record new open questions here, then fold each answer into the sections above.
+Items marked _proposed_ in the Stack table get confirmed with Kareem when we reach the step that needs them. Record new open questions here, then fold each answer into the sections above.
+
+- **`getTourStats` before phase 2** (Kareem's backend code): its `$match` keeps only tours rated ≥ 4.5 (the seed's 3.9 Sports Lover drops out of the count, the average and the review total), and `avgRating` averages the tours' averages instead of weighing each tour by its reviews. "By the numbers" wants every tour and the true average. Kareem decides whether to change it; Claude only gave hints (drop the `$match`; `$sum` + `$multiply`, then `$divide` in `$addFields`; optionally `$addToSet` for the starting places).

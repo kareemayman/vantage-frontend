@@ -1,3 +1,4 @@
+import { ByTheNumbers } from "@/components/home/by-the-numbers"
 import { FeaturedTours } from "@/components/home/featured-tours"
 import { Hero } from "@/components/home/hero"
 import { Journey } from "@/components/home/journey"
@@ -11,6 +12,7 @@ export default function Home() {
       <Journey />
       <FeaturedTours />
       <WhereWeGo />
+      <ByTheNumbers />
     </>
   )
 }

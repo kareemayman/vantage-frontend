@@ -15,6 +15,18 @@ export type Tour = {
   }
 }
 
+// The tour stats as GET /tours/stats sends them (data.stats[0], from getTourStats in
+// ../backend/controllers/tourController.js), with only the fields the site shows
+export type TourStats = {
+  toursCount: number
+  totalRatings: number // the number of reviews, all tours together
+  avgRating: number
+}
+
+// Typed in for the three featured tours until phase 2 fetches the real stats. The API
+// does the math; the frontend only shows the numbers.
+export const TOUR_STATS: TourStats = { toursCount: 3, totalRatings: 21, avgRating: 4.87 }
+
 // The homepage's featured tours, typed in from design/HANDOFF.md for now. Phase 2
 // replaces this list with a fetch from the API; the components that show it stay the same.
 export const FEATURED_TOURS: Tour[] = [
