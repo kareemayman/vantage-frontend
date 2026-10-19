@@ -63,7 +63,7 @@ export function WhereWeGo() {
               wide (its longest line, "points. One long", is 7× as wide as the font size) */}
           <h2
             id="where-title"
-            className="mt-2.5 font-display text-[min(3.125rem,14vw-0.3125rem)] leading-[0.92] font-bold tracking-tight uppercase md:mt-3 md:text-[clamp(3.125rem,5.83vw,5.25rem)]"
+            className="mt-2.5 font-display text-[min(3.125rem,14vw-0.3125rem)] leading-[0.92] font-bold tracking-tight text-balance uppercase md:mt-3 md:text-[clamp(3.125rem,5.83vw,5.25rem)]"
           >
             Many starting points. One long summer.
           </h2>

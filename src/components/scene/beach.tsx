@@ -1,7 +1,7 @@
 import type { ComponentProps } from "react"
 
-// SVG stand-ins for the hero's 3D beach toys (design/HANDOFF.md asset list:
-// 04 beach ball, 07 palm, 08 suitcases). three.js versions replace them later;
+// SVG stand-ins for the 3D beach toys (design/HANDOFF.md asset list: 04 beach ball,
+// 07 palm, 08 suitcases, 13 pool ring, 15 crab). three.js versions replace them later;
 // these stay as the reduced-motion / low-power fallback. Raw palette colors:
 // physical objects look the same in both themes.
 
@@ -139,6 +139,27 @@ export function BeachBall(props: SvgProps) {
       />
       <circle cx="60" cy="60" r="8" strokeWidth="3" className="fill-white stroke-navy-950" />
       <circle cx="60" cy="60" r="50" fill="none" strokeWidth="4" className="stroke-navy-950" />
+    </svg>
+  )
+}
+
+// Pool ring (asset 13): a navy outline, then a white ring with sun-yellow stripes. The
+// stripes are a dashed line: 31.4 is 1/8 of the circle's length (2π × 40), so 4 yellow
+// and 4 white stripes go around.
+export function PoolRing(props: SvgProps) {
+  return (
+    <svg aria-hidden viewBox="0 0 110 110" {...props}>
+      <circle cx="55" cy="55" r="40" fill="none" strokeWidth="30" className="stroke-navy-950" />
+      <circle cx="55" cy="55" r="40" fill="none" strokeWidth="22" className="stroke-white" />
+      <circle
+        cx="55"
+        cy="55"
+        r="40"
+        fill="none"
+        strokeWidth="22"
+        strokeDasharray="31.4 31.4"
+        className="stroke-sun-300"
+      />
     </svg>
   )
 }
