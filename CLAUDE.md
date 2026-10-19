@@ -174,7 +174,7 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
   - `--wave-opacity` is a plain variable with no class.
 - **Shadows** are navy-tinted (`shadow-xs`…`shadow-xl`). `shadow-pop` is a hard cartoon "sticker" shadow (navy in light mode, sun in dark mode).
 - **Radii and spacing:** Tailwind's defaults for now.
-- **Buttons:** `ButtonLink` (`src/components/button.tsx`) for links that look like buttons. Variants: `cta` (the sun sticker, which presses down on click), `outline`, and `primary` (navy; everyday links like "View tour"). Sizes: `sm` (navbar) and `lg` (hero). There's no class-merging library, so `className` may only add layout (width, margins), never colors or sizes. The exception is a variant-prefixed override (e.g. `short:h-12`), because a variant class always wins over an unprefixed one. A `<button>` version comes with the first form.
+- **Buttons:** `ButtonLink` (`src/components/button.tsx`) for links that look like buttons. Variants: `cta` (the sun sticker, which presses down on click), `outline`, and `primary` (navy; everyday links like "View tour"). Sizes: `sm` (navbar) and `lg` (hero). The "go" arrow on links (`ArrowIcon`) and any other icon used in more than one place live in `src/components/icons.tsx`. There's no class-merging library, so `className` may only add layout (width, margins), never colors or sizes. The exception is a variant-prefixed override (e.g. `short:h-12`), because a variant class always wins over an unprefixed one. A `<button>` version comes with the first form.
 - **Dark mode:** light is the default for everyone, and dark is opt-in.
   - Dark values live under `[data-theme="dark"]`. Any element can carry `data-theme="dark"` or `"light"` to theme its subtree (themed sections).
   - `dark:` classes follow `data-theme` via `@custom-variant`, never the OS setting.
@@ -338,10 +338,20 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
      - layout like the tags: phones stack them, md shows two with the third centered below, xl three in a row (360px each, 70px apart, the middle one lower). On phones the title shrinks with the screen so it stays on 2 lines down to 320px.
    - 10b. the drop ✓: each polaroid waits, hidden, until it scrolls into view (`<Reveal>`, each one on its own), then drops onto the table like a photo seen from above: it starts bigger and a little turned, falls flat, speeding up, and bounces once (`drop-in`, 0.9s, in `globals.css`). Its quote and name fade in 0.5s later, as it lands. Polaroids start 0.15s apart. The section has `overflow-x-clip`, because a polaroid starts its drop bigger than its spot. Reduced motion: everything just fades. The finished section matches 10a pixel for pixel.
    - 10c. hover ✓: under the mouse, the polaroid straightens (its tilt eases to 0 over 0.3s) and its tape lifts off the photo: a little bigger, 4px higher, with a soft shadow. Plain CSS: `group` on the `<figure>`, so pointing anywhere on it (picture or words) does both. Tailwind v4's `hover:` only applies on devices that can hover, so phones skip it; reduced motion turns it off.
-   - 10d. (next) drag to shuffle (desktop).
-   - 10e. phones: a swipeable stack with dots (the design's phone version).
+   - The section stops here (Kareem's call): the drop and the hover are enough, so no drag-to-shuffle, and phones keep the stacked polaroids instead of the design's swipeable stack.
+11. Boarding pass, "Your seat is waiting" (`src/components/home/boarding-pass.tsx`). Built before the Playground (Kareem's call: the Playground is only games, so it comes last), but it stays last on the page, right above the footer:
+   - 11a. the section ✓:
+     - the homepage's last call to action, printed as a boarding pass: "Vantage · Boarding pass", "Flight VTG-026", the title, four fields (Passenger: You, From: Your couch, To: Somewhere sunny, Boarding: This summer) as a description list (`<dl>`), "Explore tours" and "Create an account" (`ButtonLink`, like the hero) and the note "don't lose this one". A dashed tear line, then the sun-yellow stub: Seat 1A, "Window, obviously" and a pretend barcode (repeating stripes);
+     - phones and tablets: the pass stands up (576px max), with the stub at the bottom. lg+: it lies on its side, 1120px wide, tilted −1.5° like the design, with the stub on the right, a notch punched at each end of the tear line (a sky-colored circle, half hidden with `clip-path`), and two drifting clouds (`Cloud` from `sky.tsx`, lg only, like the design);
+     - the section is `scene-sky` and the pass follows the theme; the stub is a physical object (sun yellow in both themes). The shadow (`shadow-xl`) sits on a wrapper with the pass's rounded shape;
+     - the title is always two lines ("Your seat is / waiting"), shrinking with the screen on phones so the first line fits down to 320px;
+     - changes from the design's phone version: phones keep all four fields, "Create an account" and the note.
+   - 11b. (next) scroll in: the pass slides out of a slot, once, when it's on screen. Reduced motion: static.
+   - 11c. hovering "Explore tours": the stub tears along the perforation.
+   - 11d. easter egg (maybe with the others in phase 7): the Konami code turns the seat into "1A · COCKPIT" with confetti clouds; on phones, a 2s long-press on the sun/moon.
+12. The Playground (07 in the handoff): last.
 
-Then the remaining sections in handoff order (07 Playground, 08 Boarding pass). Update this line as steps complete.
+Update this list as steps complete.
 
 Creative work is woven into every phase: each page gets its own storytelling moment as it's built. Phase 7 is for the big standalone pieces.
 

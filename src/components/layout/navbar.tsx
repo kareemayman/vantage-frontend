@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { ButtonLink } from "@/components/button"
+import { ArrowIcon } from "@/components/icons"
 import { MenuPanel } from "@/components/layout/menu-panel"
 import { ThemeToggle } from "@/components/theme-toggle"
 
@@ -100,15 +101,7 @@ export function Navbar() {
                     className="flex items-center justify-between rounded-xl px-4 py-3 font-display text-3xl font-bold tracking-tight uppercase transition-colors hover:bg-accent"
                   >
                     {link.label}
-                    <svg
-                      aria-hidden
-                      viewBox="0 0 24 24"
-                      className="size-6 fill-none stroke-current stroke-[2.6]"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M5 12h14M13 6l6 6-6 6" />
-                    </svg>
+                    <ArrowIcon className="size-6" />
                   </Link>
                 </li>
               ))}

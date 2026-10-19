@@ -1,6 +1,7 @@
 import { ButtonLink } from "@/components/button"
 import { HeroGround } from "@/components/home/hero-ground"
 import { HeroPlane } from "@/components/home/hero-plane"
+import { ArrowIcon } from "@/components/icons"
 import { Cloud, Moon, Snooze, Stars, Sun } from "@/components/scene/sky"
 import { ThemeToggle } from "@/components/theme-toggle"
 
@@ -104,15 +105,7 @@ export function Hero() {
         <div className="pointer-events-auto mt-5 flex w-full max-w-sm flex-col gap-3 md:mt-7.5 md:w-auto md:max-w-none md:flex-row md:gap-4.5 short:mt-4 short:gap-2.5">
           <ButtonLink href="/tours" className="short:h-12">
             Explore tours
-            <svg
-              aria-hidden
-              viewBox="0 0 24 24"
-              className="size-4.5 fill-none stroke-current stroke-[2.6] md:size-5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M5 12h14M13 6l6 6-6 6" />
-            </svg>
+            <ArrowIcon className="size-4.5 md:size-5" />
           </ButtonLink>
           <ButtonLink href="/signup" variant="outline" className="short:h-12">
             Create an account

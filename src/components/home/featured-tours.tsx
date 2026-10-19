@@ -1,5 +1,6 @@
 import { ButtonLink } from "@/components/button"
 import { TagHover } from "@/components/home/tag-hover"
+import { ArrowIcon } from "@/components/icons"
 import { Reveal } from "@/components/reveal"
 import { TourScene } from "@/components/scene/tour-scenes"
 import { FEATURED_TOURS, type Tour } from "@/lib/tours"
@@ -216,20 +217,6 @@ function PinIcon({ className }: { className: string }) {
     >
       <path d="M12 22s7-7.6 7-13a7 7 0 0 0-14 0c0 5.4 7 13 7 13z" />
       <circle cx="12" cy="9" r="2.5" />
-    </svg>
-  )
-}
-
-function ArrowIcon({ className }: { className: string }) {
-  return (
-    <svg
-      aria-hidden
-      viewBox="0 0 24 24"
-      className={`fill-none stroke-current stroke-[2.6] ${className}`}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M5 12h14M13 6l6 6-6 6" />
     </svg>
   )
 }
