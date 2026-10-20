@@ -267,10 +267,13 @@ export function JourneyTrack({ steps }: { steps: JourneyStep[] }) {
           aria-hidden
           className="mt-6 flex items-center gap-3 pinned:mt-[min(2.8rem,10svh-2.8rem)] pinned:gap-4.5"
         >
-          <span className="font-display text-lg font-bold pinned:text-[22px] pinned:leading-none">
+          {/* On a 320px phone the row is too wide. whitespace-nowrap keeps "01 / 06" on
+              one line, and min-w-0 lets the segments' row get narrower than six full
+              segments (a flex item won't shrink below its content without it). */}
+          <span className="font-display text-lg font-bold whitespace-nowrap pinned:text-[22px] pinned:leading-none">
             {String(active + 1).padStart(2, "0")} / {String(steps.length).padStart(2, "0")}
           </span>
-          <div className="flex gap-1.25 pinned:gap-1.5">
+          <div className="flex min-w-0 gap-1.25 pinned:gap-1.5">
             {steps.map((step, i) => (
               // Each segment: an outline with a fill inside. The fill grows from the left
               // (scale-x 0 → 100, origin-left) over half a second when you reach that

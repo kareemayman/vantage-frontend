@@ -24,14 +24,41 @@ export function SmoothScroll() {
     // Lenis eases the page a little closer to its target on every frame. GSAP's ticker
     // is the one frame loop behind every GSAP animation, so scroll and animation move
     // in the same frame (no jitter once sections pin and scrub).
-    const tick = (time: number) => lenis.raf(time * 1000) // GSAP counts seconds, Lenis ms
-    gsap.ticker.add(tick)
+    // Lenis only needs those frames while it's gliding. Asking for one 60 times a second
+    // forever kept the browser redrawing a page nobody was scrolling, so the loop sleeps
+    // after half a second of stillness, and the next turn of the wheel wakes it. Touch,
+    // the keyboard and the scrollbar scroll natively, without the loop.
+    let awake = false
+    let still = 0 // frames in a row without a glide
+    const tick = (time: number) => {
+      lenis.raf(time * 1000) // GSAP counts seconds, Lenis ms
+      still = lenis.isScrolling === "smooth" ? 0 : still + 1
+      if (still > 30) sleep()
+    }
+    const wake = () => {
+      if (awake) return
+      awake = true
+      still = 0
+      // Lenis times each step from the frame before. After a nap that gap is huge, and
+      // the glide would jump straight to its end, so the clock starts fresh.
+      lenis.time = 0
+      gsap.ticker.add(tick)
+    }
+    const sleep = () => {
+      awake = false
+      gsap.ticker.remove(tick)
+    }
+    wake()
+    // Lenis's own wheel listener (added when it was created) runs first and starts the
+    // glide; this one makes sure the loop is awake to play it
+    window.addEventListener("wheel", wake, { passive: true })
     // GSAP fakes a short frame after a hiccup (e.g. a background tab). Scroll should
     // follow real time, so turn that off (the setup Lenis recommends).
     gsap.ticker.lagSmoothing(0)
 
     return () => {
-      gsap.ticker.remove(tick)
+      window.removeEventListener("wheel", wake)
+      sleep()
       lenis.destroy() // removes its listeners and the "lenis" classes on <html>
     }
   }, [reduced])

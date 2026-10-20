@@ -86,7 +86,7 @@ export function Journey() {
             </p>
             <h2
               id="journey-title"
-              className="mt-2.5 font-display text-[clamp(3.25rem,6.1vw,5.5rem)] leading-[0.92] font-bold tracking-tight uppercase md:mt-3 pinned:text-[clamp(3.25rem,min(6.1vw,11.2svh-0.8rem),5.5rem)]"
+              className="mt-2.5 font-display text-[clamp(3.25rem,6.1vw,5.5rem)] leading-[0.92] font-bold tracking-tight text-balance uppercase md:mt-3 pinned:text-[clamp(3.25rem,min(6.1vw,11.2svh-0.8rem),5.5rem)]"
             >
               Couch to coastline <br className="hidden md:inline" />
               in six stops

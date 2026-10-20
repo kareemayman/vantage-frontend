@@ -959,6 +959,17 @@
   }
 }
 
+/* Off-screen sections pause their animations (src/components/pause-offscreen.tsx sets
+   data-offscreen), so loops nobody can see don't keep the browser redrawing. Outside
+   any @layer on purpose: plain CSS beats Tailwind's layered animate-* classes, whatever
+   their specificity. */
+[data-offscreen],
+[data-offscreen] *,
+[data-offscreen] *::before,
+[data-offscreen] *::after {
+  animation-play-state: paused;
+}
+
 /* Theme "sunset wipe" (src/lib/theme.ts): switch off the browser's default
    cross-fade so only our growing circle animates */
 ::view-transition-old(root),
