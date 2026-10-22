@@ -61,7 +61,7 @@ Browser ──▶ Next.js server on Vercel ──(server-to-server)──▶ Exp
   - JWTs live 2h (`JWT_EXPIRES_IN=2h`) with no refresh tokens: match the cookie's `maxAge`, and on a 401 clear the cookie and send the user to login.
   - `updateMyPassword` and `resetPassword` return a **new** token and invalidate the old one, so always replace the cookie.
   - Route protection: optimistic cookie check in `proxy.ts`, real check in the server data layer.
-- All API calls live in server-only modules (`import "server-only"`). `API_URL` is a server env var, never `NEXT_PUBLIC_`.
+- All API calls live in `src/lib/api.ts`, which starts with `import "server-only"` (a build error if a Client Component imports it; Next 16 handles that import itself, so the `server-only` package isn't installed). `API_URL` is a server env var, never `NEXT_PUBLIC_`. Success is `res.ok`, never the body's `status`.
 - **Caching**: public data (tours, reviews, stats) is cached on the Next side with `"use cache"` + `cacheTag`/`cacheLife`. Anything that reads cookies or user data is never cached across users.
 - **Render's free tier sleeps after 15 min idle; the next request takes ~30–60 s.** Cached public pages must render without the API, live calls need a themed wait state (the plane loading screen), and a warm-up ping on first visit is worth considering.
 
@@ -85,7 +85,7 @@ Install nothing marked _proposed_ until Kareem confirms it. Versions live in `pa
 | 3D | three.js via React Three Fiber + drei | three.js decided, R3F proposed |
 | Physics | Rapier via `@react-three/rapier` (beach ball, pool, mini-games) | proposed |
 | Maps | MapLibre GL via `react-map-gl` + OpenFreeMap vector tiles (free, no API key, restylable to the palette, smooth `flyTo`). Chosen over Leaflet (simpler, but raster tiles can't be recolored). | decided |
-| Images | Cloudinary (+ `next-cloudinary`) | decided |
+| Images | Cloudinary through a small custom loader for `next/image` (Next's docs have the example). No `next-cloudinary` (Kareem's call): avatar uploads go through a Server Action to the API, which uploads to Cloudinary | decided |
 | Payments | Stripe Checkout in test mode (available to Kareem) | decided, phase 5 |
 | Tooling | npm; ESLint (scaffolded); Prettier + `prettier-plugin-tailwindcss` (sorts Tailwind classes) | decided |
 | Testing | Vitest + Testing Library; Playwright for key flows | later |
@@ -93,7 +93,7 @@ Install nothing marked _proposed_ until Kareem confirms it. Versions live in `pa
 
 ## Backend API (summary)
 
-Base path `/api/v1`. Local: `cd ../backend && npm run dev`. The port comes from `config.env` and is currently 3000, which collides with Next's default (backend checklist item 0). Protected routes need `Authorization: Bearer <jwt>`.
+Base path `/api/v1`. Local: `cd ../backend && npm run dev`. The port comes from `config.env` and is 3001 (moved off Next's 3000 in backend checklist item 0), so the local API is `http://localhost:3001/api/v1`. Protected routes need `Authorization: Bearer <jwt>`.
 
 | Method | Path | Access | Success payload |
 | --- | --- | --- | --- |
@@ -103,9 +103,10 @@ Base path `/api/v1`. Local: `cd ../backend && npm run dev`. The port comes from 
 | GET | `/tours/stats` | public | `data.stats: [{ toursCount, totalRatings, avgRating, avgPrice, minPrice, maxPrice }]`: one group over tours rated ≥ 4.5 (`getTourStats`) |
 | GET | `/tours/tours-within/:distance/center/:latlng/unit/:unit` | public | `results`, `data.tours` (`latlng` = `lat,lng`, `unit` = `mi` or `km`) |
 | GET | `/tours/distances/:latlng/unit/:unit` | public | `data.distances: { name, distance }[]` |
-| GET | `/tours/:tourId/reviews` | **logged in** | `results`, `data.reviews` (user populated: name, photo) |
+| GET | `/tours/:tourId/reviews` | public (backend item 2) | `results`, `data.reviews` (user populated: name, photo) |
 | POST | `/tours/:tourId/reviews` | role `user` only | `data.review`; body `{ review, rating }`; one review per user per tour |
-| GET | `/reviews`, `/reviews/:id` | logged in | `data.reviews` (tour populated); `data.doc` |
+| GET | `/reviews` | public (backend item 2) | `results`, `data.reviews` (tour populated) |
+| GET | `/reviews/:id` | logged in | `data.doc` |
 | PATCH/DEL | `/reviews/:id` | admin, user | bare `data: Review`; 204 on delete |
 | POST | `/users/signup` | public | `token`, bare `data: User`; body `{ name, email, password, passwordConfirm }` |
 | POST | `/users/login` | public | `token` only (status 201); body `{ email, password }` |
@@ -117,7 +118,7 @@ Base path `/api/v1`. Local: `cd ../backend && npm run dev`. The port comes from 
 | DELETE | `/users/deleteMe` | logged in | 204 (soft delete) |
 | GET/PATCH/DEL | `/users`, `/users/:id` | admin | `data.docs`; `data.doc`; bare `data`; 204 (`POST /users` is a stub, use signup) |
 
-- **Envelope**: `{ status, results?, token?, message?, data? }`, and the payload key varies by endpoint (see table). Branch on the HTTP status (`res.ok`), not the `status` string: it's `"success"` almost everywhere but `"Success"` from updateMe and deleteMe.
+- **Envelope**: `{ status, results?, token?, message?, data? }`, and the payload key varies by endpoint (see table). Branch on the HTTP status (`res.ok`), never the body's `status`, and keep doing so after backend item 16b fixes its spelling (`"Success"` from updateMe): `status` only repeats what the HTTP status says, and some responses have no JSON body to read (a 204, the rate limiter's plain-text "Too many requests", Render's error page while the API is down). Read the body for the data, and for `message` on errors.
 - **Errors**: `{ status: "fail" | "error", message }`. In development the raw `error` and `stack` are added, and Mongoose validation, duplicate-key, and cast errors come back as **500** with raw messages; production maps them to 400 with clean messages.
 - **Query features** (GET `/tours`, `/users`, `/reviews`): filter `?difficulty=easy&price[lt]=1000` (`gt|gte|lt|lte`); sort `?sort=price,-ratingsAverage` (default `-createdAt`); fields `?fields=name,price,slug`; paginate `?page=2&limit=9` (default limit 100, **no total count**). Look up a tour by slug with `?slug=the-sea-explorer` (returns an array; there's no dedicated endpoint).
 - GeoJSON coordinates are `[lng, lat]`, but the geo URLs take `lat,lng`.
@@ -127,14 +128,14 @@ Base path `/api/v1`. Local: `cd ../backend && npm run dev`. The port comes from 
 
 - **Tour**: `name` (10–40 chars, unique), `slug`, `duration` (days), `durationWeeks` (virtual), `maxGroupSize`, `difficulty` (`easy | medium | difficult`), `ratingsAverage` (defaults to 4.5 even with zero reviews, so show "New" when `ratingsQuantity === 0`), `ratingsQuantity`, `price`, `priceDiscount?`, `summary`, `description` (paragraphs split by `\n`), `imageCover`, `images[]`, `startDates[]`, `startLocation { coordinates, address, description }`, `locations[] { coordinates, description, day }`, `guides[]` (populated users).
 - **User**: `name` (4–40), `email`, `role` (`user | guide | lead-guide | admin`), `photo?`. Passwords are at least 8 characters.
-- **Review**: `review`, `rating` (1–5), `tour`, `user { name, photo }`. `createdAt` isn't returned.
+- **Review**: `review`, `rating` (1–5), `tour`, `user { name, photo }`. `createdAt` isn't returned. A populated `tour` or `user` can come back `null` until backend item 9b: deleting a tour leaves its reviews behind, and a deleted or deactivated user's reviews stay too. Skip reviews with no tour; decide how to show ones with no user when a page lists them.
 
 ## Backend fix checklist
 
 It lives in `../backend/CLAUDE.md`. Kareem fixes those items; Claude only mentors there. Before assuming an API problem is fixed, check that file's ticks. The items that change what the frontend can rely on:
 - images as Cloudinary public IDs;
 - tour stats over every tour, with the true average rating (4b);
-- public review reads;
+- public review reads (done);
 - production error messages;
 - the reset link pointing to `FRONTEND_URL/reset-password/:token`;
 - bookings;
@@ -253,12 +254,12 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
   - **Drawing a line in** (the globe's dashed flights, `globe.tsx` + `globe-flights.tsx`): a dashed line can't draw itself in (its dash settings are busy making the dashes), so it's seen through a stencil, an SVG `<mask>` holding a solid copy of the line with `pathLength={1}`. Animate the stencil's `strokeDashoffset` from 1 to 0 (with `strokeDasharray: 1`). **Gotcha:** GSAP rounds pixel values to whole numbers while animating, so a 1 → 0 tween needs `autoRound: false`, or it jumps halfway instead of drawing.
 - Motion and 3D: honor reduced motion (no Lenis smoothing or scroll-scrubbed motion; simple fades are fine). Load 3D client-only and lazily, pause it offscreen, and give low-power and mobile devices a static fallback. Animation must never block content or hurt LCP/INP.
 - Accessibility: semantic HTML first; everything keyboard-reachable with visible focus; alt text from tour data.
-- Env: server-only `API_URL`. Use `NEXT_PUBLIC_` only for values that are safe to expose (e.g. the Cloudinary cloud name). Never commit `.env*`.
+- Env: server-only `API_URL`. Use `NEXT_PUBLIC_` only for values that are safe to expose (e.g. the Cloudinary cloud name). Never commit `.env*` (`.gitignore` has `.env*`). `.env.local` holds `API_URL=http://localhost:3001/api/v1`; on Vercel, set the variables in the dashboard.
 - Code style matches the backend and is enforced by Prettier (`.prettierrc`): no semicolons, double quotes, trailing commas, 100-column lines. Run `npm run format` after writing code. `endOfLine` is `"auto"` because git's `core.autocrlf=true` on this Windows machine checks files out with CRLF.
 
 ## Commands
 
-- `npm run dev`: dev server (Turbopack) at http://localhost:3000. The backend also defaults to 3000; Next picks the next free port if 3000 is taken.
+- `npm run dev`: dev server (Turbopack) at http://localhost:3000. The backend runs on 3001, so both can run at once.
 - `npm run build`: production build (also type-checks). `npm run start` serves it.
 - `npm run lint`: ESLint.
 - `npm run format` fixes formatting; `npm run format:check` only reports. Prettier skips everything in `.gitignore` (including this file) plus `.prettierignore` (`package-lock.json`, `AGENTS.md`, `/design/`). The leading `/` matters: plain `design/` also skips `src/app/design/`.
@@ -267,7 +268,7 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
 
 ## Roadmap
 
-**Current phase: 0, Foundations.** Done: scaffold, Prettier, fonts, design tokens (+ `/design` style guide), app shell (navbar, footer, skip link, title template, homepage hero shell). Now rebuilding the homepage from `design/HANDOFF.md`:
+**Current phase: 2, Public pages** (its steps are after the homepage list below). Phase 0 is done: scaffold, Prettier, fonts, design tokens (+ `/design` style guide), app shell (navbar, footer, skip link, title template), and the homepage, rebuilt from `design/HANDOFF.md`:
 1. scene tokens ✓
 2. theme switching ✓
 3. navbar ✓ (frosted pill, mobile version, CSS scroll-driven shrink; below 360px the theme icon hides to make room)
@@ -339,7 +340,7 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
      - "Postcards from travelers" (the design's title): three reviews as polaroids lying on a table, each with a strip of tape, then the quote and "Lourdes B. · The Sea Explorer · ★★★★★";
      - reviews have no photos, and don't need them: the polaroid's picture is the tour's. For now that's the luggage tags' drawings, shared through `TourScene` (`tour-scenes.tsx`). After backend item 1, use a real tour photo, e.g. one of `tour.images`, so it isn't the tag's photo again;
      - the handwritten caption is built from real data (Kareem's pick): the traveler's first name and where the tour starts, e.g. "lourdes in miami". The design's "miami, day 2. tacos!!" has no field in the API;
-     - the reviews are typed in (`FEATURED_REVIEWS`, shaped like `GET /reviews`, which sends the whole tour with each review). They're real seed reviews (same `_id`, traveler and rating) with the design's quotes, because the seed's text is lorem ipsum. Reading reviews needs a login until backend item 2;
+     - the reviews are typed in (`FEATURED_REVIEWS`, shaped like `GET /reviews`, which sends the whole tour with each review). They're real seed reviews (same `_id`, traveler, rating and text: when the seed's lorem ipsum was replaced, these three took the design's quotes);
      - the polaroid is a physical object, so it looks the same in both themes: white, with a daytime picture (`data-theme="light"` on the picture). Screen readers skip it and get the quote, then "Lourdes B. · The Sea Explorer · 5 out of 5 stars";
      - layout like the tags: phones stack them, md shows two with the third centered below, xl three in a row (360px each, 70px apart, the middle one lower). On phones the title shrinks with the screen so it stays on 2 lines down to 320px.
    - 10b. the drop ✓: each polaroid waits, hidden, until it scrolls into view (`<Reveal>`, each one on its own), then drops onto the table like a photo seen from above: it starts bigger and a little turned, falls flat, speeding up, and bounces once (`drop-in`, 0.9s, in `globals.css`). Its quote and name fade in 0.5s later, as it lands. Polaroids start 0.15s apart. The section has `overflow-x-clip`, because a polaroid starts its drop bigger than its spot. Reduced motion: everything just fades. The finished section matches 10a pixel for pixel.
@@ -369,7 +370,15 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
    - 13b. idle CPU ✓ (Kareem's go-ahead): with the page just sitting there, the main thread was busy ~30% at the hero and ~21–27% further down (2% with reduced motion). Two fixes: `<PauseOffscreen>` pauses loops in off-screen sections, and the smooth-scroll loop sleeps when nothing glides (see Conventions). Production build, 1440 wide, settled: hero ~30% → 25%, Reviews 21–27% → 15%, boarding pass 21% → 6%, Where we go 7%; per-frame page layouts at the boarding pass and Where we go dropped from ~120/s to 0. What's left is loops that are on screen, mostly ones that move groups inside SVG drawings (the hero has many). Moving those into their own `<svg>`s would be the next step, for the phase 8 performance pass. Headless CPU timings are noisy (±10%); counting style recalcs and layouts per second (`Performance.getMetrics`) gives steady numbers.
    - Running a production build next to the dev server is safe: `next dev` writes to `.next/dev` and `next build` to `.next` (Next 16). Serve it with `npx next start -p 3100` and stop it afterward.
 
-Update this list as steps complete.
+**Phase 2 steps** (agreed with Kareem; backend items 0, 1 and 2 are done, and the seed has real descriptions, reviews and Cloudinary photos):
+1. connect to the API ✓: `.env.local` (`API_URL`), `src/lib/api.ts` (`get()` and `getTours()`), and a plain `/tours` page (`src/app/tours/page.tsx`) listing every tour. Without caching, `next build` calls the API once and bakes `/tours` into static HTML (○ Static in the build output), so it only changes on the next build; `next dev` fetches on every request. The `/tours` prefetch 404 is gone.
+2. real photos: a custom `next/image` loader for Cloudinary (`NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=azfjsm2k`). Public IDs are flat names: tours `the-sea-explorer-cover`, `the-sea-explorer-1`…`-3`; users `lourdes-browning`.
+3. caching: turn on `cacheComponents` and cache the API calls with `"use cache"`, so pages still load while the API on Render sleeps and the build doesn't depend on it.
+4. the tours page's real design: Kareem designs it in Claude Design (Claude pitched ideas: a departures board, a postcard rack, a baggage-claim belt, a map with a list) and hands it over, like the homepage.
+5. the tour page `/tours/[slug]`: gallery, itinerary map, guides, reviews.
+6. the homepage switches to the API: luggage tags, polaroids and stats, with real photos.
+
+Update these lists as steps complete.
 
 Creative work is woven into every phase: each page gets its own storytelling moment as it's built. Phase 7 is for the big standalone pieces.
 

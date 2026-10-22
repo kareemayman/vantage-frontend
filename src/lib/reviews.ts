@@ -13,10 +13,9 @@ export type Review = {
 
 const [seaExplorer, forestHiker, starGazer] = FEATURED_TOURS
 
-// The homepage's reviews, one per featured tour, typed in until phase 2 fetches them
-// (reading reviews needs a login for now: backend checklist item 2). They're real seed
-// reviews (same _id, traveler and rating) with the design's quotes, because the seed's
-// text is lorem ipsum (backend checklist item 4).
+// The homepage's reviews, one per featured tour, typed in until phase 2 fetches them.
+// They're real seed reviews (same _id, traveler, rating and text: the seed's reviews took
+// the design's quotes when its lorem ipsum was replaced).
 export const FEATURED_REVIEWS: Review[] = [
   {
     _id: "5c8a34ed14eb5c17645c9108",
