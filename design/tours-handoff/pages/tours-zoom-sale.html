@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-view="outside" data-state="ready" data-preset="zoom=the-wine-taster">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tours, zoomed into The Wine Taster · Vantage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&amp;family=Oswald:wght@500;600;700&amp;family=Shadows+Into+Light&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tours.css">
+<script>
+  /* Theme, motion and version before first paint.
+     ?theme=dark wins, then the saved choice (same keys as the homepage).
+     ?view=inside shows version B (mockup only). */
+  (function () {
+    var h = document.documentElement, q = new URLSearchParams(location.search);
+    var p = new URLSearchParams(h.getAttribute('data-preset') || '');
+    var t = q.get('theme'), m = null;
+    try { if (!t) t = localStorage.getItem('vantage-theme'); m = localStorage.getItem('vantage-motion'); } catch (e) {}
+    h.setAttribute('data-theme', t === 'dark' ? 'dark' : 'light');
+    if (m === 'reduce' || q.get('motion') === 'reduce' || p.get('motion') === 'reduce') h.setAttribute('data-motion', 'reduce');
+    if ((q.get('view') || p.get('view')) === 'inside') h.setAttribute('data-view', 'inside');
+    if (q.get('shot')) h.setAttribute('data-shot', '');
+  })();
+</script>
+</head>
+<body>
+<a class="skip" href="#list-section">Skip to the tour list</a>
+
+<!-- ===== Nav (same as the homepage, fixed so the plane can use the whole screen) ===== -->
+<nav class="nav" aria-label="Main">
+  <a class="nav__brand" href="homepage-desktop.html">
+    <span class="sun-dot" aria-hidden="true"></span>
+    <span class="nav__word">VANTAGE</span>
+  </a>
+  <div class="nav__links">
+    <a class="nav__link" href="tours-desktop.html" aria-current="page">Tours</a>
+    <a class="nav__link nav__login" href="#">Log in</a>
+    <button type="button" class="icon-btn" data-theme-toggle data-label-light="Switch to dark mode" data-label-dark="Switch to light mode" aria-label="Switch to dark mode">
+      <svg class="theme-icon--moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
+      <svg class="theme-icon--sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+    <a class="btn btn--cta btn--sm" href="#">Sign up</a>
+    <button type="button" class="icon-btn nav__menu" aria-label="Open menu">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+    </button>
+  </div>
+</nav>
+
+<main id="main">
+  <!-- ===== The plane: overview + scroll ride (pinned) ===== -->
+  <section class="ride" id="ride" aria-labelledby="page-title">
+    <div class="stage" id="stage">
+
+      <!-- Sky (version A) — decoration -->
+      <div class="sky" aria-hidden="true">
+        <svg class="sky__stars" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+          <g fill="#FFE594"><path d="M300 150l4 10 10 4-10 4-4 10-4-10-10-4 10-4z M1010 96l3 8 8 3-8 3-3 8-3-8-8-3 8-3z M660 760l3 8 8 3-8 3-3 8-3-8-8-3 8-3z M1340 640l4 10 10 4-10 4-4 10-4-10-10-4 10-4z M90 520l3 8 8 3-8 3-3 8-3-8-8-3 8-3z"/></g>
+          <g fill="#FFFCF0"><circle cx="160" cy="80" r="2.5"/><circle cx="420" cy="60" r="2"/><circle cx="560" cy="200" r="1.8"/><circle cx="760" cy="110" r="2.4"/><circle cx="880" cy="230" r="1.6"/><circle cx="1180" cy="200" r="2"/><circle cx="1260" cy="90" r="1.8"/><circle cx="1390" cy="300" r="2.2"/><circle cx="40" cy="330" r="2"/><circle cx="230" cy="420" r="1.6"/><circle cx="1100" cy="560" r="1.8"/><circle cx="1220" cy="800" r="2.2"/><circle cx="380" cy="830" r="2"/><circle cx="60" cy="780" r="1.6"/><circle cx="900" cy="860" r="1.8"/><circle cx="520" cy="610" r="1.5"/><circle cx="1420" cy="480" r="1.6"/></g>
+        </svg>
+        <svg class="cloud cloud--1" data-depth="0.35" viewBox="0 0 200 110"><path d="M40 95C15 95 10 62 36 58C34 30 72 20 86 42C96 14 146 14 150 48C178 44 192 72 176 88C172 94 166 95 160 95Z"/><path class="cloud-shade" d="M28 90Q100 76 180 86L170 95L40 95Z"/><path class="cloud-line" d="M40 95C15 95 10 62 36 58C34 30 72 20 86 42C96 14 146 14 150 48C178 44 192 72 176 88C172 94 166 95 160 95Z"/></svg>
+        <svg class="cloud cloud--2" data-depth="0.2" viewBox="0 0 200 110"><path d="M40 95C15 95 10 62 36 58C34 30 72 20 86 42C96 14 146 14 150 48C178 44 192 72 176 88C172 94 166 95 160 95Z"/><path class="cloud-line" d="M40 95C15 95 10 62 36 58C34 30 72 20 86 42C96 14 146 14 150 48C178 44 192 72 176 88C172 94 166 95 160 95Z"/></svg>
+        <svg class="cloud cloud--3" data-depth="0.5" viewBox="0 0 200 110"><path d="M40 95C15 95 10 62 36 58C34 30 72 20 86 42C96 14 146 14 150 48C178 44 192 72 176 88C172 94 166 95 160 95Z"/><path class="cloud-shade" d="M28 90Q100 76 180 86L170 95L40 95Z"/><path class="cloud-line" d="M40 95C15 95 10 62 36 58C34 30 72 20 86 42C96 14 146 14 150 48C178 44 192 72 176 88C172 94 166 95 160 95Z"/></svg>
+        <svg class="cloud cloud--4" data-depth="0.28" viewBox="0 0 200 110"><path d="M40 95C15 95 10 62 36 58C34 30 72 20 86 42C96 14 146 14 150 48C178 44 192 72 176 88C172 94 166 95 160 95Z"/><path class="cloud-line" d="M40 95C15 95 10 62 36 58C34 30 72 20 86 42C96 14 146 14 150 48C178 44 192 72 176 88C172 94 166 95 160 95Z"/></svg>
+      </div>
+
+      <!-- The sun / moon is the theme switch (same easter egg as the homepage) -->
+      <button type="button" class="sun-btn" data-theme-toggle data-label-light="Set the sun: switch to dark mode" data-label-dark="Wake the moon up: switch to light mode" aria-label="Set the sun: switch to dark mode">
+        <svg class="sun-art" viewBox="0 0 220 220" aria-hidden="true">
+          <path d="M196 110L212 110M184.5 153L198.3 161M153 184.5L161 198.3M110 196L110 212M67 184.5L59 198.3M35.5 153L21.7 161M24 110L8 110M35.5 67L21.7 59M67 35.5L59 21.7M110 24L110 8M153 35.5L161 21.7M184.5 67L198.3 59" stroke="#002244" stroke-width="15" stroke-linecap="round"/>
+          <path d="M196 110L212 110M184.5 153L198.3 161M153 184.5L161 198.3M110 196L110 212M67 184.5L59 198.3M35.5 153L21.7 161M24 110L8 110M35.5 67L21.7 59M67 35.5L59 21.7M110 24L110 8M153 35.5L161 21.7M184.5 67L198.3 59" stroke="#F4D160" stroke-width="8" stroke-linecap="round"/>
+          <circle cx="110" cy="110" r="70" fill="#F4D160"/>
+          <path d="M173 80A70 70 0 0 1 80 173A86 86 0 0 0 173 80Z" fill="#D9AD55"/>
+          <ellipse cx="82" cy="76" rx="15" ry="8" fill="#FFFFFF" opacity="0.6" transform="rotate(-35 82 76)"/>
+          <circle cx="110" cy="110" r="70" fill="none" stroke="#002244" stroke-width="5"/>
+          <ellipse cx="90" cy="104" rx="6" ry="9" fill="#002244"/>
+          <ellipse cx="130" cy="104" rx="6" ry="9" fill="#002244"/>
+          <ellipse cx="76" cy="126" rx="10" ry="6" fill="#D9AD55"/>
+          <ellipse cx="144" cy="126" rx="10" ry="6" fill="#D9AD55"/>
+          <path d="M90 126Q110 148 130 126" fill="none" stroke="#002244" stroke-width="5" stroke-linecap="round"/>
+        </svg>
+        <svg class="moon-art" viewBox="0 0 220 220" aria-hidden="true">
+          <circle cx="110" cy="110" r="74" fill="#FFF3CF"/>
+          <path d="M176 84A74 74 0 0 1 84 180A92 92 0 0 0 176 84Z" fill="#E2D3A0"/>
+          <circle cx="78" cy="78" r="11" fill="#E2D3A0"/><circle cx="150" cy="80" r="7" fill="#E2D3A0"/><circle cx="138" cy="152" r="12" fill="#E2D3A0"/>
+          <circle cx="110" cy="110" r="74" fill="none" stroke="#002244" stroke-width="5"/>
+          <path d="M80 108Q91 118 102 108M118 108Q129 118 140 108" fill="none" stroke="#002244" stroke-width="5" stroke-linecap="round"/>
+          <path d="M100 134Q110 141 120 134" fill="none" stroke="#002244" stroke-width="4.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+
+      <!-- ===== Overview UI: title, filters (the window shades), count, planes, sort ===== -->
+      <div class="ov" id="ov">
+        <div class="ov__nav" aria-hidden="true"></div>
+        <header class="intro" id="intro">
+          <p class="eyebrow">All tours · Summer 2027</p>
+          <h1 class="intro__title display" id="page-title">Pick a <span class="sticker">window</span></h1>
+          <div class="intro__row">
+            <p class="intro__sub" id="intro-sub" data-grid-text="Every window is a small-group tour. Flip through the photos in each one, then pick the trip you like.">Every window is a small-group tour. Scroll to look out of each one, or tap the window you like.</p>
+            <p class="intro__note hand" aria-hidden="true">scroll, we'll stop at every window
+              <svg width="54" height="58" viewBox="0 0 58 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6C34 8 50 26 40 56M40 56L30 47M40 56L50 49"/></svg>
+            </p>
+          </div>
+        </header>
+
+        <form class="filters" id="filters" aria-label="Filter tours">
+          <button type="button" class="chip-clear" id="clear-chip" hidden>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            Clear filters
+          </button>
+          <fieldset class="fgroup">
+            <legend>How hard</legend>
+            <div class="chips">
+              <label class="chip"><input type="checkbox" name="difficulty" value="easy"><span class="chip__face"><span class="chip__box"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#F4D160" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>Easy</span></label>
+              <label class="chip"><input type="checkbox" name="difficulty" value="medium"><span class="chip__face"><span class="chip__box"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#F4D160" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>Medium</span></label>
+              <label class="chip"><input type="checkbox" name="difficulty" value="difficult"><span class="chip__face"><span class="chip__box"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#F4D160" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>Difficult</span></label>
+            </div>
+          </fieldset>
+          <fieldset class="fgroup">
+            <legend>How long</legend>
+            <div class="chips">
+              <label class="chip"><input type="checkbox" name="length" value="short"><span class="chip__face"><span class="chip__box"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#F4D160" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>Up to 5 days</span></label>
+              <label class="chip"><input type="checkbox" name="length" value="medium"><span class="chip__face"><span class="chip__box"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#F4D160" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>6–9 days</span></label>
+              <label class="chip"><input type="checkbox" name="length" value="long"><span class="chip__face"><span class="chip__box"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#F4D160" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>10+ days</span></label>
+            </div>
+          </fieldset>
+          <fieldset class="fgroup">
+            <legend>Price per person</legend>
+            <div class="chips">
+              <label class="chip"><input type="checkbox" name="price" value="under500"><span class="chip__face"><span class="chip__box"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#F4D160" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>Under $500</span></label>
+              <label class="chip"><input type="checkbox" name="price" value="mid"><span class="chip__face"><span class="chip__box"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#F4D160" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>$500–$1,500</span></label>
+              <label class="chip"><input type="checkbox" name="price" value="over1500"><span class="chip__face"><span class="chip__box"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#F4D160" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>Over $1,500</span></label>
+            </div>
+          </fieldset>
+        </form>
+
+        <!-- Where the whole plane sits in the overview (measured by tours.js; nothing inside) -->
+        <div class="ov__plane" id="ov-plane"></div>
+
+        <div class="ov__bar" id="ov-bar">
+          <div class="tally">
+            <p class="count" id="count"><strong id="count-n">9</strong> <span id="count-label">tours</span></p>
+            <button type="button" class="text-btn" id="clear-all" hidden>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+              Clear filters
+            </button>
+          </div>
+          <div class="planes" id="planes" hidden>
+            <button type="button" class="icon-btn icon-btn--sm" id="prev-plane" aria-label="Previous plane">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+            </button>
+            <span class="planes__label" id="plane-label">Plane 1 of 3</span>
+            <button type="button" class="btn btn--plane" id="next-plane">Next plane
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+          <div class="sort">
+            <label for="sort">Sort by</label>
+            <select class="select" id="sort">
+              <option value="price-asc">Price: low to high</option>
+              <option value="price-desc">Price: high to low</option>
+              <option value="rating">Rating: best first</option>
+              <option value="length-asc">Length: shortest first</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== The ride HUD (shows while zoomed) ===== -->
+      <div class="hud" id="hud">
+        <button type="button" class="btn btn--ghost btn--sm hud__all" id="see-all">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="4" height="10" rx="2"/><rect x="10" y="7" width="4" height="10" rx="2"/><rect x="17" y="7" width="4" height="10" rx="2"/></svg>
+          <span>See all windows</span>
+        </button>
+        <ol class="rail" id="rail" aria-label="Windows on this plane"></ol>
+        <div class="hud__step">
+          <button type="button" class="icon-btn icon-btn--sm" id="prev-win" aria-label="Previous window">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+          </button>
+          <span class="hud__count" id="win-count">Window 1 of 9</span>
+          <button type="button" class="icon-btn icon-btn--sm" id="next-win" aria-label="Next window">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ===== Tour info beside the zoomed window ===== -->
+      <article class="card" id="card" aria-labelledby="card-name"></article>
+
+      <!-- ===== The zoomed window (one element, re-filled for each tour) ===== -->
+      <div class="focus" id="focus">
+        <div class="win win--big" id="focus-win" role="group" aria-roledescription="photos" aria-label="Photos">
+          <span class="win__frame">
+            <span class="win__ring" aria-hidden="true"></span>
+            <span class="win__glass">
+              <span class="track" id="track"></span>
+              <span class="win__glare" aria-hidden="true"></span><span class="win__glare win__glare--2" aria-hidden="true"></span>
+              <span class="win__shade" aria-hidden="true"><span class="win__handle"></span></span>
+              <button type="button" class="photo-btn photo-btn--prev" aria-label="Previous photo">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+              </button>
+              <button type="button" class="photo-btn photo-btn--next" aria-label="Next photo">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+              </button>
+              <span class="dots" role="group" aria-label="Choose a photo"></span>
+            </span>
+          </span>
+        </div>
+      </div>
+
+      <!-- ===== End of the ride ===== -->
+      <div class="endcard" id="endcard">
+        <p class="endcard__title" id="end-title">That's every window on this plane.</p>
+        <div class="endcard__actions">
+          <button type="button" class="btn btn--cta" id="end-next">Next plane
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+          <button type="button" class="btn btn--ghost" id="end-all">See all windows</button>
+        </div>
+      </div>
+
+      <!-- ===== The plane itself (decoration + window buttons) ===== -->
+      <div class="camera" id="camera">
+        <div class="flyer" id="flyer">
+          <div class="plane" id="plane">
+            <!-- Version A: outside. Plane units: 1520 × 520, nose on the left, windows centred at x = 276 + 112n, y = 236 (100 × 128). -->
+            <svg class="art art--out" viewBox="0 0 1520 520" aria-hidden="true">
+              <defs><clipPath id="fus-clip"><path d="M230 140L1300 140C1392 140 1462 152 1506 198Q1518 212 1506 226L1478 254C1416 312 1330 360 1210 360L230 360C118 360 28 326 22 258C16 196 96 140 230 140Z"/></clipPath></defs>
+              <path class="p-fin p-line" d="M1262 146L1384 30Q1396 16 1414 16L1462 16Q1484 16 1482 38L1470 198Z"/>
+              <circle class="p-logo p-line" cx="1438" cy="76" r="24"/>
+              <path class="p-body" d="M230 140L1300 140C1392 140 1462 152 1506 198Q1518 212 1506 226L1478 254C1416 312 1330 360 1210 360L230 360C118 360 28 326 22 258C16 196 96 140 230 140Z"/>
+              <g clip-path="url(#fus-clip)">
+                <rect class="p-belly" x="0" y="333" width="1520" height="60"/>
+                <rect class="p-stripe" x="0" y="312" width="1520" height="12"/>
+                <rect class="p-stripe2" x="0" y="324" width="1520" height="8"/>
+                <path class="p-nose" d="M0 110L76 110Q100 250 76 390L0 390Z"/>
+                <path class="p-seam" d="M76 110Q100 250 76 390"/>
+              </g>
+              <path class="p-line p-hollow" d="M230 140L1300 140C1392 140 1462 152 1506 198Q1518 212 1506 226L1478 254C1416 312 1330 360 1210 360L230 360C118 360 28 326 22 258C16 196 96 140 230 140Z"/>
+              <path class="p-cockpit p-line" d="M168 176L168 204L104 204Q112 184 140 176Z"/>
+              <path class="p-glint" d="M150 182L142 198"/>
+              <rect class="p-door" x="1350" y="176" width="30" height="120" rx="13"/>
+              <path class="p-wing p-line" d="M1372 256L1496 290Q1512 296 1498 304L1448 304Q1432 304 1420 296L1366 272Z"/>
+              <path class="p-wing p-line" d="M548 330L826 318L1078 468Q1092 480 1074 486L1020 490Q1002 490 992 482Z"/>
+              <path class="p-wing-hi" d="M604 338L986 468"/>
+              <path class="p-winglet p-line" d="M1070 486L1104 448Q1112 440 1114 450L1094 492Z"/>
+              <path class="p-pylon p-line" d="M690 376L758 376L770 338L702 342Z"/>
+              <path class="p-body p-line" d="M662 372L790 372Q818 372 818 401Q818 430 790 430L662 430Q642 430 642 401Q642 372 662 372Z"/>
+              <ellipse class="p-intake p-line" cx="652" cy="401" rx="12" ry="24"/>
+              <path class="p-stripe" d="M700 396H782V404H700Z"/>
+            </svg>
+
+            <!-- Version B: inside. Same plane units and window positions; walls run past the edges. -->
+            <svg class="art art--in" viewBox="0 0 1520 520" aria-hidden="true">
+              <rect class="c-wall" x="-3000" y="-3000" width="7520" height="7000"/>
+              <rect class="c-ceiling" x="-3000" y="-3000" width="7520" height="3024"/>
+              <rect class="c-bin c-line" x="96" y="24" width="1364" height="84" rx="10"/>
+              <rect class="c-lip c-line" x="96" y="104" width="1364" height="16" rx="6"/>
+              <path class="c-seam" d="M362 28V100M628 28V100M894 28V100M1160 28V100"/>
+              <g class="c-latch"><rect x="215" y="84" width="34" height="10" rx="5"/><rect x="481" y="84" width="34" height="10" rx="5"/><rect x="747" y="84" width="34" height="10" rx="5"/><rect x="1013" y="84" width="34" height="10" rx="5"/><rect x="1279" y="84" width="34" height="10" rx="5"/></g>
+              <g class="c-glow"><path d="M394 136L410 136L458 470L340 470Z"/><path d="M730 136L746 136L794 470L676 470Z"/><path d="M1178 136L1194 136L1242 470L1124 470Z"/></g>
+              <g class="c-light"><circle cx="262" cy="132" r="6"/><circle cx="290" cy="132" r="6"/><circle cx="374" cy="132" r="6"/><circle cx="402" cy="132" r="6"/><circle cx="486" cy="132" r="6"/><circle cx="514" cy="132" r="6"/><circle cx="598" cy="132" r="6"/><circle cx="626" cy="132" r="6"/><circle cx="710" cy="132" r="6"/><circle cx="738" cy="132" r="6"/><circle cx="822" cy="132" r="6"/><circle cx="850" cy="132" r="6"/><circle cx="934" cy="132" r="6"/><circle cx="962" cy="132" r="6"/><circle cx="1046" cy="132" r="6"/><circle cx="1074" cy="132" r="6"/><circle cx="1158" cy="132" r="6"/><circle cx="1186" cy="132" r="6"/><circle cx="1270" cy="132" r="6"/><circle cx="1298" cy="132" r="6"/></g>
+              <g class="c-light c-light--on"><circle cx="402" cy="132" r="6"/><circle cx="738" cy="132" r="6"/><circle cx="1186" cy="132" r="6"/></g>
+              <g class="c-recess" id="recess"></g>
+              <rect class="c-dado" x="-3000" y="330" width="7520" height="10"/>
+              <rect class="c-floor" x="-3000" y="504" width="7520" height="3000"/>
+              <path class="c-track" d="M-3000 514H4520"/>
+              <g class="c-seats" id="seats"></g>
+              <path class="c-curtain c-line" d="M120 120H212V502H120Z"/>
+              <path class="c-fold" d="M138 126V498M156 126V498M174 126V498M192 126V498"/>
+              <path class="c-curtain c-curtain--sun c-line" d="M1356 120H1446V502H1356Z"/>
+              <path class="c-fold c-fold--sun" d="M1374 126V498M1392 126V498M1410 126V498M1428 126V498"/>
+              <path class="c-rail" d="M110 120H222M1346 120H1456"/>
+            </svg>
+
+            <div class="slots" id="slots"></div>
+            <div class="flight" id="flight" aria-hidden="true"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hover / focus name tag for the overview (screen space, not scaled) -->
+      <p class="bubble" id="bubble" aria-hidden="true"></p>
+
+      <div class="veil" id="veil" aria-hidden="true"></div>
+
+      <!-- ===== Empty / waiting / error notes ===== -->
+      <div class="note" id="note" hidden>
+        <div class="note__card" id="note-empty" hidden>
+          <p class="note__hand hand">every shade is down</p>
+          <h2 class="note__title">No tours match all of those</h2>
+          <p class="note__text">Try taking one filter off, or start over.</p>
+          <button type="button" class="btn btn--cta" id="clear-empty">Clear filters</button>
+        </div>
+        <div class="note__card" id="note-waiting" hidden>
+          <h2 class="note__title">Getting the windows ready</h2>
+          <p class="note__text">Our server naps when it's quiet. Waking it up can take up to a minute, then the shades go up.</p>
+          <p class="note__time" id="wait-time" aria-hidden="true">0:00</p>
+          <p class="note__hand hand">no need to refresh</p>
+          <div class="note__slow" id="wait-slow" hidden>
+            <p class="note__text">Still waking up. Thanks for hanging on.</p>
+            <button type="button" class="btn btn--ghost" id="wait-retry">Try again</button>
+          </div>
+        </div>
+        <div class="note__card" id="note-error" role="alert" hidden>
+          <h2 class="note__title">We can't load the tours right now</h2>
+          <p class="note__text">Something went wrong on our side, or the connection dropped. Give it a moment, then try again.</p>
+          <button type="button" class="btn btn--cta" id="error-retry">Try again</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Reduced motion: windows in a simple grid, info under each one ===== -->
+  <section class="grid-wrap" id="grid-wrap" aria-label="Tours" hidden>
+    <ul class="grid" id="grid"></ul>
+  </section>
+
+  <!-- ===== The plain list: the real links (the plane above is decoration) ===== -->
+  <section class="list" id="list-section" aria-labelledby="list-title" tabindex="-1">
+    <div class="list__inner">
+      <h2 class="list__title" id="list-title">All tours as a list</h2>
+      <p class="list__lead" id="list-lead">The same tours as the plane, with the same filters and order.</p>
+      <ol class="list__items" id="list"></ol>
+    </div>
+  </section>
+  <p class="sr-only" id="live" aria-live="polite"></p>
+</main>
+
+<!-- ===== Footer (same as the homepage) ===== -->
+<footer class="foot">
+  <div class="foot__inner">
+    <div class="foot__top">
+      <div>
+        <div class="foot__brand"><span class="sun-dot" aria-hidden="true"></span><span class="foot__word">VANTAGE</span></div>
+        <p class="foot__note hand">made with sunscreen &amp; typescript</p>
+      </div>
+      <div class="foot__cols">
+        <div class="foot__col"><strong>Tours</strong><a href="#">The Sea Explorer</a><a href="#">The Forest Hiker</a><a href="#">The Star Gazer</a></div>
+        <div class="foot__col"><strong>Company</strong><a href="#">About</a><a href="#">Our guides</a><a href="#">Contact</a></div>
+        <div class="foot__col"><strong>Settings</strong>
+          <button type="button" data-theme-toggle data-text-light="Dark mode" data-text-dark="Light mode">Dark mode</button>
+          <button type="button" id="motion-toggle" aria-pressed="false">Reduce motion</button>
+          <a href="#">Sound off</a>
+        </div>
+      </div>
+    </div>
+    <div class="foot__bottom">
+      <span>© 2026 Vantage. A portfolio project, not a real airline (yet).</span>
+      <span>Design &amp; code: Kareem · 3D: three.js · Type: Oswald, Figtree, Shadows Into Light</span>
+    </div>
+  </div>
+  <svg class="crab" viewBox="0 0 42 30" role="img" aria-label="Hidden crab doodle">
+    <path d="M10 20Q21 6 32 20Z M6 12L10 18M36 12L32 18M8 24L4 28M34 24L38 28M16 22L14 28M26 22L28 28"/>
+    <circle cx="17" cy="11" r="1.8"/><circle cx="25" cy="11" r="1.8"/>
+  </svg>
+</footer>
+
+<!-- Mockup only: switch between the two versions you're choosing from. Not part of the design. -->
+<div class="review" id="review" role="group" aria-label="Mockup only: pick a version">
+  <span class="review__label">Mockup</span>
+  <button type="button" data-view="outside" aria-pressed="true">A<br>outside</button>
+  <button type="button" data-view="inside" aria-pressed="false">B<br>inside</button>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="vendor/gsap.min.js"></script>
+<script src="vendor/ScrollTrigger.min.js"></script>
+<script src="vendor/ScrollToPlugin.min.js"></script>
+<script src="tours.js"></script>
+</body>
+</html>

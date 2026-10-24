@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tours page on a phone · Vantage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+  /* A phone frame around the real responsive page, so the 390px layout can be
+     reviewed on a desktop screen. Nothing here ships. */
+  body {
+    margin: 0; min-height: 100vh; padding: 28px 16px 40px; box-sizing: border-box;
+    display: flex; flex-direction: column; align-items: center; gap: 16px;
+    background: #E9F5FE; color: #002244; font-family: 'Figtree', system-ui, sans-serif;
+  }
+  body.is-dark { background: #07192C; color: #FFFCF0; }
+  .cap { margin: 0; max-width: 620px; text-align: center; font-size: 15px; line-height: 1.5; }
+  .states { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-width: 760px; }
+  .states a {
+    padding: 8px 14px; border-radius: 999px; border: 2px solid currentColor; color: inherit;
+    text-decoration: none; font-weight: 700; font-size: 14px;
+  }
+  .states a[aria-current="page"] { background: #F4D160; color: #002244; border-color: #002244; }
+  .states a:focus-visible { outline: 2px solid #4A7DB3; outline-offset: 2px; }
+  .phone {
+    width: 420px; height: 874px; max-width: 100%; padding: 12px; box-sizing: border-box;
+    border-radius: 56px; background: #002244; border: 3px solid #4A7DB3;
+    box-shadow: 0 30px 60px -30px rgb(29 93 155 / 0.6);
+  }
+  iframe { display: block; width: 390px; height: 844px; border: 0; border-radius: 44px; background: #FFFCF0; }
+</style>
+</head>
+<body>
+  <p class="cap"><strong>Tours page at 390px.</strong> The same responsive page as tours-desktop.html, in a phone frame. Add <code>?theme=dark</code> for night and <code>?view=inside</code> for version B.</p>
+  <nav class="states" aria-label="Page states" id="states"></nav>
+  <nav class="states" aria-label="Version" id="versions"></nav>
+  <div class="phone"><iframe id="phone" title="Vantage tours page on a phone"></iframe></div>
+<script>
+  (function () {
+    var q = new URLSearchParams(location.search);
+    var state = q.get('state') || 'ready';
+    var theme = q.get('theme'), view = q.get('view');
+    if (theme === 'dark') document.body.classList.add('is-dark');
+    var pages = {
+      ready: ['Whole plane', 'tours-desktop.html'],
+      zoom: ['Zoomed in', 'tours-zoom.html'],
+      sale: ['Zoomed, on sale', 'tours-zoom-sale.html'],
+      filtered: ['Filters on', 'tours-filtered.html'],
+      empty: ['No matches', 'tours-empty.html'],
+      waiting: ['Waiting', 'tours-waiting.html'],
+      error: ['Error', 'tours-error.html'],
+      reduced: ['Reduced motion', 'tours-reduced.html'],
+      planes: ['30 tours', 'tours-30.html']
+    };
+    var nav = document.getElementById('states');
+    Object.keys(pages).forEach(function (key) {
+      var a = document.createElement('a');
+      var p = new URLSearchParams();
+      p.set('state', key);
+      if (theme) p.set('theme', theme);
+      if (view) p.set('view', view);
+      a.href = '?' + p.toString();
+      a.textContent = pages[key][0];
+      if (key === state) a.setAttribute('aria-current', 'page');
+      nav.appendChild(a);
+    });
+    var vnav = document.getElementById('versions');
+    [['', 'A · outside'], ['inside', 'B · inside']].forEach(function (v) {
+      var a = document.createElement('a');
+      var p = new URLSearchParams();
+      p.set('state', state);
+      if (theme) p.set('theme', theme);
+      if (v[0]) p.set('view', v[0]);
+      a.href = '?' + p.toString();
+      a.textContent = v[1];
+      if ((view || '') === v[0]) a.setAttribute('aria-current', 'page');
+      vnav.appendChild(a);
+    });
+    [['', 'Light'], ['dark', 'Dark']].forEach(function (t) {
+      var a = document.createElement('a');
+      var p = new URLSearchParams();
+      p.set('state', state);
+      if (t[0]) p.set('theme', t[0]);
+      if (view) p.set('view', view);
+      a.href = '?' + p.toString();
+      a.textContent = t[1];
+      if ((theme || '') === t[0]) a.setAttribute('aria-current', 'page');
+      vnav.appendChild(a);
+    });
+    var inner = new URLSearchParams();
+    if (theme) inner.set('theme', theme);
+    if (view) inner.set('view', view);
+    var file = (pages[state] || pages.ready)[1];
+    document.getElementById('phone').src = file + (inner.toString() ? '?' + inner.toString() : '');
+  })();
+</script>
+</body>
+</html>

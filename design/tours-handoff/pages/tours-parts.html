@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tours parts sheet · Vantage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&amp;family=Oswald:wght@500;600;700&amp;family=Shadows+Into+Light&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tours.css">
+<script>
+  (function () {
+    var t = new URLSearchParams(location.search).get('theme');
+    try { if (!t) t = localStorage.getItem('vantage-theme'); } catch (e) {}
+    document.documentElement.setAttribute('data-theme', t === 'dark' ? 'dark' : 'light');
+  })();
+</script>
+</head>
+<body data-page="parts">
+<main class="parts">
+  <div class="parts__top">
+    <div>
+      <p class="eyebrow">Tours · parts sheet</p>
+      <h1 class="parts__title display">The window and friends</h1>
+      <p class="parts__lead">Every piece of the plane page in every state, in one place. Photos are the real Cloudinary images (stand-ins in the screenshots). Switch the theme to see the night versions.</p>
+    </div>
+    <button type="button" class="btn btn--ghost" data-theme-toggle data-text-light="Night version" data-text-dark="Day version">Night version</button>
+  </div>
+
+  <h2>1 · The window (Hero B frame)</h2>
+  <p class="parts__lead">Built in <code>em</code>: 1em = the window's short side ÷ 56, so the same markup works at 70px on the plane and 530px zoomed in.</p>
+  <div class="parts__row" id="p-anatomy"></div>
+
+  <h2>2 · Window states on the plane</h2>
+  <p class="parts__lead">Shown at twice the overview size. The shade is the filter: down = this tour doesn't match, or the seat is empty.</p>
+  <div class="parts__row" id="p-states"></div>
+
+  <h2>3 · Tags</h2>
+  <p class="parts__lead">Under each window (sideways plane) the tag shows whatever you're sorting by. On phones it sits beside the window with the name.</p>
+  <div class="parts__row" id="p-tags"></div>
+
+  <h2>4 · Tour info</h2>
+  <p class="parts__lead">Rated, new, and on sale. The same block sits under each window in the reduced-motion grid (with an h3).</p>
+  <div class="parts__row parts__row--top" id="p-info"></div>
+
+  <h2>5 · Ride controls</h2>
+  <div class="parts__stack" id="p-hud"></div>
+
+  <h2>6 · Notes on the plane</h2>
+  <div class="parts__row parts__row--top" id="p-notes"></div>
+</main>
+<script src="vendor/gsap.min.js"></script>
+<script src="tours.js"></script>
+</body>
+</html>
