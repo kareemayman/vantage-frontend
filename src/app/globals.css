@@ -1,4 +1,7 @@
 @import "tailwindcss";
+/* Tailwind reads every file in the project for class names. The design handoffs are
+   reference mockups, not our code: reading them would ship CSS for their classes too. */
+@source not "../../design";
 /* Lenis's recommended CSS (smooth scroll, src/components/smooth-scroll.tsx). Its rules
    only apply while Lenis runs and puts the "lenis" class on <html>. */
 @import "lenis/dist/lenis.css";

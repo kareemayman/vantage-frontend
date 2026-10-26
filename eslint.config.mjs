@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Design handoffs: reference mockups (with minified GSAP copies), not our code.
+    // Top-level only, so src/app/design/ is still linted.
+    "design/**",
   ]),
 ])
 

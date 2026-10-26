@@ -9,6 +9,8 @@ export type Tour = {
   ratingsAverage: number
   ratingsQuantity: number
   summary: string
+  imageCover: string // a Cloudinary public ID, e.g. "the-sea-explorer-cover"
+  images: string[] // three more public IDs: "the-sea-explorer-1" to "-3"
   startLocation: {
     description: string
     coordinates: [number, number] // [longitude, latitude]: the API's (GeoJSON's) order
@@ -39,6 +41,8 @@ export const FEATURED_TOURS: Tour[] = [
     ratingsAverage: 4.8,
     ratingsQuantity: 6,
     summary: "Exploring the jaw-dropping US east coast by foot and by boat.",
+    imageCover: "the-sea-explorer-cover",
+    images: ["the-sea-explorer-1", "the-sea-explorer-2", "the-sea-explorer-3"],
     startLocation: { description: "Miami, USA", coordinates: [-80.185942, 25.774772] },
   },
   {
@@ -50,6 +54,8 @@ export const FEATURED_TOURS: Tour[] = [
     ratingsAverage: 5,
     ratingsQuantity: 9,
     summary: "Breathtaking hike through the Canadian Banff National Park.",
+    imageCover: "the-forest-hiker-cover",
+    images: ["the-forest-hiker-1", "the-forest-hiker-2", "the-forest-hiker-3"],
     startLocation: { description: "Banff, Canada", coordinates: [-115.570154, 51.178456] },
   },
   {
@@ -61,6 +67,8 @@ export const FEATURED_TOURS: Tour[] = [
     ratingsAverage: 4.8,
     ratingsQuantity: 6,
     summary: "The most remote and stunningly beautiful places for seeing the night sky.",
+    imageCover: "the-star-gazer-cover",
+    images: ["the-star-gazer-1", "the-star-gazer-2", "the-star-gazer-3"],
     startLocation: { description: "Utah, USA", coordinates: [-109.55099, 37.283469] },
   },
 ]
