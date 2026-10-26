@@ -1,4 +1,5 @@
 import "server-only"
+import { cacheLife, cacheTag } from "next/cache"
 import type { Tour } from "@/lib/tours"
 
 // Every call to the Vantage API lives in this file. "server-only" turns any import from a
@@ -18,7 +19,16 @@ async function get<T>(path: string): Promise<T> {
 }
 
 // Every tour. GET /tours sends { results, data: { docs } }.
+// "use cache" keeps the result on the Next server and gives every visitor the same copy.
+// "days": after a day, the next visit still gets the saved copy while Next asks the API
+// again in the background; only after a week with no visits does someone wait for the API.
+// If the API is asleep or down, Next keeps the old copy and tries again on the next visit.
+// The "tours" tag lets us throw the copy away early, e.g. after an admin edits a tour.
 export async function getTours() {
+  "use cache"
+  cacheLife("days")
+  cacheTag("tours")
+
   const body = await get<{ data: { docs: Tour[] } }>("/tours")
   return body.data.docs
 }
