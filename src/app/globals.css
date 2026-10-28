@@ -243,6 +243,17 @@
   --ground-shadow: rgb(0 34 68 / 0.16);
   --wave-opacity: 0.8;
 
+  /* Tours page: the plane's windows (design/tours-handoff, src/components/tours/) */
+  --win-bezel: var(--color-white);
+  --win-line: var(--color-navy-950); /* navy-950 in both themes, unlike --outline */
+  --win-ring: var(--color-sand-100);
+  --win-ring-edge: var(--color-sand-300);
+  --win-empty: var(--color-sky-100); /* glass with no photo */
+  --shade: var(--color-sand-100);
+  --shade-ridge: var(--color-sand-300);
+  --shade-handle: var(--color-navy-600);
+  --shade-glow: transparent; /* the glow around a closed shade (night only) */
+
   /* Shadows tinted with navy instead of gray/black */
   --elevation-xs: 0 1px 2px 0 rgb(29 93 155 / 0.08);
   --elevation-sm: 0 1px 3px 0 rgb(29 93 155 / 0.1), 0 1px 2px -1px rgb(29 93 155 / 0.1);
@@ -313,6 +324,16 @@
   --cloud-shade: var(--color-neutral-900);
   --ground-shadow: rgb(0 6 16 / 0.5);
   --wave-opacity: 0.35;
+
+  --win-bezel: var(--color-neutral-200);
+  --win-line: var(--color-navy-950);
+  --win-ring: var(--color-sand-300);
+  --win-ring-edge: var(--color-sand-400);
+  --win-empty: var(--color-sky-950);
+  --shade: var(--color-sun-200); /* the cabin's light shining through the shade */
+  --shade-ridge: var(--color-sun-300);
+  --shade-handle: var(--color-navy-600);
+  --shade-glow: rgb(244 209 96 / 0.55); /* sun-300 */
 
   /* Night shadows: darker and stronger so they still read on dark surfaces */
   --elevation-xs: 0 1px 2px 0 rgb(0 6 16 / 0.4);
@@ -385,6 +406,14 @@
   --color-scene-cloud: var(--cloud);
   --color-scene-cloud-shade: var(--cloud-shade);
   --color-scene-ground-shadow: var(--ground-shadow);
+  --color-win-bezel: var(--win-bezel);
+  --color-win-line: var(--win-line);
+  --color-win-ring: var(--win-ring);
+  --color-win-ring-edge: var(--win-ring-edge);
+  --color-win-empty: var(--win-empty);
+  --color-shade: var(--shade);
+  --color-shade-ridge: var(--shade-ridge);
+  --color-shade-handle: var(--shade-handle);
 
   --shadow-*: initial; /* replace Tailwind's gray shadows */
   --shadow-xs: var(--elevation-xs);

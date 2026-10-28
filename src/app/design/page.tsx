@@ -3,6 +3,7 @@
 import type { Metadata } from "next"
 import { ButtonLink } from "@/components/button"
 import { PauseOffscreen } from "@/components/pause-offscreen"
+import { PlaneWindow } from "@/components/tours/plane-window"
 
 export const metadata: Metadata = { title: "Design tokens" } // -> "Design tokens | Vantage"
 
@@ -55,8 +56,58 @@ export default function DesignPage() {
             <Sample label="Dark" />
           </div>
         </section>
+
+        <section className="space-y-3">
+          <h2 className="font-display text-3xl font-semibold tracking-tight uppercase">
+            Plane window
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            The tours page&apos;s window (src/components/tours/plane-window.tsx). It fills the width
+            it&apos;s given, and every part scales with it.
+          </p>
+          <div className="grid gap-6 lg:grid-cols-2">
+            <WindowSample label="Day" />
+            <div data-theme="dark">
+              <WindowSample label="Night" />
+            </div>
+          </div>
+        </section>
       </div>
       <PauseOffscreen />
+    </div>
+  )
+}
+
+// The plane window in each state: three at the plane's size (90px wide), one lying down
+// like on the phone plane, and a big one like the zoomed-in view
+function WindowSample({ label }: { label: string }) {
+  const states = [
+    { caption: "Open", photo: "the-sea-explorer-cover", shade: "open" },
+    { caption: "Shade down", photo: "the-forest-hiker-cover", shade: "closed" },
+    { caption: "No photo", photo: undefined, shade: "open" },
+  ] as const
+
+  return (
+    <div className="space-y-6 rounded-3xl border bg-scene-sky p-6 text-foreground">
+      <p className="text-sm font-semibold tracking-widest text-muted-foreground uppercase">
+        {label}
+      </p>
+      <div className="flex flex-wrap items-end gap-6 text-center text-xs font-semibold">
+        {states.map(({ caption, photo, shade }) => (
+          <div key={caption} className="w-[90px] space-y-2">
+            <PlaneWindow photo={photo} sizes="90px" shade={shade} />
+            <p>{caption}</p>
+          </div>
+        ))}
+        <div className="w-[115px] space-y-2">
+          <PlaneWindow photo="the-star-gazer-cover" sizes="115px" landscape />
+          <p>Lying down (phones)</p>
+        </div>
+      </div>
+      <div className="w-60 space-y-2 text-center text-xs font-semibold">
+        <PlaneWindow photo="the-northern-lights-cover" sizes="240px" />
+        <p>Zoomed in: the same component, 240px wide</p>
+      </div>
     </div>
   )
 }
