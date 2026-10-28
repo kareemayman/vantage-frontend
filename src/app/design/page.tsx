@@ -2,6 +2,7 @@
 // Add new components here as they're built.
 import type { Metadata } from "next"
 import { ButtonLink } from "@/components/button"
+import { PauseOffscreen } from "@/components/pause-offscreen"
 
 export const metadata: Metadata = { title: "Design tokens" } // -> "Design tokens | Vantage"
 
@@ -55,6 +56,7 @@ export default function DesignPage() {
           </div>
         </section>
       </div>
+      <PauseOffscreen />
     </div>
   )
 }

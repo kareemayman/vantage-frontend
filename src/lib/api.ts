@@ -18,16 +18,12 @@ async function get<T>(path: string): Promise<T> {
   return res.json()
 }
 
-// Every tour. GET /tours sends { results, data: { docs } }.
-// "use cache" keeps the result on the Next server and gives every visitor the same copy.
-// "days": after a day, the next visit still gets the saved copy while Next asks the API
-// again in the background; only after a week with no visits does someone wait for the API.
-// If the API is asleep or down, Next keeps the old copy and tries again on the next visit.
-// The "tours" tag lets us throw the copy away early, e.g. after an admin edits a tour.
+// Every tour. GET /tours sends { results, data: { docs } }. Cached, because the API sleeps
+// on Render when idle and takes 30–60 s to wake up.
 export async function getTours() {
-  "use cache"
-  cacheLife("days")
-  cacheTag("tours")
+  "use cache" // every visitor gets the same saved copy
+  cacheLife("days") // fresh for a day, then refreshed in the background; gone after a week
+  cacheTag("tours") // updateTag("tours") throws the copy away early (phase 6: admin edits)
 
   const body = await get<{ data: { docs: Tour[] } }>("/tours")
   return body.data.docs

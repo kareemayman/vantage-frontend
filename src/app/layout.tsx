@@ -2,7 +2,6 @@ import type { Metadata } from "next"
 import { Figtree, Oswald, Shadows_Into_Light } from "next/font/google"
 import { Footer } from "@/components/layout/footer"
 import { Navbar } from "@/components/layout/navbar"
-import { PauseOffscreen } from "@/components/pause-offscreen"
 import { SmoothScroll } from "@/components/smooth-scroll"
 import { motionInitScript } from "@/lib/motion"
 import { themeInitScript } from "@/lib/theme"
@@ -60,7 +59,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           inside it is still checked. */}
       <body suppressHydrationWarning className="flex min-h-svh flex-col">
         <SmoothScroll />
-        <PauseOffscreen />
         {/* Invisible until focused: lets keyboard users jump past the navbar */}
         <a
           href="#main"
