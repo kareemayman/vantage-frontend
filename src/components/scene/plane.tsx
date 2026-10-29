@@ -59,3 +59,43 @@ export function Plane({ className = "", ...props }: ComponentProps<"svg">) {
     </svg>
   )
 }
+
+// The same plane seen from above, facing right like the one above, so GSAP's autoRotate
+// points its nose along a path. The nose's tip is at 97% across, 50% down.
+// stroke-outline: the cards' outline color, lighter at night, because this one flies over
+// the night sky
+export function PlaneTop({ className = "", ...props }: ComponentProps<"svg">) {
+  return (
+    <svg aria-hidden viewBox="0 0 100 100" overflow="visible" className={className} {...props}>
+      <g strokeWidth="4.5" strokeLinejoin="round" className="stroke-outline">
+        {/* main wings, swept back, then the tail wings */}
+        <g className="fill-navy-600">
+          <path d="M60 40L41 8Q39 4 35 5L32 6Q29 7 30 11L42 40Z" />
+          <path d="M60 60L41 92Q39 96 35 95L32 94Q29 93 30 89L42 60Z" />
+          <path d="M26 42L17 28Q16 26 14 26L11 26Q9 26 9.5 29L12 42Z" />
+          <path d="M26 58L17 72Q16 74 14 74L11 74Q9 74 9.5 71L12 58Z" />
+        </g>
+        {/* engines, poking out in front of the wings */}
+        <g className="fill-sky-300">
+          <rect x="46" y="21" width="14" height="8" rx="4" />
+          <rect x="46" y="71" width="14" height="8" rx="4" />
+        </g>
+        {/* body, nose cap and cockpit window */}
+        <path
+          d="M12 45Q12 39 21 39L66 38C86 38 97 43 97 50C97 57 86 62 66 62L21 61Q12 61 12 55Z"
+          className="fill-white"
+        />
+        <path
+          d="M84 39.4C92 41.2 97 45 97 50C97 55 92 58.8 84 60.6Q80 50 84 39.4Z"
+          className="fill-sun-300"
+        />
+        <path
+          d="M78 41.5Q82 50 78 58.5L74 57.5Q77.5 50 74 42.5Z"
+          className="fill-navy-950 stroke-none"
+        />
+        {/* the tail fin, seen edge-on from above */}
+        <rect x="5" y="47.5" width="26" height="5" rx="2.5" className="fill-sky-300" />
+      </g>
+    </svg>
+  )
+}

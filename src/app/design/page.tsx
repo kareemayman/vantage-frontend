@@ -3,6 +3,7 @@
 import type { Metadata } from "next"
 import { ButtonLink } from "@/components/button"
 import { PauseOffscreen } from "@/components/pause-offscreen"
+import { PlanePreview } from "@/components/three/plane-preview"
 import { PlaneWindow } from "@/components/tours/plane-window"
 
 export const metadata: Metadata = { title: "Design tokens" } // -> "Design tokens | Vantage"
@@ -71,6 +72,16 @@ export default function DesignPage() {
               <WindowSample label="Night" />
             </div>
           </div>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="font-display text-3xl font-semibold tracking-tight uppercase">3D plane</h2>
+          <p className="text-sm text-muted-foreground">
+            The cartoon plane in 3D (src/components/three/plane-model.tsx), built from simple shapes
+            in code: toon shading and a navy outline, like the design handoff&apos;s 3D style. It
+            looks the same in both themes.
+          </p>
+          <PlanePreview />
         </section>
       </div>
       <PauseOffscreen />
