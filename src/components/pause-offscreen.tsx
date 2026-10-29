@@ -28,7 +28,10 @@ export function PauseOffscreen() {
       },
       { rootMargin: "-1px 0px" },
     )
-    document.querySelectorAll("main section, footer").forEach((el) => observer.observe(el))
+    // Articles too: a long section (the tours page's route) pauses each card on its own
+    document
+      .querySelectorAll("main section, main article, footer")
+      .forEach((el) => observer.observe(el))
     return () => observer.disconnect()
   }, [])
 

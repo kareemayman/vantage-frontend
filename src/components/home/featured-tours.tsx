@@ -1,8 +1,9 @@
 import { ButtonLink } from "@/components/button"
 import { TagHover } from "@/components/home/tag-hover"
-import { ArrowIcon } from "@/components/icons"
+import { ArrowIcon, PinIcon } from "@/components/icons"
 import { Reveal } from "@/components/reveal"
 import { TourScene } from "@/components/scene/tour-scenes"
+import { DIFFICULTY } from "@/components/tours/difficulty"
 import { FEATURED_TOURS, type Tour } from "@/lib/tours"
 
 // Where each tour's difficulty stamp sits, so it doesn't cover the drawing (TourScene).
@@ -11,23 +12,6 @@ const STAMPS: Record<string, string> = {
   "the-sea-explorer": "right-3.5 bottom-3.5 rotate-6",
   "the-forest-hiker": "top-3.5 right-3.5 -rotate-5",
   "the-star-gazer": "top-3.5 left-3.5 -rotate-4",
-}
-
-// Difficulty colors. The stamp is a physical object, so it looks the same in both themes;
-// the chip uses theme tokens. ("difficult" isn't in the design: coral, like a warning.)
-const DIFFICULTY = {
-  easy: {
-    stamp: "border-lagoon-700 bg-lagoon-50 text-lagoon-700",
-    chip: "bg-success-soft text-success",
-  },
-  medium: {
-    stamp: "border-navy-950 bg-white text-navy-950",
-    chip: "bg-chip text-chip-foreground",
-  },
-  difficult: {
-    stamp: "border-coral-700 bg-coral-50 text-coral-700",
-    chip: "bg-destructive-soft text-destructive",
-  },
 }
 
 // Each tag hangs a little crooked, from its own wiggly string (the design's angles). One
@@ -203,20 +187,5 @@ function LuggageTag({ tour, pose }: { tour: Tour; pose: (typeof POSES)[number] }
         </ButtonLink>
       </div>
     </article>
-  )
-}
-
-function PinIcon({ className }: { className: string }) {
-  return (
-    <svg
-      aria-hidden
-      viewBox="0 0 24 24"
-      className={`fill-none stroke-current stroke-[2.4] ${className}`}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M12 22s7-7.6 7-13a7 7 0 0 0-14 0c0 5.4 7 13 7 13z" />
-      <circle cx="12" cy="9" r="2.5" />
-    </svg>
   )
 }

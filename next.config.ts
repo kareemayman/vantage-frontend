@@ -7,6 +7,9 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   // Every <Image> gets its links from Cloudinary (src is a Cloudinary public ID)
   images: { loader: "custom", loaderFile: "./src/lib/cloudinary-loader.ts" },
+  // Dev only: the terminal prints every fetch the Next server makes (e.g. to the API), with
+  // its full URL, status and time. The browser's Network tab can't see these
+  logging: { fetches: { fullUrl: true } },
 }
 
 export default nextConfig

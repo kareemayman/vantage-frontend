@@ -1,50 +1,47 @@
 import type { Metadata } from "next"
-import Image from "next/image"
 import { PauseOffscreen } from "@/components/pause-offscreen"
+import { RouteEnd, RouteStart } from "@/components/tours/route-ends"
+import { TourCard } from "@/components/tours/tour-card"
+import { TourList } from "@/components/tours/tour-list"
+import { TourRoute } from "@/components/tours/tour-route"
+import { ToursHeader } from "@/components/tours/tours-header"
 import { getTours } from "@/lib/api"
 
 export const metadata: Metadata = { title: "Tours" } // -> "Tours | Vantage"
 
-// Every tour, straight from the API. A plain list for now: the real design comes later.
-// An async Server Component waits for the data on the server and sends finished HTML,
-// so there's no useEffect and no loading state here.
+// The tours page: a tour card at each stop of a dotted route down the page, then every
+// tour as a plain list. An async Server Component waits for the data on the server and
+// sends finished HTML, so there's no useEffect and no loading state here.
 export default async function ToursPage() {
+  // Cheapest first (the design's default sort, "Price: low to high"), sorted by the API
   const tours = await getTours()
+  const days = tours.map((tour) => tour.duration)
 
   return (
     <>
-      <section className="mx-auto max-w-6xl px-6 pt-28 pb-24 md:pt-36">
-        <h1 className="font-display text-6xl font-bold tracking-tight uppercase">All tours</h1>
-        <ul className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {tours.map((tour, i) => (
-            <li key={tour.slug} className="overflow-hidden rounded-2xl border bg-card">
-              {/* `fill` stretches the photo over this 4:3 box; `sizes` tells the browser how
-                  wide the box is at each screen width, so it downloads a photo that size.
-                  The first row (up to 3 photos) is on screen at load, so it loads right away
-                  (eager) instead of waiting for the layout like the lazy ones below. */}
-              <div className="relative aspect-4/3">
-                <Image
-                  src={tour.imageCover}
-                  alt={tour.name}
-                  fill
-                  loading={i < 3 ? "eager" : "lazy"}
-                  sizes="(min-width: 1280px) 352px, (min-width: 768px) calc(50vw - 36px), calc(100vw - 48px)"
-                  className="object-cover"
-                />
-              </div>
-              <div className="p-6">
-                <h2 className="font-display text-3xl leading-none font-bold tracking-tight uppercase">
-                  {tour.name}
-                </h2>
-                <p className="mt-3 text-pretty text-muted-foreground">{tour.summary}</p>
-                <p className="mt-4 text-sm font-medium">
-                  {tour.duration} days · {tour.difficulty} · ${tour.price.toLocaleString("en-US")}
-                </p>
-              </div>
-            </li>
-          ))}
-        </ul>
+      {/* The sky: it fades into the page background at the bottom. overflow-x-clip: the
+          cards' props and their pop-in can poke past the screen's sides without making
+          the page scroll sideways */}
+      <section
+        aria-labelledby="tours-title"
+        className="overflow-x-clip bg-linear-to-b from-scene-sky-top via-scene-sky-mid via-40% to-scene-sky-low"
+      >
+        <ToursHeader shortest={Math.min(...days)} longest={Math.max(...days)} />
+        {/* --corridor: the gap between desktop's two columns, where the route runs */}
+        <div className="mx-auto max-w-6xl px-4 pb-16 [--corridor:6rem] md:px-6 md:pb-20 lg:[--corridor:10rem]">
+          <TourRoute>
+            <RouteStart />
+            {/* The row gap leaves room for the clouds' puffs and the toys on top */}
+            <ol className="grid gap-y-20 md:grid-cols-2 md:gap-x-(--corridor) md:gap-y-24">
+              {tours.map((tour, i) => (
+                <TourCard key={tour.slug} tour={tour} index={i} />
+              ))}
+            </ol>
+            <RouteEnd count={tours.length} lastOnLeft={tours.length % 2 === 1} />
+          </TourRoute>
+        </div>
       </section>
+      <TourList tours={tours} />
       <PauseOffscreen />
     </>
   )
