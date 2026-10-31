@@ -2,8 +2,10 @@
 // Add new components here as they're built.
 import type { Metadata } from "next"
 import { ButtonLink } from "@/components/button"
+import { Logo } from "@/components/logo"
 import { PauseOffscreen } from "@/components/pause-offscreen"
 import { Feather, GullFlying, GullSitting } from "@/components/scene/gull"
+import { Poke } from "@/components/scene/poke"
 import { PlanePreview } from "@/components/three/plane-preview"
 import { PlaneWindow } from "@/components/tours/plane-window"
 
@@ -56,6 +58,31 @@ export default function DesignPage() {
           {/* Any element can flip the theme for everything inside it */}
           <div data-theme="dark">
             <Sample label="Dark" />
+          </div>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="font-display text-3xl font-semibold tracking-tight uppercase">Logo</h2>
+          <p className="text-sm text-muted-foreground">
+            The sunset on the sea (src/components/logo.tsx) at the footer&apos;s, navbar&apos;s and
+            phone sizes. Point at the big one: its sun rises and sets. Only the rim changes at
+            night. The tab icons are src/app/icon.svg, favicon.ico and apple-icon.png.
+          </p>
+          <div className="grid gap-6 lg:grid-cols-2">
+            {["light", "dark"].map((theme) => (
+              <div
+                key={theme}
+                data-theme={theme}
+                className="flex items-end gap-6 rounded-2xl bg-background p-8"
+              >
+                <Poke animation="sunrise" playOnHover>
+                  <Logo className="block size-24" />
+                </Poke>
+                <Logo className="size-17" />
+                <Logo className="size-6.5" />
+                <Logo className="size-5" />
+              </div>
+            ))}
           </div>
         </section>
 

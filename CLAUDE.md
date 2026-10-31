@@ -177,6 +177,9 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
 - **Shadows** are navy-tinted (`shadow-xs`…`shadow-xl`). `shadow-pop` is a hard cartoon "sticker" shadow (navy in light mode, sun in dark mode).
 - **Radii and spacing:** Tailwind's defaults for now.
 - **Buttons:** `ButtonLink` (`src/components/button.tsx`) for links that look like buttons. Variants: `cta` (the sun sticker, which presses down on click), `outline`, and `primary` (navy; everyday links like "View tour"). Sizes: `sm` (navbar) and `lg` (hero). The "go" arrow on links (`ArrowIcon`) and any other icon used in more than one place live in `src/components/icons.tsx`. There's no class-merging library, so `className` may only add layout (width, margins), never colors or sizes. The exception is a variant-prefixed override (e.g. `short:h-12`), because a variant class always wins over an unprefixed one. A `<button>` version comes with the first form.
+- **Logo:** the sunset on the sea (`<Logo>`, `src/components/logo.tsx`; Kareem's pick from five options, over a beach ball, the sun with a face, a plane on the sun and a plane window). It's in the navbar (26px, 20px on phones), the footer's wordmark (0.62em) and on the boarding pass (20px). Drawn for 20px and up. Raw palette colors; only the rim follows the theme (`stroke-outline`), or it would vanish on the dark navbar. Pointing at the footer's word makes the sun rise and set (`sunrise`, through `<Poke>`; this replaced the old dot's hop). `<Poke>` hides what's inside it from screen readers, so that link has `aria-label="Vantage"`.
+  - **Browser icons** are Next's file conventions in `src/app/` (no config: Next writes the `<link>` tags). `icon.svg` is the source: the logo with a thicker rim and no small waves, for 16px; its rim lightens with `prefers-color-scheme: dark`. `favicon.ico` (16, 32 and 48px, daytime rim) is for browsers without SVG icons. `apple-icon.png` (180px) is the full logo on sky-100, because iOS fills see-through parts with black.
+  - The last two are generated, so redraw them if the drawing changes: draw on a `<canvas>` in headless Chrome, read `toDataURL` through `--dump-dom`, and pack the .ico by hand (a 6-byte header, a 16-byte entry per picture, then the PNGs). Browsers hold on to old tab icons: close the tab and reopen it to see a change.
 - **Dark mode:** light is the default for everyone, and dark is opt-in.
   - Dark values live under `[data-theme="dark"]`. Any element can carry `data-theme="dark"` or `"light"` to theme its subtree (themed sections).
   - `dark:` classes follow `data-theme` via `@custom-variant`, never the OS setting.
@@ -316,7 +319,7 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
      - poke it and it flaps its wing like a bird, rising a little with each flap (the banner hops along). Kareem picked this over a loop-the-loop, which felt like too much.
 5. footer ✓ (`src/components/layout/footer.tsx`):
    - capped at 1440px with 80px sides on desktop, like the design (Kareem tried full width and preferred this);
-   - fluid wordmark (its dot hops on hover) and the handwritten tagline;
+   - fluid wordmark (pointing at it makes the logo's sun rise and set) and the handwritten tagline;
    - Tours / Company / Settings columns, which become one flat grid on phones;
    - Company links (Kareem's choice): About → his portfolio, Contact → email, GitHub → this repo;
    - "Dark mode" is the third theme switch;
@@ -532,10 +535,6 @@ Creative work is woven into every phase: each page gets its own storytelling mom
 6. **Admin**: manage tours, users, reviews, and bookings.
 7. **Playground and loading**: the beach ball and pool, mini-games with scores (the homepage Playground's keep-it-up and beach volleyball, whose buttons come with them; the handoff has the hero's ball roll down into the pool), the plane loading screen, the remaining easter eggs (incl. the boarding pass's Konami seat, 11d), and sound.
 8. **Ship**: SEO (metadata, per-tour OG images, sitemap), an accessibility and performance pass, tests, README/case study.
-
-**Brand to-dos** (Kareem's list; no phase yet, do them at some point, by phase 8 at the latest):
-- **A logo with more personality.** The dot before "Vantage" is meant to be the sun, but it's a plain sun-yellow circle: in the navbar (`navbar.tsx`) and in the footer's big wordmark (`footer.tsx`, where it hops on hover). Replace it with something more playful, e.g. a tiny beach ball, in the cartoon style (navy outline). It has to read at the navbar's 14–18px, and keep the footer's hop.
-- **The favicon, as the same logo.** `src/app/favicon.ico` is still create-next-app's default (the Next.js logo). Read Next's metadata file conventions in `node_modules/next/dist/docs/` first (`icon` / `apple-icon` files in `src/app`).
 
 ## Open decisions
 

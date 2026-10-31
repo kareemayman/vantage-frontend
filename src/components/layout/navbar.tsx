@@ -2,6 +2,7 @@ import Link from "next/link"
 import { ButtonLink } from "@/components/button"
 import { ArrowIcon } from "@/components/icons"
 import { MenuPanel } from "@/components/layout/menu-panel"
+import { Logo } from "@/components/logo"
 import { ThemeToggle } from "@/components/theme-toggle"
 
 // Inline on desktop, inside the menu panel on phones
@@ -22,11 +23,7 @@ export function Navbar() {
         className="nav-shrink group flex h-15 items-center justify-between rounded-2xl border-2 border-nav-border bg-nav pr-1.5 pl-3.5 shadow-md backdrop-blur-md md:h-18 md:rounded-3xl md:pr-4 md:pl-7"
       >
         <Link href="/" className="flex items-center gap-2 md:gap-2.5">
-          {/* Sun dot: same colors in both themes */}
-          <span
-            aria-hidden
-            className="size-3.5 rounded-full border-3 border-navy-950 bg-sun-300 md:size-4.5"
-          />
+          <Logo className="size-5 shrink-0 md:size-6.5" />
           <span className="font-display text-2xl leading-none font-bold tracking-[0.04em] uppercase md:text-3xl">
             Vantage
           </span>

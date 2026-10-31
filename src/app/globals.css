@@ -572,6 +572,7 @@
   --animate-flap: flap 0.75s ease-in-out; /* one-shot: the plane's wing flaps like a bird */
   --animate-flap-hop: flap-hop 1.2s ease-in-out; /* ...while the plane (and banner) rise */
   --animate-scuttle: scuttle 2.4s ease-in-out; /* one-shot: the footer crab runs off and back */
+  --animate-sunrise: sunrise 1.5s ease-in-out; /* one-shot: the logo's sun comes up and sets */
 
   /* The Journey's tricks (src/components/scene/journey-props.tsx): each plays once when
      the plane reaches its card (reached:), after a 0.3s beat so the card lifts first */
@@ -1036,6 +1037,17 @@
     60% {
       translate: -200px 0;
       rotate: 0deg;
+    }
+  }
+  /* 6px is in the logo's own drawing units (32 across), so it scales with the logo */
+  @keyframes sunrise {
+    0%,
+    100% {
+      translate: 0 0;
+    }
+    45%,
+    55% {
+      translate: 0 -6px;
     }
   }
   /* Same timing as bounce-once: the shadow shrinks while the ball is up */

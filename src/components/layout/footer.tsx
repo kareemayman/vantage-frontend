@@ -1,5 +1,6 @@
 import Link from "next/link"
 import type { ReactNode } from "react"
+import { Logo } from "@/components/logo"
 import { MotionToggle } from "@/components/motion-toggle"
 import { Crab } from "@/components/scene/beach"
 import { Poke } from "@/components/scene/poke"
@@ -30,16 +31,18 @@ export function Footer() {
       <div className="mx-auto max-w-360 px-4 pt-12 pb-9 md:px-10 md:pt-17.5 md:pb-11 lg:px-20">
         <div className="flex flex-col gap-7 lg:flex-row lg:justify-between">
           <div>
-            {/* Wordmark: fluid from 60px (phones) to 110px (desktop). Its sun dot hops on hover. */}
-            <Link
-              href="/"
-              className="group flex w-fit items-center gap-[0.13em] font-display text-[clamp(3.75rem,9vw,6.875rem)] leading-[0.9] font-bold tracking-[0.02em] uppercase"
-            >
-              <span
-                aria-hidden
-                className="size-[0.33em] shrink-0 origin-bottom rounded-full border-3 border-navy-950 bg-sun-300 motion-safe:group-hover:animate-hop md:border-4"
-              />
-              Vantage
+            {/* Wordmark: fluid from 60px (phones) to 110px (desktop). Pointing at it makes the
+                logo's sun rise and set. aria-label: <Poke> hides what's inside it from screen
+                readers, so the link needs its name from here. */}
+            <Link href="/" aria-label="Vantage" className="block w-fit">
+              <Poke
+                animation="sunrise"
+                playOnHover
+                className="flex items-center gap-[0.13em] font-display text-[clamp(3.75rem,9vw,6.875rem)] leading-[0.9] font-bold tracking-[0.02em] uppercase"
+              >
+                <Logo className="size-[0.62em] shrink-0" />
+                Vantage
+              </Poke>
             </Link>
             <p className="mt-2.5 -rotate-2 font-hand text-2xl text-primary md:mt-4 md:text-[30px]">
               made with sunscreen &amp; TypeScript

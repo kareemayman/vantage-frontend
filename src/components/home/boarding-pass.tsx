@@ -1,5 +1,6 @@
 import { ButtonLink } from "@/components/button"
 import { ArrowIcon } from "@/components/icons"
+import { Logo } from "@/components/logo"
 import { Reveal } from "@/components/reveal"
 import { Cloud } from "@/components/scene/sky"
 
@@ -46,10 +47,7 @@ export function BoardingPass() {
             <div className="flex grow flex-col rounded-t-3xl border-4 border-b-0 border-outline bg-card px-5.5 pt-6 pb-6 md:px-9 md:pt-9 lg:rounded-l-[28px] lg:rounded-tr-none lg:border-r-0 lg:border-b-4 lg:px-11">
               <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-1 text-xs font-extrabold tracking-[0.16em] text-primary uppercase md:text-[13px]">
                 <p className="flex items-center gap-2">
-                  <span
-                    aria-hidden
-                    className="size-3.5 rounded-full border-3 border-navy-950 bg-sun-300"
-                  />
+                  <Logo className="size-5 shrink-0" />
                   Vantage · Boarding pass
                 </p>
                 <p>Flight VTG-026</p>
