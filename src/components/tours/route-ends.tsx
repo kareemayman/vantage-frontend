@@ -24,7 +24,10 @@ export function RouteStart() {
         aria-hidden
         className="absolute top-2 left-[calc(50%+var(--corridor)/2+1.5rem)] hidden w-48 md:block lg:w-60"
       >
-        <Cloud shade className="w-full" />
+        {/* The plane's wind puffs it up (wind.ts): more than a card, because it's small */}
+        <div data-wind="0.14">
+          <Cloud shade className="w-full" />
+        </div>
         <span data-route-start className="absolute top-[40%] left-1/2" />
         {/* Under the cloud, pointing up at it (the arrow turned around), clear of the plane's
             wingtip */}
@@ -44,6 +47,7 @@ export function RouteEnd({ count, lastOnLeft }: { count: number; lastOnLeft: boo
   return (
     <p
       data-route-end
+      data-wind
       className={`mt-14 w-fit rounded-full border-2 border-nav-border bg-nav px-4 py-1 font-semibold md:absolute md:bottom-0 md:mt-0 ${lastOnLeft ? "md:left-[calc(50%+var(--corridor)/2)]" : "md:right-[calc(50%+var(--corridor)/2)]"}`}
     >
       That&apos;s all <span className="font-display text-2xl font-bold">{count}</span>{" "}

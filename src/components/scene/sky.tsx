@@ -12,14 +12,17 @@ const RAYS =
   "M196 110L212 110M184.5 153L198.3 161M153 184.5L161 198.3M110 196L110 212M67 184.5L59 198.3M35.5 153L21.7 161M24 110L8 110M35.5 67L21.7 59M67 35.5L59 21.7M110 24L110 8M153 35.5L161 21.7M184.5 67L198.3 59"
 
 // The smiling sun. Inside a `group` (its button), hovering swaps the resting
-// face for a squint and a grin.
-export function Sun(props: SvgProps) {
+// face for a squint and a grin. raysClassName: for fading the rays out (the tours page's
+// sunset).
+export function Sun({ raysClassName, ...props }: SvgProps & { raysClassName?: string }) {
   return (
     <svg aria-hidden viewBox="0 0 220 220" {...props}>
       {/* Rays: one ring that slowly turns. transform-fill: around its own center */}
-      <g strokeLinecap="round" className="origin-center transform-fill motion-safe:animate-turn">
-        <path d={RAYS} strokeWidth="15" className="stroke-navy-950" />
-        <path d={RAYS} strokeWidth="8" className="stroke-sun-300" />
+      <g className={raysClassName}>
+        <g strokeLinecap="round" className="origin-center transform-fill motion-safe:animate-turn">
+          <path d={RAYS} strokeWidth="15" className="stroke-navy-950" />
+          <path d={RAYS} strokeWidth="8" className="stroke-sun-300" />
+        </g>
       </g>
       <circle cx="110" cy="110" r="70" className="fill-sun-300" />
       <path d="M173 80A70 70 0 0 1 80 173A86 86 0 0 0 173 80Z" className="fill-sun-400" />
@@ -59,6 +62,25 @@ export function Sun(props: SvgProps) {
       >
         <path d="M80 107Q90 95 100 107M120 107Q130 95 140 107" fill="none" />
         <path d="M86 122Q110 156 134 122Z" className="fill-navy-950" />
+      </g>
+    </svg>
+  )
+}
+
+// The sun at the end of the day (the tours page): orange, no rays, falling asleep. The same
+// disc in the same spot as <Sun>, so it can fade in on top of it.
+export function Sleepy(props: SvgProps) {
+  return (
+    <svg aria-hidden viewBox="0 0 220 220" {...props}>
+      <circle cx="110" cy="110" r="70" className="fill-sunset" />
+      <path d="M173 80A70 70 0 0 1 80 173A86 86 0 0 0 173 80Z" className="fill-coral-400" />
+      <circle cx="110" cy="110" r="70" fill="none" strokeWidth="5" className="stroke-navy-950" />
+      <ellipse cx="76" cy="126" rx="10" ry="6" className="fill-coral-400" />
+      <ellipse cx="144" cy="126" rx="10" ry="6" className="fill-coral-400" />
+      <g fill="none" strokeWidth="5" strokeLinecap="round" className="stroke-navy-950">
+        <path d="M80 104Q90 114 100 104" />
+        <path d="M120 104Q130 114 140 104" />
+        <path d="M100 130Q110 139 120 130" />
       </g>
     </svg>
   )

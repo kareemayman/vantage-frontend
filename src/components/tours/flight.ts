@@ -53,6 +53,7 @@ export type Pose = {
 const STEP = 4 // px of trail between samples
 const DOT_EVERY = 17 // px of trail from one dot to the next: a 3px dash, then a 14px gap
 const TAKEOFF = 150 // px of scrolling the takeoff gets, at least (see progressNow)
+const LAST_HOP = 100 // px of scrolling the landing gets, at least (see progressAt)
 
 // How high it flies (px above the page): low over each stop, higher in between, and much
 // higher on a climb (bigger numbers make it bigger: see growth)
@@ -361,18 +362,20 @@ function dotsAlong({ count, x, y, length }: Track) {
 // Which sample the plane is at when the route's `y` is on its line across the screen. It
 // passes each stop as that stop reaches the line, slowing down a little around it (half
 // steady speed, half sine ease). `first`: where the takeoff starts, the route's y on the
-// line when the page is scrolled to the top.
-function progressAt({ keys }: Flight, y: number, first: number) {
+// line when the page is scrolled to the top. `landBy`: the y by which it has landed, which
+// can be before the count itself reaches the line (it always gets LAST_HOP px of scrolling).
+function progressAt({ keys }: Flight, y: number, first: number, landBy: number) {
   if (y <= first) return 0
   let from = first
   let fromAt = 0
-  for (const key of keys) {
-    if (y < key.y) {
-      const f = (y - from) / (key.y - from)
+  for (const [i, key] of keys.entries()) {
+    const keyY = i === keys.length - 1 ? Math.max(Math.min(key.y, landBy), from + LAST_HOP) : key.y
+    if (y < keyY) {
+      const f = (y - from) / (keyY - from)
       const eased = 0.5 * f + 0.25 * (1 - Math.cos(Math.PI * f))
       return fromAt + eased * (key.at - fromAt)
     }
-    from = key.y
+    from = keyY
     fromAt = key.at
   }
   return fromAt
@@ -380,18 +383,23 @@ function progressAt({ keys }: Flight, y: number, first: number) {
 
 // Where the route is on the page (not on the screen). tour-route.tsx keeps it up to date,
 // so scrolling never has to measure anything: measuring right after something changed
-// makes the browser redo its layout first.
-export type Place = { left: number; top: number; height: number }
+// makes the browser redo its layout first. below: px from the route's bottom to the end of
+// the sky (the sea and the shore).
+export type Place = { left: number; top: number; height: number; below: number }
 
 // The sample the scroll asks for right now (the one function here that reads the window).
 // The plane follows a line across the screen: the middle, or higher on a tall screen,
 // where the first stop would already be above the middle when the page loads and the plane
 // would have left before you scroll. It takes off as soon as the page scrolls, with at
-// least TAKEOFF px of scrolling for it (a short way down, but a long way across).
+// least TAKEOFF px of scrolling for it (a short way down, but a long way across). It lands
+// as the end of the sky reaches the bottom of the screen, so the last thing you see is the
+// plane over the setting sun, with the whole sunset around it (the sun's sums in globals.css
+// finish at that same scroll position).
 export function progressNow(flight: Flight, place: Place) {
   const line = Math.min(innerHeight / 2, place.top + flight.keys[0].y - TAKEOFF)
   const first = line - place.top // the route's y on the line, scrolled to the top
-  return progressAt(flight, first + scrollY, first)
+  const landBy = line + place.height + place.below - innerHeight
+  return progressAt(flight, first + scrollY, first, landBy)
 }
 
 // The plane at a (fractional) sample: blended between the two samples around it

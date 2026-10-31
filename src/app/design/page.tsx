@@ -3,6 +3,7 @@
 import type { Metadata } from "next"
 import { ButtonLink } from "@/components/button"
 import { PauseOffscreen } from "@/components/pause-offscreen"
+import { Feather, GullFlying, GullSitting } from "@/components/scene/gull"
 import { PlanePreview } from "@/components/three/plane-preview"
 import { PlaneWindow } from "@/components/tours/plane-window"
 
@@ -82,6 +83,27 @@ export default function DesignPage() {
             looks the same in both themes.
           </p>
           <PlanePreview />
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="font-display text-3xl font-semibold tracking-tight uppercase">Gulls</h2>
+          <p className="text-sm text-muted-foreground">
+            The seagulls on the tour cards (src/components/scene/gull.tsx), sitting, flying and the
+            feather they drop. Physical objects, so they look the same in both themes.
+          </p>
+          <div className="grid gap-6 lg:grid-cols-2">
+            {["light", "dark"].map((theme) => (
+              <div
+                key={theme}
+                data-theme={theme}
+                className="flex items-end gap-10 rounded-2xl bg-scene-sky p-8"
+              >
+                <GullSitting className="w-24 motion-safe:animate-gull-idle" />
+                <GullFlying className="w-36" />
+                <Feather className="w-6" />
+              </div>
+            ))}
+          </div>
         </section>
       </div>
       <PauseOffscreen />

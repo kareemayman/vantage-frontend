@@ -18,6 +18,8 @@ const COMPANY = [
 ]
 const PORTFOLIO = COMPANY[0].href
 
+const year = new Date().getFullYear()
+
 // 09 Footer (design/HANDOFF.md). Server Component: only the two settings switches and
 // the crab inside it are Client Components.
 export function Footer() {
@@ -98,7 +100,7 @@ export function Footer() {
 
         {/* Credits, under a dashed "perforation" line */}
         <div className="mt-6 flex flex-col border-t-2 border-dashed border-dash pt-4.5 text-[13px] leading-[1.6] text-muted-foreground md:mt-12 md:pt-5.5 md:text-sm lg:mt-24 lg:flex-row lg:justify-between lg:gap-6">
-          <p>© 2026 Vantage. A portfolio project, not a real airline (yet).</p>
+          <p>© {year} Vantage. A portfolio project, not a real airline (yet).</p>
           <p>
             Design &amp; code:{" "}
             <a

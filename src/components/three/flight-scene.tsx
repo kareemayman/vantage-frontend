@@ -10,6 +10,7 @@ import {
   type Place,
   type Pose,
 } from "@/components/tours/flight"
+import { blow, calm, type Wind } from "@/components/tours/wind"
 
 // The 3D plane flying down the tours page (step 4c), loaded by tour-route.tsx in the browser
 // only. The canvas is a see-through square that travels with the plane (fixed, under the
@@ -22,10 +23,12 @@ import {
 
 // `place`: where the route is on the page, kept up to date by tour-route.tsx
 // `trail`: the dotted line's <path>; the plane adds its dots as it passes them
+// `wind`: what its air pushes around (wind.ts)
 type SceneProps = {
   flight: Flight
   place: RefObject<Place>
   trail: RefObject<SVGPathElement | null>
+  wind: RefObject<Wind>
 }
 
 // The sun: top right (like the header's) and high up, so shadows fall down and to the left
@@ -37,7 +40,7 @@ const FOLLOW = 4 // how fast the plane catches up with the scroll: lower is lazi
 const MAX_BEHIND = 35 // A fast scroll can't lose it off the screen
 const ENTRANCE = 2 // seconds it takes to fly in from the right when the page loads
 
-export function FlightScene({ flight, place, trail }: SceneProps) {
+export function FlightScene({ flight, place, trail, wind }: SceneProps) {
   const frame = useRef<HTMLDivElement>(null)
   // Room for the plane at its highest, and its shadow at its farthest
   const size = Math.ceil(
@@ -73,7 +76,7 @@ export function FlightScene({ flight, place, trail }: SceneProps) {
         {/* Soft sky light (up is toward us), plus the sun: about π in all, like on /design */}
         <hemisphereLight args={["#ffffff", "#cdeafe", 0.95]} position={[0, 0, 1]} />
         <Sun />
-        <Pilot flight={flight} place={place} trail={trail} frameRef={frame} />
+        <Pilot flight={flight} place={place} trail={trail} wind={wind} frameRef={frame} />
       </Canvas>
     </div>
   )
@@ -136,7 +139,7 @@ function onScreen({ top, height }: Place) {
 // is a ref (and so may be changed) when its name ends in Ref.
 type PilotProps = SceneProps & { frameRef: RefObject<HTMLDivElement | null> }
 
-function Pilot({ flight, place, trail, frameRef }: PilotProps) {
+function Pilot({ flight, place, trail, wind, frameRef }: PilotProps) {
   const plane = useRef<THREE.Group>(null)
   const sheet = useRef<THREE.Mesh>(null)
   const invalidate = useThree((state) => state.invalidate)
@@ -169,6 +172,9 @@ function Pilot({ flight, place, trail, frameRef }: PilotProps) {
       removeEventListener("resize", redraw)
     }
   }, [flight, place, invalidate])
+
+  // No plane, no wind: leave nothing mid-sway (the motion switch flipped, the page hidden)
+  useEffect(() => () => calm(wind.current), [wind])
 
   // Before each frame: move the plane. `invalidate` asks for another frame, so it keeps
   // moving by itself until it arrives.
@@ -208,6 +214,12 @@ function Pilot({ flight, place, trail, frameRef }: PilotProps) {
       dotsShown.current = pose.dots
       trail.current?.setAttribute("d", flight.dots.slice(0, pose.dots).join(""))
     }
+
+    // Its wind, which gets farther the bigger it looks. Keeps asking for frames until
+    // everything it pushed has wobbled to a stop.
+    const reach = flight.planeLength * growth(pose.z) * 1.1 + 80
+    const top = place.current.top - scrollY
+    if (blow(wind.current, { x: pose.x, y: pose.y, reach, top }, seconds)) invalidate()
 
     // The canvas moves to where the plane is on screen, to whole device pixels (a fraction
     // would blur it), and the plane makes up the rest inside it. (0, 0) in the scene is

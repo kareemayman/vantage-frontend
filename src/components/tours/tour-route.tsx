@@ -18,6 +18,7 @@ import {
   type Rect,
 } from "@/components/tours/flight"
 import { RoutePlane } from "@/components/tours/route-plane"
+import { calm, findWind, type Wind } from "@/components/tours/wind"
 import { useReducedMotion } from "@/lib/use-reduced-motion"
 import { wheelPace } from "@/lib/wheel-pace"
 
@@ -26,6 +27,7 @@ type Scene = ComponentType<{
   flight: Flight
   place: RefObject<Place>
   trail: RefObject<SVGPathElement | null>
+  wind: RefObject<Wind>
 }>
 
 // The mouse wheel scrolls this page at this speed (1 is normal), so there's time to watch
@@ -48,13 +50,16 @@ const neverChanges = () => () => {}
 // they landed and plans the flight through them (flight.ts), again whenever the list or
 // the page changes size (a resize, a font loading).
 // - Motion allowed, and the device can draw 3D: the 3D plane flies in, then flies the route
-//   as you scroll, and the trail's dots appear behind it.
+//   as you scroll, the trail's dots appear behind it, and its wind sways what it passes and
+//   scares the gulls (wind.ts).
 // - Reduced motion, or no 3D: the whole trail shows, and the flat plane waits at the start.
 // Decoration: without JavaScript there's no trail and no plane, only the stops.
 export function TourRoute({ children }: { children: ReactNode }) {
   const box = useRef<HTMLDivElement>(null)
-  const place = useRef<Place>({ left: 0, top: 0, height: 0 }) // where the route is on the page
+  // Where the route is on the page
+  const place = useRef<Place>({ left: 0, top: 0, height: 0, below: 0 })
   const trail = useRef<SVGPathElement>(null)
+  const wind = useRef<Wind>({ things: [], flocks: [], plane: null }) // what the plane's air pushes around
   const [flight, setFlight] = useState<Flight | null>(null)
   const [Scene, setScene] = useState<Scene | null>(null)
   const [broken, setBroken] = useState(false) // the 3D file didn't load
@@ -67,11 +72,13 @@ export function TourRoute({ children }: { children: ReactNode }) {
     const el = box.current
     if (!el) return
     const observer = new ResizeObserver(() => {
+      calm(wind.current) // nothing mid-sway while it's measured
       const origin = el.getBoundingClientRect()
       place.current = {
         left: origin.left + scrollX,
         top: origin.top + scrollY,
         height: origin.height,
+        below: (el.closest("section")?.getBoundingClientRect().bottom ?? 0) - origin.bottom,
       }
       const measure = (node: Element): Rect => {
         const { left, top, right, bottom } = node.getBoundingClientRect()
@@ -94,6 +101,7 @@ export function TourRoute({ children }: { children: ReactNode }) {
       const end = el.querySelector("[data-route-end]")
       if (!end) return
       const length = planeLength(innerWidth)
+      wind.current = findWind(el, measure)
       setFlight(
         planFlight({
           start,
@@ -163,7 +171,7 @@ export function TourRoute({ children }: { children: ReactNode }) {
       {children}
       {/* After the cards. The 3D plane's canvas is fixed anyway, so it isn't in this box */}
       {flying
-        ? flight && Scene && <Scene flight={flight} place={place} trail={trail} />
+        ? flight && Scene && <Scene flight={flight} place={place} trail={trail} wind={wind} />
         : parked && <RoutePlane x={parked.x} y={parked.y} heading={parked.heading} />}
     </div>
   )

@@ -1,6 +1,4 @@
 import { cacheLife } from "next/cache"
-import { Moon, Snooze, Sun } from "@/components/scene/sky"
-import { ThemeToggle } from "@/components/theme-toggle"
 
 type ToursHeaderProps = {
   shortest: number // the shortest and longest tours, in days
@@ -17,14 +15,14 @@ async function upcomingSummer() {
   return now.getFullYear() + (now.getMonth() > 8 ? 1 : 0) // getMonth(): 0 = January, 8 = September
 }
 
-// The top of the tours page: the title and the intro, with the sun (a theme switch, like
-// the homepage's) beside them on md+, level with the text, below the navbar. The tour
-// cards start right below.
+// The top of the tours page: the title and the intro. The padding on the right (md+) leaves
+// room for the sun beside them, which is in setting-sun.tsx because it leaves this header as
+// the page scrolls. The tour cards start right below.
 export async function ToursHeader({ shortest, longest }: ToursHeaderProps) {
   const summer = await upcomingSummer()
 
   return (
-    <header className="mx-auto flex max-w-6xl items-center justify-between gap-10 px-4 pt-28 pb-20 md:px-6 md:pt-36">
+    <header className="mx-auto max-w-6xl px-4 pt-28 pb-20 md:px-6 md:pt-36 md:pr-36 lg:pr-48">
       <div>
         <p className="text-[13px] font-extrabold tracking-[0.16em] text-primary uppercase md:text-sm">
           All tours · Summer {summer}
@@ -47,20 +45,6 @@ export async function ToursHeader({ shortest, longest }: ToursHeaderProps) {
           tough. Follow the plane down the route and pick your favorite.
         </p>
       </div>
-
-      <ThemeToggle
-        labelLight="Set the sun: switch to dark mode"
-        labelDark="Wake the moon up: switch to light mode"
-        className="hidden size-24 shrink-0 cursor-pointer rounded-full transition-[scale] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-safe:hover:scale-105 md:block lg:size-36"
-      >
-        <span className="block size-full motion-safe:animate-rise dark:hidden">
-          <Sun className="block size-full motion-safe:animate-bob" />
-        </span>
-        <span className="relative hidden size-full motion-safe:animate-rise dark:block">
-          <Moon className="block size-full motion-safe:animate-rock" />
-          <Snooze className="absolute top-[-13%] left-[95%] -rotate-10 text-2xl" />
-        </span>
-      </ThemeToggle>
     </header>
   )
 }

@@ -29,6 +29,12 @@
 @custom-variant ahead (&:where([data-stop="ahead"] *));
 @custom-variant reached (&:where([data-stop="here"] *, [data-stop="passed"] *));
 
+/* The tours page's wind (src/components/tours/wind.ts): `gust:` styles anything inside
+   something the plane's wind just hit, like a toy that hops. */
+@custom-variant gust (&:where([data-gust] *));
+/* ...and `flying:` styles the gulls once they've been scared off a card */
+@custom-variant flying (&:where([data-flying] *));
+
 /* Entrances that play once, when they scroll into view (src/components/reveal.tsx).
    `waiting:` not on screen yet (hidden, ready to come in).
    `seen:` it has been on screen: the entrance plays.
@@ -172,6 +178,9 @@
   --color-coral-800: #6f0e0f;
   --color-coral-900: #4f0a0a;
   --color-coral-950: #320605;
+
+  /* The tours page's setting sun: halfway between coral-400 and sun-300 */
+  --color-sunset: #f8a565;
 }
 
 /* ==========================================================================
@@ -243,11 +252,31 @@
   --ground-shadow: rgb(0 34 68 / 0.16);
   --wave-opacity: 0.8;
 
-  /* Tours page (design/tours-handoff, src/components/tours/): the sky behind the cards,
-     top to bottom. The bottom matches the page background, so the sky melts into it. */
-  --sky-top: var(--color-sky-100);
-  --sky-mid: var(--color-sky-50);
-  --sky-low: var(--color-sand-50);
+  /* Tours page (src/components/tours/): the sky behind the cards, top to bottom: a whole day,
+     from morning through the blue of midday and a pink afternoon to the sunset at the sea.
+     in oklab: the colors in between stay clean (plain RGB goes gray from blue to pink). */
+  --sky-day: linear-gradient(
+    in oklab,
+    var(--color-sky-100),
+    var(--color-sky-200) 20%,
+    var(--color-sky-100) 36%,
+    var(--color-coral-100) 54%,
+    var(--color-coral-200) 66%,
+    var(--color-coral-300) 78%,
+    var(--color-sunset) 91%,
+    var(--color-sun-300)
+  );
+  /* The sea at the end of it: the sunset on the water at the horizon, blue nearer the shore.
+     Pink and periwinkle in between: straight from orange to blue goes gray in the middle. */
+  --sea-dusk: linear-gradient(
+    in oklab,
+    var(--color-sunset),
+    var(--color-coral-300) 30%,
+    var(--color-navy-300) 65%,
+    var(--color-sky-400)
+  );
+  /* What the low sun tints the clouds with (the cards further down the route, tour-card.tsx) */
+  --cloud-tint: var(--color-coral-100);
   /* The plane's windows */
   --win-bezel: var(--color-white);
   --win-line: var(--color-navy-950); /* navy-950 in both themes, unlike --outline */
@@ -331,9 +360,18 @@
   --ground-shadow: rgb(0 6 16 / 0.5);
   --wave-opacity: 0.35;
 
-  --sky-top: var(--color-navy-950); /* the homepage's night sky */
-  --sky-mid: var(--color-navy-950);
-  --sky-low: var(--color-neutral-950);
+  /* At night, the same trip runs from the homepage's night sky to the first light of dawn */
+  --sky-day: linear-gradient(
+    in oklab,
+    var(--color-navy-950),
+    var(--color-navy-950) 30%,
+    var(--color-navy-900) 50%,
+    color-mix(in oklab, var(--color-navy-800), var(--color-coral-700) 35%) 72%,
+    color-mix(in oklab, var(--color-navy-800), var(--color-coral-500) 55%) 90%,
+    var(--color-sun-500)
+  );
+  --sea-dusk: linear-gradient(in oklab, var(--color-sun-800), var(--color-sky-800));
+  --cloud-tint: color-mix(in oklab, var(--color-neutral-900), var(--color-coral-800) 30%);
   --win-bezel: var(--color-neutral-200);
   --win-line: var(--color-navy-950);
   --win-ring: var(--color-sand-300);
@@ -363,6 +401,8 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
+  /* A card further down the tours page's route, in later light (--lit: how far along, in %) */
+  --color-card-lit: color-mix(in oklab, var(--card), var(--cloud-tint) var(--lit, 0%));
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
@@ -416,9 +456,6 @@
   --color-scene-cloud: var(--cloud);
   --color-scene-cloud-shade: var(--cloud-shade);
   --color-scene-ground-shadow: var(--ground-shadow);
-  --color-scene-sky-top: var(--sky-top);
-  --color-scene-sky-mid: var(--sky-mid);
-  --color-scene-sky-low: var(--sky-low);
   --color-win-bezel: var(--win-bezel);
   --color-win-line: var(--win-line);
   --color-win-ring: var(--win-ring);
@@ -544,6 +581,21 @@
   --animate-card-pop: card-pop 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
   --animate-shade-up: shade-up 0.9s cubic-bezier(0.65, 0, 0.35, 1) 0.5s backwards;
   --animate-prop-pop: prop-pop 0.6s ease-out 0.8s backwards;
+  /* ...and when the plane's wind hits a pool ring, it flips over like a coin */
+  --animate-toy-flip: toy-flip 0.9s ease-out;
+  /* The gulls (src/components/tours/gulls.tsx): sitting, they look around now and then. When
+     the plane scares them, one trip in three parts on nested wrappers: gull-x sideways and
+     gull-y up and down (different timing on each is what curves the path), and gull-look
+     for which way it faces and how far away it looks. --delay: this gull's late start. If
+     you change the 10s, change TRIP_TIME in wind.ts. */
+  --animate-gull-idle: gull-idle 5s ease-in-out infinite;
+  --animate-gull-x: gull-x 10s var(--delay, 0s) both;
+  --animate-gull-y: gull-y 10s var(--delay, 0s) both;
+  --animate-gull-look: gull-look 10s var(--delay, 0s) both;
+  --animate-gull-flap: gull-flap 0.24s ease-in-out infinite alternate;
+  --animate-feather: feather 2.6s ease-in both;
+  /* The sun's light on the sea (src/components/tours/horizon.tsx) */
+  --animate-shimmer: shimmer 2.8s ease-in-out infinite alternate;
 
   @keyframes turn {
     to {
@@ -755,6 +807,135 @@
     }
     80% {
       scale: 0.95;
+    }
+  }
+  /* Up, a full turn around its upright line, and back down */
+  @keyframes toy-flip {
+    0%,
+    100% {
+      translate: 0 0;
+      rotate: y 0deg;
+    }
+    45% {
+      translate: 0 -40px;
+    }
+    100% {
+      rotate: y 360deg;
+    }
+  }
+  @keyframes shimmer {
+    from {
+      opacity: 0.45;
+      scale: 0.8 1;
+    }
+    to {
+      opacity: 0.9;
+      scale: 1.05 1;
+    }
+  }
+  @keyframes gull-idle {
+    0%,
+    40%,
+    70%,
+    100% {
+      rotate: 0deg;
+    }
+    46%,
+    62% {
+      rotate: -7deg;
+    }
+  }
+  /* Speeding up on the way out, then slowing down to land */
+  @keyframes gull-x {
+    0% {
+      translate: 0 0;
+      animation-timing-function: cubic-bezier(0.45, 0.1, 0.8, 0.7);
+    }
+    30%,
+    68% {
+      translate: var(--flee-x) 0;
+      animation-timing-function: cubic-bezier(0.15, 0.4, 0.45, 1);
+    }
+    100% {
+      translate: 0 0;
+    }
+  }
+  /* Up first on the way out; coming back, it stays high, then drops onto its spot */
+  @keyframes gull-y {
+    0% {
+      translate: 0 0;
+      animation-timing-function: cubic-bezier(0.25, 0.55, 0.5, 1);
+    }
+    30%,
+    68% {
+      translate: 0 var(--flee-y);
+      animation-timing-function: cubic-bezier(0.7, 0, 0.85, 0.5);
+    }
+    100% {
+      translate: 0 0;
+    }
+  }
+  /* It shrinks and fades into the distance, turns around out of sight, and comes back */
+  @keyframes gull-look {
+    0% {
+      opacity: 1;
+      scale: var(--face) 1;
+    }
+    22% {
+      opacity: 1;
+    }
+    30% {
+      opacity: 0;
+      scale: calc(var(--face) * 0.55) 0.55;
+    }
+    68% {
+      opacity: 0;
+      scale: calc(var(--face) * -0.55) 0.55;
+    }
+    76% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 1;
+      scale: calc(var(--face) * -1) 1;
+    }
+  }
+  /* --flap: 1 or -1, for the wing on each side */
+  @keyframes gull-flap {
+    from {
+      rotate: calc(var(--flap) * -30deg);
+    }
+    to {
+      rotate: calc(var(--flap) * 28deg);
+    }
+  }
+  /* Drifts down, rocking from side to side */
+  @keyframes feather {
+    0% {
+      opacity: 0;
+      translate: 0 0;
+      rotate: 0deg;
+    }
+    8% {
+      opacity: 1;
+    }
+    25% {
+      translate: -14px 34px;
+      rotate: -35deg;
+    }
+    50% {
+      translate: 12px 80px;
+      rotate: 28deg;
+    }
+    75% {
+      opacity: 1;
+      translate: -10px 125px;
+      rotate: -22deg;
+    }
+    100% {
+      opacity: 0;
+      translate: 8px 170px;
+      rotate: 16deg;
     }
   }
   @keyframes flutter {
@@ -1051,6 +1232,11 @@
 [data-offscreen] *::after {
   animation-play-state: paused;
 }
+/* ...except gulls on their way somewhere: they fly far from their card, so they can still be
+   in view when it isn't, and they'd freeze in midair. */
+[data-flying] * {
+  animation-play-state: running;
+}
 
 /* Theme "sunset wipe" (src/lib/theme.ts): switch off the browser's default
    cross-fade so only our growing circle animates */
@@ -1078,5 +1264,77 @@
       animation-timeline: scroll(root); /* after `animation`: the shorthand resets it */
       animation-range: 0 40px;
     }
+  }
+}
+
+/* The tours page's setting sun (src/components/tours/setting-sun.tsx). The sky section's scroll
+   position is a timeline (--sky, from view-timeline-name on the section), and these animations
+   follow it instead of the clock: "contain" runs from the section's top at the top of the
+   screen to its bottom at the bottom of the screen. No JavaScript and no scroll listener, and
+   the browser runs it in step with the scroll. md+ only, off with reduced motion or without
+   support: the sun then just stays beside the title, and .horizon-sun shows on the sea instead.
+   --to-x and --to-y: from where the sun starts to the middle of the corridor (the page's
+   middle), and down to just above the sea's top edge, which cuts the sun below its eyes. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) and (width >= 48rem) {
+    :root:not([data-motion="reduce"]) .sun-sky {
+      position: sticky;
+    }
+    :root:not([data-motion="reduce"]) .sun-sets {
+      --to-x: calc(var(--sun-half) + 1.5rem - min(36rem, 50vw));
+      --to-y: calc(100svh - var(--ground) - var(--sun-top) - var(--sun-half) - 1.75rem);
+      animation: sun-sets linear both;
+      animation-timeline: --sky; /* after `animation`: the shorthand resets it */
+      animation-range: contain;
+    }
+    :root:not([data-motion="reduce"]) .sun-sleeps {
+      animation:
+        sun-sleeps linear both,
+        var(--animate-bob);
+      animation-timeline: --sky, auto;
+      animation-range:
+        contain 62% contain 88%,
+        normal;
+    }
+    :root:not([data-motion="reduce"]) .sun-rays {
+      animation: sun-rays linear both;
+      animation-timeline: --sky;
+      animation-range: contain 62% contain 88%;
+    }
+    :root:not([data-motion="reduce"]) .horizon-sun {
+      display: none;
+    }
+  }
+}
+/* Across to the corridor while the title scrolls away, down it, then big as it reaches the sea */
+@keyframes sun-sets {
+  0% {
+    translate: 0 0;
+    scale: 1;
+    animation-timing-function: ease-in-out;
+  }
+  13% {
+    translate: var(--to-x) calc(var(--to-y) * 0.13);
+    scale: 1;
+    animation-timing-function: linear;
+  }
+  82% {
+    translate: var(--to-x) calc(var(--to-y) * 0.82);
+    scale: 1.2;
+    animation-timing-function: ease-in;
+  }
+  100% {
+    translate: var(--to-x) var(--to-y);
+    scale: 2.2;
+  }
+}
+@keyframes sun-sleeps {
+  to {
+    opacity: 1;
+  }
+}
+@keyframes sun-rays {
+  to {
+    opacity: 0;
   }
 }

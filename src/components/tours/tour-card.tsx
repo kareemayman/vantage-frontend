@@ -4,6 +4,7 @@ import { ArrowIcon, PinIcon } from "@/components/icons"
 import { Reveal } from "@/components/reveal"
 import { BeachBall, Palm, PoolRing, Suitcase } from "@/components/scene/beach"
 import { DIFFICULTY } from "@/components/tours/difficulty"
+import { Gulls, type GullSpot } from "@/components/tours/gulls"
 import { PlaneWindow } from "@/components/tours/plane-window"
 import type { Tour } from "@/lib/tours"
 
@@ -24,25 +25,30 @@ const TILTS = [
 // riseAt); the others peek out from behind it. Sizes and spots are in cqw (1% of the
 // card's width), so a toy grows with its card. A mirrored or turned toy uses `transform`
 // or `rotate`, because the pop animates `scale`.
-type Prop = { art: ReactNode; front?: boolean; right: string; left: string }
+// `gust`: what it does when the plane's wind hits it (data-gust, set by wind.ts). All of these
+// end within HOP_TIME.
+type Prop = { art: ReactNode; front?: boolean; right: string; left: string; gust: string }
 const PROPS: Prop[] = [
   {
     art: <BeachBall className="w-[18cqw]" />,
     front: true,
     right: "-top-[9cqw] -right-[6cqw]",
     left: "-top-[9cqw] -right-[6cqw] md:right-auto md:-left-[6cqw]",
+    gust: "motion-safe:gust:animate-bounce-once",
   },
   {
     art: <PoolRing className="w-[20cqw] rotate-12" />,
     front: true,
     right: "-top-[8cqw] -right-[7cqw]",
     left: "-top-[8cqw] -right-[7cqw] md:right-auto md:-left-[7cqw]",
+    gust: "motion-safe:gust:animate-toy-flip",
   },
   {
     // A palm standing beside the card
     art: <Palm className="w-[30cqw]" />,
     right: "-right-[17cqw] bottom-[2cqw]",
     left: "-right-[17cqw] bottom-[2cqw] md:right-auto md:-left-[17cqw] md:[transform:scaleX(-1)]",
+    gust: "motion-safe:gust:animate-wiggle",
   },
   {
     // Higher than the others: its handle is on top, so the case sits low in the drawing
@@ -50,6 +56,7 @@ const PROPS: Prop[] = [
     front: true,
     right: "-top-[12cqw] -right-[7cqw] rotate-12",
     left: "-top-[12cqw] -right-[7cqw] rotate-12 md:right-auto md:-left-[7cqw] md:-rotate-12",
+    gust: "motion-safe:gust:animate-hop",
   },
 ]
 
@@ -101,6 +108,21 @@ function riseAt(domes: Dome[], x: number) {
   return rise
 }
 
+// Gulls sit on a few of the cards, spread out down the route
+const hasGulls = (index: number) => index % 5 === 2 || index % 5 === 4
+
+// Where they sit: on top of the puffs around the card's middle (its corners are for the toys),
+// two on a big puff or on the only one there, and one on a small one. x and rise in cqw, like
+// the puffs.
+function gullSpots(domes: Dome[]): GullSpot[] {
+  const middle = domes.filter((dome) => dome.x > 20 && dome.x < 80)
+  return middle
+    .flatMap((dome) =>
+      dome.size > 24 || middle.length === 1 ? [dome.x - 6.5, dome.x + 6.5] : [dome.x],
+    )
+    .map((x, i) => ({ x, rise: riseAt(domes, x), facing: i % 2 === 0 ? 1 : -1 }))
+}
+
 // A puff's box. `inset` shrinks it by the outline's width, for the fills (see the card)
 function puffBox({ left, top, size }: Puff, inset = 0) {
   return {
@@ -120,7 +142,8 @@ const WAVE = `M0 6V3Q2.5 0 5 3${"t5 0".repeat(19)}V6Z`
 // The <li> is a container (@container): @sm: means "the card is at least 384px wide".
 // Its padding on the outer side (below xl, where the screen is tight) leaves room for the
 // puffs and toys that stick out.
-export function TourCard({ tour, index }: { tour: Tour; index: number }) {
+// total: how many cards there are. Later cards are lit by a lower sun: their clouds get warmer.
+export function TourCard({ tour, index, total }: { tour: Tour; index: number; total: number }) {
   const titleId = `tour-${tour.slug}`
   const left = index % 2 === 0 // desktop's left column
   const prop = PROPS[index % PROPS.length]
@@ -131,11 +154,16 @@ export function TourCard({ tour, index }: { tour: Tour; index: number }) {
   // puff all the way lifted the toy off the card (the City Wanderer's bag, 10cqw)
   const raise = (x: number) => `${Math.min(riseAt(domes, x), 6.5)}cqw`
   const rise = { "--rise": raise(97), "--rise-md": raise(left ? 3 : 97) } as CSSProperties
+  // The toy inside its box, nested: its hop in the wind mustn't replace the box's pop
+  const toy = <span className={`block origin-bottom ${prop.gust}`}>{prop.art}</span>
+  const tilt = TILTS[index % TILTS.length]
 
   return (
+    // The z-index: gulls that take off fly over the cards below this one, which come later in
+    // the page and would otherwise cover them (a container is its own stacking context)
     <li
       style={{ "--row": index + 1 } as CSSProperties}
-      className={`@container relative pr-4 pl-10 md:row-[var(--row)/span_2] ${left ? "md:col-start-1 md:pr-0 md:pl-6 xl:pl-0" : "md:col-start-2 md:pr-6 md:pl-0 xl:pr-0"}`}
+      className={`@container relative pr-4 pl-10 has-data-flying:z-20 md:row-[var(--row)/span_2] ${left ? "md:col-start-1 md:pr-0 md:pl-6 xl:pl-0" : "md:col-start-2 md:pr-6 md:pl-0 xl:pr-0"}`}
     >
       {/* The card's stop on the route, level with the middle of its window (39% of the
           card's width down). The route itself is drawn by tour-route.tsx. Desktop: in the
@@ -153,9 +181,10 @@ export function TourCard({ tour, index }: { tour: Tour; index: number }) {
           className={`origin-top-left [--pop-turn:-8deg] [--pop-x:-3rem] waiting:opacity-0 motion-safe:seen:animate-card-pop motion-reduce:seen:animate-fade-in ${left ? "md:origin-top-right md:[--pop-turn:8deg] md:[--pop-x:3rem]" : ""}`}
         >
           {/* The toy is the card's sibling, not its child: the tilted card is its own
-              layer (a stacking context), and nothing inside it can get behind it */}
-          <article aria-labelledby={titleId} className="relative">
-            {!prop.front && <span className={propBox}>{prop.art}</span>}
+              layer (a stacking context), and nothing inside it can get behind it.
+              data-wind: the plane's wind sways all of this (wind.ts) */}
+          <article aria-labelledby={titleId} data-wind className="group/card relative">
+            {!prop.front && <span className={propBox}>{toy}</span>}
 
             {/* The cloud. Hovering straightens it and lifts it a little. Drawn in layers,
                 so one outline goes around the whole shape: the puffs with their outline,
@@ -163,18 +192,27 @@ export function TourCard({ tour, index }: { tour: Tour; index: number }) {
                 without one (hiding the box's outline inside them), then the content.
                 drop-shadow-pop: a shadow that follows the whole shape */}
             <div
-              className={`relative text-card-foreground drop-shadow-pop transition-[rotate,translate] duration-300 motion-safe:hover:-translate-y-1 motion-safe:hover:rotate-0 ${TILTS[index % TILTS.length]}`}
+              style={
+                {
+                  "--lit": `${Math.round((index / Math.max(1, total - 1)) * 100)}%`,
+                } as CSSProperties
+              }
+              className={`relative text-card-foreground drop-shadow-pop transition-[rotate,translate] duration-300 motion-safe:hover:-translate-y-1 motion-safe:hover:rotate-0 ${tilt}`}
             >
               {puffs.map((puff, i) => (
                 <span
                   key={i}
                   style={puffBox(puff)}
-                  className="absolute rounded-full border-3 border-outline bg-card"
+                  className="absolute rounded-full border-3 border-outline bg-card-lit"
                 />
               ))}
-              <span className="absolute inset-0 rounded-[28px] border-3 border-outline bg-card" />
+              <span className="absolute inset-0 rounded-[28px] border-3 border-outline bg-card-lit" />
               {puffs.map((puff, i) => (
-                <span key={i} style={puffBox(puff, 3)} className="absolute rounded-full bg-card" />
+                <span
+                  key={i}
+                  style={puffBox(puff, 3)}
+                  className="absolute rounded-full bg-card-lit"
+                />
               ))}
 
               {/* The content, inside the outline. The whole card opens the tour: the "View
@@ -264,12 +302,14 @@ export function TourCard({ tour, index }: { tour: Tour; index: number }) {
               </div>
             </div>
 
+            {hasGulls(index) && <Gulls spots={gullSpots(domes)} tilt={tilt} />}
+
             {prop.front && (
               <span
                 style={rise}
                 className={`-translate-y-(--rise) md:-translate-y-(--rise-md) ${propBox}`}
               >
-                {prop.art}
+                {toy}
               </span>
             )}
           </article>
