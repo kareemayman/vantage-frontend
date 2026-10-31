@@ -182,13 +182,14 @@ export function TourCard({ tour, index }: { tour: Tour; index: number }) {
                   after:inset-0). overflow-hidden: the sand follows the rounded corners */}
               <div className="relative m-0.75 overflow-hidden rounded-[25px] p-3 @sm:p-4">
                 {/* The photo, the biggest thing on the card. alt="": the card's title,
-                  right below, already says which tour it is */}
+                  right below, already says which tour it is. The first two load right
+                  away: both are on screen on load on a desktop */}
                 <PlaneWindow
                   landscape
                   rollUp
                   photo={tour.imageCover}
                   sizes="(min-width: 1280px) 384px, (min-width: 1024px) calc(44vw - 146px), (min-width: 768px) calc(44vw - 115px), calc(88vw - 104px)"
-                  loading={index === 0 ? "eager" : undefined}
+                  loading={index < 2 ? "eager" : undefined}
                 />
 
                 {/* The name comes first in the HTML, for screen readers that jump from

@@ -4,6 +4,7 @@ import Lenis from "lenis"
 import { useEffect } from "react"
 import { gsap, ScrollTrigger } from "@/lib/gsap"
 import { useReducedMotion } from "@/lib/use-reduced-motion"
+import { wheelPace } from "@/lib/wheel-pace"
 
 // Smooth scrolling for the whole site (Lenis): the mouse wheel glides instead of jumping
 // in steps. Touch scrolling stays native (phones already glide), and so do the keyboard
@@ -15,8 +16,16 @@ export function SmoothScroll() {
   useEffect(() => {
     if (reduced) return
     // stopInertiaOnNavigate: clicking a link to another page stops the glide, so the
-    // new page doesn't keep scrolling from the old flick of the wheel
-    const lenis = new Lenis({ stopInertiaOnNavigate: true })
+    // new page doesn't keep scrolling from the old flick of the wheel.
+    // virtualScroll: Lenis shows us each scroll input before using it, so a page can slow
+    // the wheel down (wheel-pace.ts)
+    const lenis = new Lenis({
+      stopInertiaOnNavigate: true,
+      virtualScroll: (input) => {
+        if (input.event.type === "wheel") input.deltaY *= wheelPace.current
+        return true
+      },
+    })
     // Pinned and scrubbed sections (ScrollTrigger) re-check the scroll position the
     // moment Lenis moves the page, not a frame later
     lenis.on("scroll", ScrollTrigger.update)

@@ -1,5 +1,5 @@
 import { useFrame, type ThreeElements } from "@react-three/fiber"
-import { useRef } from "react"
+import { createContext, use, useRef } from "react"
 import * as THREE from "three"
 import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js"
 
@@ -10,12 +10,16 @@ import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js"
 // scene turns it however it needs.
 // three.js only runs in the browser: scenes load this through next/dynamic, ssr: false.
 
-// Raw palette colors (globals.css): the plane looks the same in both themes
+// Raw palette colors (globals.css): the plane looks the same in both themes, except its
+// outline when a scene passes one (see PlaneModel)
 const NAVY_950 = "#002244"
 const NAVY_600 = "#1d5d9b"
 const SKY_300 = "#75c2f6"
 const SUN_300 = "#f4d160"
 const WHITE = "#ffffff"
+
+// From the tail fin to the propeller's tip, in the model's units (a scene scales it to px)
+export const PLANE_LENGTH = 3.24
 
 // The navy outline's thickness, in the model's units (the body is 2.7 long), so it gets
 // thicker as the plane comes closer, like the rest of it
@@ -57,22 +61,26 @@ type Shape = { geometry: THREE.BufferGeometry; outline: THREE.BufferGeometry }
 const shape = (geometry: THREE.BufferGeometry): Shape => ({ geometry, outline: outline(geometry) })
 
 // The body: this outline as [radius, distance along the body], from the tail to the nose,
-// spun around its axis like a vase on a pottery wheel (LatheGeometry). The lathe's axis
-// is y, so it's turned a quarter to point along x.
+// spun around its axis like a vase on a pottery wheel (LatheGeometry). SplineCurve draws a
+// smooth curve through the points instead of straight lines between them, so its edge
+// stays round when the plane comes close. The lathe's axis is y, so it's turned a quarter
+// to point along x.
 const BODY = shape(
   new THREE.LatheGeometry(
-    [
-      [0, -1.56],
-      [0.1, -1.5],
-      [0.22, -1.3],
-      [0.38, -0.9],
-      [0.48, -0.4],
-      [0.52, 0.2],
-      [0.5, 0.7],
-      [0.44, 1],
-      [0.36, 1.15],
-    ].map(([radius, y]) => new THREE.Vector2(radius, y)),
-    24,
+    new THREE.SplineCurve(
+      [
+        [0, -1.56],
+        [0.1, -1.5],
+        [0.22, -1.3],
+        [0.38, -0.9],
+        [0.48, -0.4],
+        [0.52, 0.2],
+        [0.5, 0.7],
+        [0.44, 1],
+        [0.36, 1.15],
+      ].map(([radius, y]) => new THREE.Vector2(radius, y)),
+    ).getPoints(48),
+    48,
   ).rotateZ(-Math.PI / 2),
 )
 
@@ -121,29 +129,37 @@ const FIN = shape(thick(finOutline))
 
 // Round shapes squashed into ovals: the nose cap, the propeller (both blades in one
 // piece, through the middle) and the cockpit's glass bubble
-const NOSE = shape(new THREE.SphereGeometry(0.37, 24, 16).scale(0.75, 1, 1))
-const BLADES = shape(new THREE.CapsuleGeometry(0.07, 0.95, 4, 12).scale(0.45, 1, 1.5))
-const CANOPY = shape(new THREE.SphereGeometry(0.3, 24, 16).scale(1.4, 0.75, 0.85))
+const NOSE = shape(new THREE.SphereGeometry(0.37, 32, 20).scale(0.75, 1, 1))
+const BLADES = shape(new THREE.CapsuleGeometry(0.07, 0.95, 6, 16).scale(0.45, 1, 1.5))
+const CANOPY = shape(new THREE.SphereGeometry(0.3, 32, 20).scale(1.4, 0.75, 0.85))
 // The spinner on the propeller, pointing forward
-const SPINNER = shape(new THREE.ConeGeometry(0.1, 0.2, 16).rotateZ(-Math.PI / 2))
+const SPINNER = shape(new THREE.ConeGeometry(0.1, 0.2, 20).rotateZ(-Math.PI / 2))
 // A passenger window: a short disc, facing sideways
-const WINDOW = shape(new THREE.CylinderGeometry(0.08, 0.08, 0.06, 16).rotateX(Math.PI / 2))
-// Where the windows go along each side: [x, the body's radius there]
+const WINDOW = shape(new THREE.CylinderGeometry(0.08, 0.08, 0.06, 20).rotateX(Math.PI / 2))
+// Where the windows go along each side: [x, the body's radius there]. They sit partway up
+// the side (WINDOW_UP, in radians), so seen from above they stay inside the body's edge
+// instead of poking out of it like teeth.
 const WINDOWS = [
-  [-0.75, 0.41],
+  [-0.75, 0.42],
   [-0.4, 0.48],
   [-0.05, 0.5],
 ]
+const WINDOW_UP = 0.6
+
+// The outline's color, handed to every part at once (a context, so it doesn't have to be
+// passed to each <Part>)
+const OutlineColor = createContext(NAVY_950)
 
 // A part on the plane: toon paint in one color, with its outline as a child (so it moves
-// and turns with the part), navy and inside out
+// and turns with the part), inside out. castShadow: it shows up in the shadow of scenes
+// that draw shadows (the tours page's); the outline doesn't.
 type PartProps = ThreeElements["mesh"] & { shape: Shape; color: string }
 function Part({ shape, color, ...props }: PartProps) {
   return (
-    <mesh geometry={shape.geometry} {...props}>
+    <mesh castShadow geometry={shape.geometry} {...props}>
       <meshToonMaterial color={color} gradientMap={STEPS} />
       <mesh geometry={shape.outline}>
-        <meshBasicMaterial color={NAVY_950} side={THREE.BackSide} />
+        <meshBasicMaterial color={use(OutlineColor)} side={THREE.BackSide} />
       </mesh>
     </mesh>
   )
@@ -151,9 +167,10 @@ function Part({ shape, color, ...props }: PartProps) {
 
 type PlaneModelProps = ThreeElements["group"] & {
   still?: boolean // no spinning propeller (reduced motion)
+  outline?: string // the outline's color: navy, unless a scene flies it over the night sky
 }
 
-export function PlaneModel({ still = false, ...props }: PlaneModelProps) {
+export function PlaneModel({ still = false, outline = NAVY_950, ...props }: PlaneModelProps) {
   const propeller = useRef<THREE.Group>(null)
 
   // useFrame: runs before every frame is drawn, with the seconds since the last one
@@ -162,28 +179,33 @@ export function PlaneModel({ still = false, ...props }: PlaneModelProps) {
   })
 
   return (
-    <group {...props}>
-      <Part shape={BODY} color={WHITE} />
-      <Part shape={NOSE} color={SUN_300} position-x={1.12} />
-      <group ref={propeller} position-x={1.42}>
-        <Part shape={BLADES} color={NAVY_950} />
-        <Part shape={SPINNER} color={SUN_300} position-x={0.06} />
+    <OutlineColor value={outline}>
+      <group {...props}>
+        <Part shape={BODY} color={WHITE} />
+        <Part shape={NOSE} color={SUN_300} position-x={1.12} />
+        <group ref={propeller} position-x={1.42}>
+          <Part shape={BLADES} color={NAVY_950} />
+          <Part shape={SPINNER} color={SUN_300} position-x={0.06} />
+        </group>
+        {/* Its widest line sits above the body, so its outline shows all the way around.
+            Lower, the body hid parts of it, and from above it broke into dots */}
+        <Part shape={CANOPY} color={SKY_300} position={[0.55, 0.56, 0]} />
+        {WINDOWS.flatMap(([x, radius]) =>
+          [1, -1].map((side) => (
+            <Part
+              key={`${x}${side}`}
+              shape={WINDOW}
+              color={SKY_300}
+              position={[x, radius * Math.sin(WINDOW_UP), side * radius * Math.cos(WINDOW_UP)]}
+              rotation-x={-side * WINDOW_UP}
+            />
+          )),
+        )}
+        {/* Wings low on the body, like the homepage's plane */}
+        <Part shape={MAIN_WINGS} color={NAVY_600} position-y={-0.2} />
+        <Part shape={TAIL_WINGS} color={NAVY_600} position-y={0.05} />
+        <Part shape={FIN} color={SKY_300} />
       </group>
-      <Part shape={CANOPY} color={SKY_300} position={[0.55, 0.45, 0]} />
-      {WINDOWS.flatMap(([x, radius]) =>
-        [1, -1].map((side) => (
-          <Part
-            key={`${x}${side}`}
-            shape={WINDOW}
-            color={SKY_300}
-            position={[x, 0.08, side * radius]}
-          />
-        )),
-      )}
-      {/* Wings low on the body, like the homepage's plane */}
-      <Part shape={MAIN_WINGS} color={NAVY_600} position-y={-0.2} />
-      <Part shape={TAIL_WINGS} color={NAVY_600} position-y={0.05} />
-      <Part shape={FIN} color={SKY_300} />
-    </group>
+    </OutlineColor>
   )
 }

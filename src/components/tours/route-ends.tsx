@@ -26,8 +26,9 @@ export function RouteStart() {
       >
         <Cloud shade className="w-full" />
         <span data-route-start className="absolute top-[40%] left-1/2" />
-        {/* Under the cloud, pointing up at it (the arrow turned around) */}
-        <p className="mt-1 ml-[40%] flex -rotate-4 items-start gap-1 font-hand text-[28px] leading-none whitespace-nowrap text-primary lowercase">
+        {/* Under the cloud, pointing up at it (the arrow turned around), clear of the plane's
+            wingtip */}
+        <p className="mt-6 ml-[40%] flex -rotate-4 items-start gap-1 font-hand text-[28px] leading-none whitespace-nowrap text-primary lowercase">
           <Arrow className="rotate-180" />
           start here
         </p>
