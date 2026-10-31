@@ -32,7 +32,7 @@ type Scene = ComponentType<{
 
 // The mouse wheel scrolls this page at this speed (1 is normal), so there's time to watch
 // the plane's tricks
-const WHEEL_PACE = 0.6
+const WHEEL_PACE = 0.4
 
 // Is this device up to drawing 3D: more than 2 processor cores, and WebGL 2? Asked once, in
 // the browser. useSyncExternalStore reads it the way useReducedMotion reads the motion
@@ -73,6 +73,7 @@ export function TourRoute({ children }: { children: ReactNode }) {
     if (!el) return
     const observer = new ResizeObserver(() => {
       calm(wind.current) // nothing mid-sway while it's measured
+      if (!el.getClientRects().length) return // the page just got hidden: nothing to measure
       const origin = el.getBoundingClientRect()
       place.current = {
         left: origin.left + scrollX,
@@ -125,20 +126,25 @@ export function TourRoute({ children }: { children: ReactNode }) {
   // comes as its own file. It waits for the page's own load event, so it never competes
   // with the first photos or delays the page. If it fails (offline), the flat plane stands
   // in.
+  // The cleanup takes the scene away when the page goes (Next keeps it, hidden, in <Activity>,
+  // which runs this cleanup). R3F keeps a hidden canvas alive, so otherwise the scene's scroll
+  // listeners would stay on behind the next page, and the same plane, remembering it has
+  // already flown in, would be waiting on the cloud when you come back. Instead, coming back
+  // runs this effect again: a new scene, and the plane flies in again.
   useEffect(() => {
-    if (!flying || Scene) return
+    if (!flying) return
     const load = () =>
       import("@/components/three/flight-scene")
         // A function that returns it: given a function, setState would call it
         .then((file) => setScene(() => file.FlightScene))
         .catch(() => setBroken(true))
-    if (document.readyState === "complete") {
-      load()
-      return
+    if (document.readyState === "complete") load()
+    else addEventListener("load", load, { once: true })
+    return () => {
+      removeEventListener("load", load)
+      setScene(null)
     }
-    addEventListener("load", load, { once: true })
-    return () => removeEventListener("load", load)
-  }, [flying, Scene])
+  }, [flying])
 
   // The trail when it isn't flying: every dot, right away. Flying, the scene adds them as
   // the plane passes them, writing to the path itself so flying doesn't re-render React.
