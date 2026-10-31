@@ -507,6 +507,36 @@
     background-color: var(--color-sun-200);
     color: var(--color-navy-950);
   }
+
+  /* The scrollbar: a sun sliding down the sky. Same width as Windows' default (15px),
+     so the page's layout doesn't move. In @layer base so utilities can still hide it. */
+  ::-webkit-scrollbar {
+    width: 15px;
+    height: 15px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: var(--sky-2);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    min-height: 3rem;
+    border: 2px solid var(--outline);
+    border-radius: 999px;
+    background-color: var(--cta);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--cta-hover);
+  }
+
+  /* Firefox has no ::-webkit-scrollbar: only flat colors. Inside @supports because
+     Chrome ignores all the rules above on any element with scrollbar-color. */
+  @supports not selector(::-webkit-scrollbar) {
+    html {
+      scrollbar-color: var(--cta) var(--sky-2);
+    }
+  }
 }
 
 /* ==========================================================================

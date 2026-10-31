@@ -188,6 +188,10 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
     - Anything that differs per theme (icons, labels, copy) switches with `dark:` classes, never JavaScript, so server HTML is right for both themes.
     - The root layout runs `themeInitScript` as a plain inline `<head>` script (not `next/script`, which runs too late), so a saved dark theme never flashes light. `<html suppressHydrationWarning>` is required for this.
 - **Base styles:** the page uses `background`/`foreground`, the default border color is `border`, every element gets a global `:focus-visible` ring, and text selection is sun-200.
+- **Scrollbar** (`globals.css`, base styles): a sun sliding down the sky. The thumb is `cta` with a 2px `outline` border (`cta-hover` on hover and while dragging), and the track is `--sky-2`, so both themes come free. It's 15px wide, the same as Windows' default, so the layout doesn't move. It uses `::-webkit-scrollbar` (Chrome, Edge, Safari); Firefox gets flat colors from `scrollbar-color`. Phones keep their own thin bar. On a Mac it should replace the thin overlay bar with an always-visible one (not checked).
+  - **Gotcha:** Chrome turns off every `::-webkit-scrollbar` rule on an element with `scrollbar-color` (measured: the outline goes and Windows' arrow comes back), and `scrollbar-color` inherits. So it's only set inside `@supports not selector(::-webkit-scrollbar)`. Don't set it anywhere else.
+  - The rules are in `@layer base`, so a utility can still hide a bar (the Journey's swipe strip: `scrollbar-none`).
+  - Dragging far off the bar and letting go snaps the page back to where the drag began. That's normal on Windows, and the browser's own bar does it too.
 - **Gotcha:** Tailwind only generates classes it finds as complete strings in source files, so never build class names at runtime (`bg-${name}-500`). Use a full class name or an inline `var(--color-…)` style.
 - **Fonts: Kareem chooses them.** Claude may recommend options when asked, but never picks one.
   - **Display (big titles): Oswald**, weights 200–700, as the free stand-in for Balboa, which Kareem wanted but which is paid (Adobe Fonts or a foundry license). Oswald was picked by rendering free candidates against real Balboa specimens. Use `letter-spacing: -0.02em` to `-0.025em` on headlines to match Balboa's tight spacing, except very large type (the hero's ~100–232px headline), which uses normal tracking to match the design.
@@ -532,7 +536,6 @@ Creative work is woven into every phase: each page gets its own storytelling mom
 **Brand to-dos** (Kareem's list; no phase yet, do them at some point, by phase 8 at the latest):
 - **A logo with more personality.** The dot before "Vantage" is meant to be the sun, but it's a plain sun-yellow circle: in the navbar (`navbar.tsx`) and in the footer's big wordmark (`footer.tsx`, where it hops on hover). Replace it with something more playful, e.g. a tiny beach ball, in the cartoon style (navy outline). It has to read at the navbar's 14–18px, and keep the footer's hop.
 - **The favicon, as the same logo.** `src/app/favicon.ico` is still create-next-app's default (the Next.js logo). Read Next's metadata file conventions in `node_modules/next/dist/docs/` first (`icon` / `apple-icon` files in `src/app`).
-- **Themed scrollbars.** The page scrollbar is the browser's default gray. Give its thumb and track the theme's colors in both light and dark (and decide the track's look, e.g. sky or sand). Mind Lenis: it smooths the wheel, but the scrollbar itself stays native.
 
 ## Open decisions
 
