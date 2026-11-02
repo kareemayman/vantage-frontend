@@ -54,7 +54,9 @@ const neverChanges = () => () => {}
 //   scares the gulls (wind.ts).
 // - Reduced motion, or no 3D: the whole trail shows, and the flat plane waits at the start.
 // Decoration: without JavaScript there's no trail and no plane, only the stops.
-export function TourRoute({ children }: { children: ReactNode }) {
+// listKey: changes with the list (filters, sort). A new order can leave the list the same size,
+// so the size alone wouldn't tell this that the cards moved.
+export function TourRoute({ listKey, children }: { listKey: string; children: ReactNode }) {
   const box = useRef<HTMLDivElement>(null)
   // Where the route is on the page
   const place = useRef<Place>({ left: 0, top: 0, height: 0, below: 0 })
@@ -120,7 +122,7 @@ export function TourRoute({ children }: { children: ReactNode }) {
     // loading in the header). The page's size changes then.
     observer.observe(document.documentElement)
     return () => observer.disconnect()
-  }, [])
+  }, [listKey]) // a new observer reports right away, so a new list gets measured
 
   // Flying: load the 3D scene (three.js, ~240 KB). A plain import() in the browser: it
   // comes as its own file. It waits for the page's own load event, so it never competes

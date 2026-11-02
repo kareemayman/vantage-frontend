@@ -50,8 +50,13 @@ export function RouteEnd({ count, lastOnLeft }: { count: number; lastOnLeft: boo
       data-wind
       className={`mt-14 w-fit rounded-full border-2 border-nav-border bg-nav px-4 py-1 font-semibold md:absolute md:bottom-0 md:mt-0 ${lastOnLeft ? "md:left-[calc(50%+var(--corridor)/2)]" : "md:right-[calc(50%+var(--corridor)/2)]"}`}
     >
-      That&apos;s all <span className="font-display text-2xl font-bold">{count}</span>{" "}
-      {count === 1 ? "tour" : "tours"}
+      {count === 1 ? (
+        "That's the only one"
+      ) : (
+        <>
+          That&apos;s all <span className="font-display text-2xl font-bold">{count}</span> tours
+        </>
+      )}
     </p>
   )
 }

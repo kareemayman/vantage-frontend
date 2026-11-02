@@ -17,12 +17,12 @@ async function upcomingSummer() {
 
 // The top of the tours page: the title and the intro. The padding on the right (md+) leaves
 // room for the sun beside them, which is in setting-sun.tsx because it leaves this header as
-// the page scrolls. The tour cards start right below.
+// the page scrolls. The filter bar starts right below.
 export async function ToursHeader({ shortest, longest }: ToursHeaderProps) {
   const summer = await upcomingSummer()
 
   return (
-    <header className="mx-auto max-w-6xl px-4 pt-28 pb-20 md:px-6 md:pt-36 md:pr-36 lg:pr-48">
+    <header className="mx-auto max-w-6xl px-4 pt-28 pb-5 md:px-6 md:pt-36 md:pr-36 md:pb-7 lg:pr-48">
       <div>
         <p className="text-[13px] font-extrabold tracking-[0.16em] text-primary uppercase md:text-sm">
           All tours · Summer {summer}

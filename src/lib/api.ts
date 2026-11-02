@@ -1,5 +1,6 @@
 import "server-only"
 import { cacheLife, cacheTag } from "next/cache"
+import { DEFAULT_SORT, type ApiQuery } from "@/lib/tour-filters"
 import type { Tour } from "@/lib/tours"
 
 // Every call to the Vantage API lives in this file. "server-only" turns any import from a
@@ -19,18 +20,20 @@ async function get<T>(path: string): Promise<T> {
 }
 
 // Tours, cheapest first. `query` takes the API's query options as they'd appear in the URL,
-// e.g. { difficulty: "easy", "price[lte]": "1000", limit: "3" } (filters, sort, fields,
-// limit, page. GET /tours sends { results, data: { docs } }.
+// e.g. { difficulty: ["easy", "medium"], "price[lte]": "1000", limit: "3" } (filters, sort,
+// fields, limit, page; {} is the whole list). GET /tours sends { results, data: { docs } }.
 // Cached, because the API sleeps on Render when idle and takes 30–60 s to wake up. Each
 // different query is its own saved copy (the arguments are part of the cache's key).
-export async function getTours(query: Record<string, string> = {}) {
+export async function getTours(query: ApiQuery) {
   "use cache" // every visitor gets the same saved copy
   cacheLife("days") // fresh for a day, then refreshed in the background; gone after a week
   cacheTag("tours") // updateTag("tours") throws the copy away early (phase 6: admin edits)
 
-  // -createdAt: a sort replaces the API's default (newest first), so tours with the same
-  // price would come back in any order; this keeps ties newest first
-  const params = new URLSearchParams({ sort: "price,-createdAt", ...query })
+  const params = new URLSearchParams({ sort: DEFAULT_SORT })
+  for (const [key, value] of Object.entries(query)) {
+    params.delete(key) // a query's own sort replaces the default
+    for (const one of [value].flat()) params.append(key, one)
+  }
   const body = await get<{ data: { docs: Tour[] } }>(`/tours?${params}`)
   return body.data.docs
 }

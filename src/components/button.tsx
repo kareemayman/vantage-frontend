@@ -19,7 +19,10 @@ const SIZES = {
   lg: "h-13 rounded-[14px] px-7 text-[17px] md:h-16 md:rounded-2xl md:text-lg", // hero
 }
 
-type ButtonLinkProps = ComponentProps<typeof Link> & {
+const BASE =
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap transition motion-reduce:transition-none md:gap-2.5"
+
+type Looks = {
   variant?: keyof typeof VARIANTS
   size?: keyof typeof SIZES
 }
@@ -30,10 +33,21 @@ export function ButtonLink({
   size = "lg",
   className = "",
   ...props
-}: ButtonLinkProps) {
+}: ComponentProps<typeof Link> & Looks) {
+  return <Link className={`${BASE} ${VARIANTS[variant]} ${SIZES[size]} ${className}`} {...props} />
+}
+
+// The same looks, for an action that stays on the page
+export function Button({
+  variant = "cta",
+  size = "lg",
+  className = "",
+  ...props
+}: ComponentProps<"button"> & Looks) {
   return (
-    <Link
-      className={`inline-flex items-center justify-center gap-2 whitespace-nowrap transition motion-reduce:transition-none md:gap-2.5 ${VARIANTS[variant]} ${SIZES[size]} ${className}`}
+    <button
+      type="button"
+      className={`${BASE} ${VARIANTS[variant]} ${SIZES[size]} ${className}`}
       {...props}
     />
   )
