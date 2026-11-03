@@ -115,12 +115,21 @@ export function Moon(props: SvgProps) {
   )
 }
 
-// "z z" floating off the sleeping moon, one after the other
-export function Snooze({ className = "" }: { className?: string }) {
+// "z z" floating off the sleeping moon, one after the other. color: navy on a day sky.
+// The second one's delay is an inline style: as a class, animate-snooze's `animation`
+// shorthand reset it to 0, and both z's faded in and out together.
+type SnoozeProps = { className?: string; color?: string }
+
+export function Snooze({ className = "", color = "text-sun-200" }: SnoozeProps) {
   return (
-    <span aria-hidden className={`font-hand leading-none text-sun-200 ${className}`}>
+    <span aria-hidden className={`font-hand leading-none ${color} ${className}`}>
       <span className="block motion-safe:animate-snooze">z</span>
-      <span className="block pl-[0.6em] [animation-delay:-1.5s] motion-safe:animate-snooze">z</span>
+      <span
+        style={{ animationDelay: "-1.5s" }}
+        className="block pl-[0.6em] motion-safe:animate-snooze"
+      >
+        z
+      </span>
     </span>
   )
 }
@@ -181,7 +190,7 @@ export function RainCloud({ className = "" }: { className?: string }) {
       </svg>
       {/* The drops start at the cloud's bottom edge (the negative margin, in % of the width),
           with room below for their fall (the padding) */}
-      <span className="-mt-[7%] flex justify-center gap-[9%] pb-[8%]">
+      <span className="mt-[-7%] flex justify-center gap-[9%] pb-[8%]">
         {[0, -0.8, -0.4].map((delay, i) => (
           <svg
             key={delay}

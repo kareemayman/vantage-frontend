@@ -10,7 +10,7 @@ import {
   useState,
   type ReactNode,
 } from "react"
-import { LoadFailed, NoMatches } from "@/components/tours/notes"
+import { LoadFailed, NoMatches, WakingUp } from "@/components/tours/notes"
 import {
   filtersToUrl,
   hasFilters,
@@ -210,6 +210,7 @@ export function FilterBar({ filters, count, total }: FilterBarProps) {
         </label>
       </div>
 
+      {pending && <WakingUp />}
       {count === 0 && <NoMatches onClear={clear} />}
       {count === null && <LoadFailed tries={tries} onRetry={retry} />}
     </div>

@@ -14,7 +14,10 @@ async function get<T>(path: string): Promise<T> {
   const apiUrl = process.env.API_URL
   if (!apiUrl) throw new Error("API_URL is missing: add it to .env.local")
 
-  const res = await fetch(`${apiUrl}${path}`)
+  // Render's free API naps when it's quiet, and waking it takes 30–60 s. After 90 s it's stuck,
+  // so give up: the fetch throws, and the tours page shows its "can't load" note instead of
+  // waiting forever.
+  const res = await fetch(`${apiUrl}${path}`, { signal: AbortSignal.timeout(90_000) })
   if (!res.ok) throw new Error(`GET ${path} failed with ${res.status}`)
   return res.json()
 }
