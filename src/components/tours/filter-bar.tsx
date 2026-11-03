@@ -1,9 +1,16 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { startTransition, useId, useOptimistic, useRef, type ReactNode } from "react"
-import { Button } from "@/components/button"
-import { PlaneWindow } from "@/components/tours/plane-window"
+import {
+  startTransition,
+  useEffect,
+  useId,
+  useOptimistic,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react"
+import { LoadFailed, NoMatches } from "@/components/tours/notes"
 import {
   filtersToUrl,
   hasFilters,
@@ -17,29 +24,56 @@ import {
 
 type FilterBarProps = {
   filters: Filters // what the URL says, read by the server
-  count: number // how many tours those filters found
+  count: number | null // how many tours those filters found (null: the list didn't load)
   total: number // how many tours there are
 }
 
-// The chips, the count and the sort menu, plus the note when nothing matches. A click changes
-// the URL, the server asks the API for that list, and the new page arrives. That can take a
-// moment, so useOptimistic shows the chip as picked right away: it's like useState, except it
-// goes back to the real `filters` by itself once the new page is here. `pending` does the same
-// for data-pending, which dims the cards (group-has-data-pending in tours/page.tsx).
+// The chips, the count and the sort menu, plus a note when there's nothing to show. A click
+// changes the URL, the server asks the API for that list, and the new page arrives. That can
+// take a moment, so useOptimistic shows the chip as picked right away: it's like useState,
+// except it goes back to the real `filters` by itself once the new page is here. `pending`
+// does the same for data-pending, which dims the cards (group-has-data-pending in
+// tours/page.tsx).
 export function FilterBar({ filters, count, total }: FilterBarProps) {
   const router = useRouter()
   const bar = useRef<HTMLDivElement>(null)
   const [shown, setShown] = useOptimistic(filters)
   const [pending, setPending] = useOptimistic(false)
+  // How many times the bar has asked the server for a page. It's set inside the transition,
+  // and React holds a transition's state changes until the new page is here, so it goes up
+  // exactly when each answer arrives. The "can't load" note uses it to tell answers apart.
+  const [tries, setTries] = useState(0)
+  const retried = useRef(false) // "Try again" was pressed, and its answer isn't here yet
 
   function apply(next: Filters) {
     startTransition(() => {
       setShown(next)
       setPending(true)
+      setTries((n) => n + 1)
       // scroll: false: stay where you are, don't jump to the top of the page
       router.push(filtersToUrl(next), { scroll: false })
     })
   }
+
+  // "Try again": asks the server for this same page again. A list that failed was never
+  // saved, so the server asks the API again. router.refresh() keeps the URL, the scroll
+  // position and the state on the page, and only swaps in what the server sends back.
+  function retry() {
+    retried.current = true
+    startTransition(() => {
+      setPending(true)
+      setTries((n) => n + 1)
+      router.refresh()
+    })
+  }
+
+  // When "Try again" works, the note goes away with the button that was just pressed. That
+  // would drop keyboard users back at the top of the page, so the bar takes the focus, like
+  // after clear(). Runs once per answer (tries).
+  useEffect(() => {
+    if (retried.current && count !== null) bar.current?.focus()
+    retried.current = false
+  }, [tries, count])
 
   // How long and Price are pick-one: another chip replaces the choice, the same one clears it
   const pick = (key: "length" | "price", value: string) =>
@@ -119,7 +153,9 @@ export function FilterBar({ filters, count, total }: FilterBarProps) {
         <div className="flex min-h-11 items-center gap-3 rounded-full border-2 border-nav-border bg-nav px-3.5 text-sm font-semibold md:px-4 md:text-base">
           {/* role="status": screen readers announce it when it changes */}
           <p role="status">
-            {!hasFilters(filters) ? (
+            {count === null ? (
+              "Tours didn't load"
+            ) : !hasFilters(filters) ? (
               <>
                 <span className="font-display text-2xl font-bold">{total}</span> tours
               </>
@@ -174,23 +210,8 @@ export function FilterBar({ filters, count, total }: FilterBarProps) {
         </label>
       </div>
 
-      {count === 0 && (
-        <div className="mx-auto mt-10 flex max-w-sm flex-col items-center text-center">
-          <div className="w-32 -rotate-3">
-            <PlaneWindow shade="closed" />
-          </div>
-          <p className="mt-3 -rotate-2 font-hand text-2xl text-primary">every shade is down</p>
-          <h2 className="mt-1 font-display text-4xl leading-none font-bold tracking-tight text-balance uppercase">
-            No tours match all of those
-          </h2>
-          <p className="mt-2 text-pretty text-muted-foreground">
-            Try taking one filter off, or start over.
-          </p>
-          <Button size="sm" className="mt-5" onClick={clear}>
-            Clear filters
-          </Button>
-        </div>
-      )}
+      {count === 0 && <NoMatches onClear={clear} />}
+      {count === null && <LoadFailed tries={tries} onRetry={retry} />}
     </div>
   )
 }

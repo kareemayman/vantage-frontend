@@ -37,13 +37,23 @@ export default function ToursPage({ searchParams }: PageProps<"/tours">) {
 // A tour card at each stop of a dotted route down the page, then the same tours as a plain
 // list. An async Server Component waits for the data on the server and sends finished HTML.
 async function Tours({ filters }: { filters: Filters }) {
-  // The API does the filtering and sorting. It has no total count, so the whole list (the same
-  // saved copy every visitor shares) says how many tours there are and how long they run.
-  const [tours, allTours] = await Promise.all([getTours(filtersToQuery(filters)), getTours({})])
+  // The whole list: the same saved copy every visitor shares. The API has no total count, so it
+  // says how many tours there are and how long they run. It's saved with the page, so it
+  // doesn't wait for the API here (checked on a production build, even on a fresh server).
+  const allTours = await getTours({})
   const days = allTours.map((tour) => tour.duration)
+  // The URL's own list (the API does the filtering and sorting), unless that's the whole list.
+  // This is the call that can fail: a list nobody has asked for lately isn't saved, so it
+  // needs the API, which may be down. Then `tours` is null and the page shows a note instead
+  // of crashing. Only the URL's version of the page gets here, never the saved one (it has no
+  // filters), so the note can't be saved into it, and a build without the API still fails.
+  // No need to log the error here: Next logs whatever fails inside a "use cache" function.
+  const query = filtersToQuery(filters)
+  const tours = Object.keys(query).length === 0 ? allTours : await getTours(query).catch(() => null)
   // Changes with the list. As a key, it starts the cards (or the pause marks) over, so a new
-  // list pops in from its stops like the first one did.
-  const listKey = filtersToUrl(filters)
+  // list pops in from its stops like the first one did. "failed": a list that arrives after a
+  // failed try has the same URL, but it's new too (<PauseOffscreen> must look for its cards).
+  const listKey = tours ? filtersToUrl(filters) : "failed"
 
   return (
     <>
@@ -63,10 +73,10 @@ async function Tours({ filters }: { filters: Filters }) {
       >
         <SettingSun />
         <ToursHeader shortest={Math.min(...days)} longest={Math.max(...days)} />
-        <FilterBar filters={filters} count={tours.length} total={allTours.length} />
+        <FilterBar filters={filters} count={tours?.length ?? null} total={allTours.length} />
         {/* --corridor: the gap between desktop's two columns, where the route runs.
             z-10: over the sea, which comes later, so the sun there can't cover the count */}
-        {tours.length > 0 && (
+        {tours && tours.length > 0 && (
           <div className="relative z-10 mx-auto max-w-6xl px-4 pb-10 transition-opacity [--corridor:6rem] group-has-data-pending/tours:opacity-60 md:px-6 lg:[--corridor:10rem]">
             <TourRoute listKey={listKey}>
               <RouteStart />
@@ -85,7 +95,7 @@ async function Tours({ filters }: { filters: Filters }) {
         )}
         <Horizon />
       </section>
-      {tours.length > 0 && <TourList tours={tours} />}
+      {tours && tours.length > 0 && <TourList tours={tours} />}
       <PauseOffscreen key={listKey} />
     </>
   )

@@ -627,6 +627,8 @@
   --animate-feather: feather 2.6s ease-in both;
   /* The sun's light on the sea (src/components/tours/horizon.tsx) */
   --animate-shimmer: shimmer 2.8s ease-in-out infinite alternate;
+  /* The rain cloud's drops (RainCloud in sky.tsx): each falls out of the cloud and fades */
+  --animate-rain: rain 1.2s ease-in infinite;
 
   @keyframes turn {
     to {
@@ -862,6 +864,22 @@
     to {
       opacity: 0.9;
       scale: 1.05 1;
+    }
+  }
+  /* From inside the cloud (hidden behind it) to below its resting spot. % of the drop's own
+     height, so it works at any size. */
+  @keyframes rain {
+    from {
+      translate: 0 -70%;
+      opacity: 0;
+    }
+    25%,
+    75% {
+      opacity: 1;
+    }
+    to {
+      translate: 0 110%;
+      opacity: 0;
     }
   }
   @keyframes gull-idle {
@@ -1315,21 +1333,23 @@
    screen to its bottom at the bottom of the screen. No JavaScript and no scroll listener, and
    the browser runs it in step with the scroll. md+ only, off with reduced motion or without
    support: the sun then just stays beside the title, and .horizon-sun shows on the sea instead.
+   Also off when the section has no route (a note in its place: no matches, or the tours didn't
+   load). The page is short then, and the sun would sink right through the note's words.
    --to-x and --to-y: from where the sun starts to the middle of the corridor (the page's
    middle), and down to just above the sea's top edge, which cuts the sun below its eyes. */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) and (width >= 48rem) {
-    :root:not([data-motion="reduce"]) .sun-sky {
+    :root:not([data-motion="reduce"]) section:has([data-route-start]) .sun-sky {
       position: sticky;
     }
-    :root:not([data-motion="reduce"]) .sun-sets {
+    :root:not([data-motion="reduce"]) section:has([data-route-start]) .sun-sets {
       --to-x: calc(var(--sun-half) + 1.5rem - min(36rem, 50vw));
       --to-y: calc(100svh - var(--ground) - var(--sun-top) - var(--sun-half) - 1.75rem);
       animation: sun-sets linear both;
       animation-timeline: --sky; /* after `animation`: the shorthand resets it */
       animation-range: contain;
     }
-    :root:not([data-motion="reduce"]) .sun-sleeps {
+    :root:not([data-motion="reduce"]) section:has([data-route-start]) .sun-sleeps {
       animation:
         sun-sleeps linear both,
         var(--animate-bob);
@@ -1338,12 +1358,12 @@
         contain 62% contain 88%,
         normal;
     }
-    :root:not([data-motion="reduce"]) .sun-rays {
+    :root:not([data-motion="reduce"]) section:has([data-route-start]) .sun-rays {
       animation: sun-rays linear both;
       animation-timeline: --sky;
       animation-range: contain 62% contain 88%;
     }
-    :root:not([data-motion="reduce"]) .horizon-sun {
+    :root:not([data-motion="reduce"]) section:has([data-route-start]) .horizon-sun {
       display: none;
     }
   }

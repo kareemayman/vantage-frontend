@@ -8,8 +8,9 @@ import { ThemeToggle } from "@/components/theme-toggle"
 // scroll itself drives the animation, with no JavaScript.
 //
 // md+ only (phones have no room beside the title, or between the cards), and it stays still
-// beside the title with reduced motion or in browsers without scroll-driven animations.
-// Those, and phones, get a still sun on the horizon instead (HorizonSun in horizon.tsx).
+// beside the title with reduced motion, in browsers without scroll-driven animations, or when
+// a note takes the route's place (it would set right through the note). Those, and phones, get
+// a still sun on the horizon instead (.horizon-sun in horizon.tsx).
 //
 // .sun-sky is a box with no height that sticks to the top of the screen while the section
 // goes by. It comes first in the section, so the cards, which come later, cover the sun.

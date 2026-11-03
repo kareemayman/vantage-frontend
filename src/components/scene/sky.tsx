@@ -147,6 +147,61 @@ export function Cloud({ shade = false, ...props }: SvgProps & { shade?: boolean 
   )
 }
 
+// A sad little rain cloud: the tours page's note when the tours can't load. Each drop is its
+// own <svg>, so the falling loop only slides finished pictures around (a loop on a part
+// inside one drawing makes the browser redo the page layout every frame). Negative delays
+// start the drops at different points of their fall. With reduced motion they hang still,
+// just under the cloud.
+export function RainCloud({ className = "" }: { className?: string }) {
+  return (
+    <span aria-hidden className={`block ${className}`}>
+      {/* z-10: the drops come later in the page, and a moving drop would paint over it */}
+      <svg viewBox="0 0 200 110" className="relative z-10 block w-full">
+        <path d={CLOUD} className="fill-scene-cloud" />
+        <path d="M28 90Q100 76 180 86L170 95L40 95Z" className="fill-scene-cloud-shade" />
+        <path
+          d={CLOUD}
+          fill="none"
+          strokeWidth="3"
+          strokeLinejoin="round"
+          vectorEffect="non-scaling-stroke"
+          className="stroke-outline"
+        />
+        <g className="fill-outline">
+          <ellipse cx="89" cy="56" rx="4" ry="5.5" />
+          <ellipse cx="115" cy="56" rx="4" ry="5.5" />
+        </g>
+        <path
+          d="M94 72Q102 65 110 72"
+          fill="none"
+          strokeWidth="4"
+          strokeLinecap="round"
+          className="stroke-outline"
+        />
+      </svg>
+      {/* The drops start at the cloud's bottom edge (the negative margin, in % of the width),
+          with room below for their fall (the padding) */}
+      <span className="-mt-[7%] flex justify-center gap-[9%] pb-[8%]">
+        {[0, -0.8, -0.4].map((delay, i) => (
+          <svg
+            key={delay}
+            viewBox="0 0 12 16"
+            style={{ animationDelay: `${delay}s` }}
+            className={`w-[7%] motion-safe:animate-rain ${i === 1 ? "mt-[3%]" : ""}`}
+          >
+            <path
+              d="M6 1.5C6 1.5 1.5 7.5 1.5 10.5a4.5 4.5 0 0 0 9 0C10.5 7.5 6 1.5 6 1.5Z"
+              strokeWidth="2"
+              vectorEffect="non-scaling-stroke"
+              className="fill-sky-300 stroke-outline"
+            />
+          </svg>
+        ))}
+      </span>
+    </span>
+  )
+}
+
 // Night sky positions in % of the hero, so the stars spread with the screen
 const SPARKLES = [
   { x: 9.7, y: 11.6, size: 28, delay: 0 },

@@ -6,6 +6,7 @@ import { Logo } from "@/components/logo"
 import { PauseOffscreen } from "@/components/pause-offscreen"
 import { Feather, GullFlying, GullSitting } from "@/components/scene/gull"
 import { Poke } from "@/components/scene/poke"
+import { RainCloud } from "@/components/scene/sky"
 import { PlanePreview } from "@/components/three/plane-preview"
 import { PlaneWindow } from "@/components/tours/plane-window"
 
@@ -128,6 +129,27 @@ export default function DesignPage() {
                 <GullSitting className="w-24 motion-safe:animate-gull-idle" />
                 <GullFlying className="w-36" />
                 <Feather className="w-6" />
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="font-display text-3xl font-semibold tracking-tight uppercase">
+            Rain cloud
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            The tours page&apos;s note when the tours can&apos;t load (RainCloud in
+            src/components/scene/sky.tsx). It follows the theme, like the other clouds.
+          </p>
+          <div className="grid gap-6 lg:grid-cols-2">
+            {["light", "dark"].map((theme) => (
+              <div
+                key={theme}
+                data-theme={theme}
+                className="flex justify-center rounded-2xl bg-scene-sky p-8"
+              >
+                <RainCloud className="w-44" />
               </div>
             ))}
           </div>
