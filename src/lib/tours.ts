@@ -17,6 +17,28 @@ export type Tour = {
   }
 }
 
+// Everything a tour's own page (/tours/[slug]) shows: the card's fields and the rest of what
+// GET /tours?slug= sends, with the guides filled in
+export type TourDetails = Tour & {
+  _id: string
+  description: string // paragraphs, split by "\n"
+  maxGroupSize: number
+  priceDiscount?: number // dollars off the price; no seed tour has one yet
+  startDates: string[] // ISO dates, e.g. "2021-06-19T09:00:00.000Z" (all past until backend item 4)
+  startLocation: { address: string }
+  locations: { description: string; day: number; coordinates: [number, number] }[] // the stops
+  guides: Guide[]
+}
+
+// A guide as a tour sends them (a user, ../backend/models/userModel.js). The API sends their
+// email too (backend item 15), but no page shows it.
+export type Guide = {
+  _id: string
+  name: string
+  role: "guide" | "lead-guide"
+  photo?: string // a Cloudinary public ID, e.g. "miyah-myles"
+}
+
 // The tour stats as GET /tours/stats sends them (data.stats[0], from getTourStats in
 // ../backend/controllers/tourController.js), with only the fields the site shows
 export type TourStats = {

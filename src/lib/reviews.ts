@@ -11,6 +11,15 @@ export type Review = {
   tour: Tour
 }
 
+// A review as GET /tours/:id/reviews sends it, for one tour's page: no tour (it's the page's
+// own), and the traveler's name and photo. user is null once that account is deleted.
+export type TourReview = {
+  _id: string
+  review: string
+  rating: number // 1 to 5
+  user: { name: string; photo?: string } | null
+}
+
 const [seaExplorer, forestHiker, starGazer] = FEATURED_TOURS
 
 // The homepage's reviews, one per featured tour, typed in until phase 2 fetches them.

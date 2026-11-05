@@ -1,7 +1,8 @@
 import "server-only"
 import { cacheLife, cacheTag } from "next/cache"
 import { DEFAULT_SORT, type ApiQuery } from "@/lib/tour-filters"
-import type { Tour } from "@/lib/tours"
+import type { TourReview } from "@/lib/reviews"
+import type { Tour, TourDetails } from "@/lib/tours"
 
 // Every call to the Vantage API lives in this file. "server-only" turns any import from a
 // Client Component into a build error, so API_URL (and, from phase 3, the login token)
@@ -39,4 +40,30 @@ export async function getTours(query: ApiQuery) {
   }
   const body = await get<{ data: { docs: Tour[] } }>(`/tours?${params}`)
   return body.data.docs
+}
+
+// One tour, by its slug, with its guides. The API has no slug endpoint, so this asks for the
+// list filtered by slug, which holds 0 or 1 tours. null: there's no such tour.
+export async function getTour(slug: string) {
+  "use cache"
+  cacheLife("days")
+  cacheTag("tours")
+
+  // The slug comes from the page's URL, so it can be anything: URLSearchParams encodes it,
+  // or a slug like "x&price[lt]=1" would add its own filters to the API's query
+  const body = await get<{ data: { docs: TourDetails[] } }>(
+    `/tours?${new URLSearchParams({ slug })}`,
+  )
+  return body.data.docs[0] ?? null
+}
+
+// One tour's reviews, each with the traveler's name and photo.
+// GET /tours/:id/reviews sends { results, data: { reviews } }.
+export async function getTourReviews(tourId: string) {
+  "use cache"
+  cacheLife("days")
+  cacheTag("reviews") // phase 4: updateTag("reviews") after someone writes one
+
+  const body = await get<{ data: { reviews: TourReview[] } }>(`/tours/${tourId}/reviews`)
+  return body.data.reviews
 }
