@@ -1,5 +1,5 @@
 import Link from "next/link"
-import type { Tour } from "@/lib/tours"
+import { days, type Tour } from "@/lib/tours"
 
 // "All tours as a list" (design/tours-handoff): the same tours as the route, in the same
 // order, as plain links. It's the quick path for keyboard and screen-reader users, and
@@ -26,7 +26,7 @@ export function TourList({ tours }: { tours: Tour[] }) {
                 {tour.name}
               </span>
               <span className="text-sm text-muted-foreground">
-                {tour.startLocation.description} · {tour.duration} days ·{" "}
+                {tour.startLocation.description} · {days(tour.duration)} ·{" "}
                 <span className="capitalize">{tour.difficulty}</span> · $
                 {tour.price.toLocaleString("en-US")}
               </span>

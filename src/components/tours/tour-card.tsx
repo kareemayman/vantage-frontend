@@ -6,7 +6,7 @@ import { BeachBall, Palm, PoolRing, Suitcase } from "@/components/scene/beach"
 import { DIFFICULTY } from "@/components/tours/difficulty"
 import { Gulls, type GullSpot } from "@/components/tours/gulls"
 import { PlaneWindow } from "@/components/tours/plane-window"
-import type { Tour } from "@/lib/tours"
+import { days, type Tour } from "@/lib/tours"
 
 // Each card hangs a little crooked, taking turns down the route
 const TILTS = [
@@ -248,7 +248,7 @@ export function TourCard({ tour, index, total }: { tour: Tour; index: number; to
                   </p>
                   <ul className="mt-3 flex flex-wrap gap-1.5 text-[13px] font-bold @sm:mt-4 @sm:gap-2 @sm:text-sm">
                     <li className="rounded-full bg-chip px-2.5 py-1.5 text-chip-foreground @sm:px-3">
-                      {tour.duration} days
+                      {days(tour.duration)}
                     </li>
                     <li
                       className={`rounded-full px-2.5 py-1.5 capitalize @sm:px-3 ${DIFFICULTY[tour.difficulty].chip}`}

@@ -17,6 +17,10 @@ export type Tour = {
   }
 }
 
+// A tour's length in words: "1 day", "7 days". The API has no minimum length, so a one-day
+// tour can exist.
+export const days = (count: number) => `${count} ${count === 1 ? "day" : "days"}`
+
 // Everything a tour's own page (/tours/[slug]) shows: the card's fields and the rest of what
 // GET /tours?slug= sends, with the guides filled in
 export type TourDetails = Tour & {

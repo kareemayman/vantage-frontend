@@ -4,7 +4,7 @@ import { ArrowIcon, PinIcon } from "@/components/icons"
 import { Reveal } from "@/components/reveal"
 import { TourScene } from "@/components/scene/tour-scenes"
 import { DIFFICULTY } from "@/components/tours/difficulty"
-import { FEATURED_TOURS, type Tour } from "@/lib/tours"
+import { days, FEATURED_TOURS, type Tour } from "@/lib/tours"
 
 // Where each tour's difficulty stamp sits, so it doesn't cover the drawing (TourScene).
 // Real photos replace the drawings later (backend checklist item 1).
@@ -145,7 +145,7 @@ function LuggageTag({ tour, pose }: { tour: Tour; pose: (typeof POSES)[number] }
         </p>
         <ul className="mt-3 flex flex-wrap gap-1.5 text-[13px] font-bold @sm:mt-4 @sm:gap-2 @sm:text-sm">
           <li className="rounded-full bg-chip px-2.5 py-1.5 text-chip-foreground @sm:px-3">
-            {tour.duration} days
+            {days(tour.duration)}
           </li>
           <li className={`rounded-full px-2.5 py-1.5 capitalize @sm:px-3 ${difficulty.chip}`}>
             {tour.difficulty}
