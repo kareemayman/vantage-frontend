@@ -641,6 +641,10 @@
   /* The plan (plan.tsx), once each part scrolls into view (seen:); its delays are AT there */
   --animate-tick: draw 0.3s ease-in backwards; /* a pen ticks a box: slow down, quick flick up */
   --animate-circle: draw 0.7s ease-in-out backwards; /* a pen circles a date */
+  /* Day by day (pencil-map.tsx): the pencil draws the route one leg at a time, slowing into
+     each stop. Each leg sets its own length of time (inline animationDuration): longer legs
+     take longer, like a real pencil. */
+  --animate-leg: draw 1s ease-in-out backwards;
 
   @keyframes turn {
     to {

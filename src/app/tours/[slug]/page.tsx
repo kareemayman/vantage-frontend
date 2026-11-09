@@ -65,7 +65,7 @@ async function TourDetails({ slug }: { slug: string }) {
         <Plan tour={tour} />
         <About description={tour.description} />
         {/* The API allows a tour with no stops: then there's no day by day */}
-        {stops.length > 0 && <DayByDay stops={stops} />}
+        {stops.length > 0 && <DayByDay stops={stops} slug={tour.slug} />}
         <Snapshots name={tour.name} images={tour.images} />
         <Guides guides={tour.guides} />
         <TravelerNotes reviews={reviews} />
