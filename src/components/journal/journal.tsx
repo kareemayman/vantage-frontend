@@ -1,4 +1,4 @@
-import type { ReactNode } from "react"
+import type { CSSProperties, ReactNode } from "react"
 
 // The tour page is a travel journal (5b: Kareem's pick, over a "through the window" idea): one
 // long notebook page lying on the table, with ruled lines every 32px, a coral margin line and
@@ -31,11 +31,21 @@ export function Journal({ children }: { children: ReactNode }) {
 // The sections' handwritten titles. Lowercase, like every handwritten note on the site.
 export const HEADING = "font-hand text-4xl text-primary md:text-5xl"
 
-// A strip of tape holding something onto the page. className places and turns it.
-export function Tape({ className, color = "sky" }: { className: string; color?: "sky" | "sand" }) {
+// A strip of tape holding something onto the page. className places and turns it, and can add
+// an entrance (motion-safe:animate-tape-on); style carries that entrance's delay.
+export function Tape({
+  className,
+  color = "sky",
+  style,
+}: {
+  className: string
+  color?: "sky" | "sand"
+  style?: CSSProperties
+}) {
   return (
     <span
       aria-hidden
+      style={style}
       className={`absolute z-10 ${color === "sky" ? "bg-sky-100/85" : "bg-sand-200/90"} ${className}`}
     />
   )
