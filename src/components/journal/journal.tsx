@@ -31,6 +31,12 @@ export function Journal({ children }: { children: ReactNode }) {
 // The sections' handwritten titles. Lowercase, like every handwritten note on the site.
 export const HEADING = "font-hand text-4xl text-primary md:text-5xl"
 
+// Handwriting that writes itself in once its part of the page scrolls into view (inside a
+// <Reveal>; hidden until then). Put it on a <span> around the words, not on the heading: a
+// span is only as wide as its words, so the pen keeps pace with them. Reduced motion: the
+// words are just there.
+export const WRITE_IN = "motion-safe:waiting:opacity-0 motion-safe:seen:animate-write"
+
 // A strip of tape holding something onto the page. className places and turns it, and can add
 // an entrance (motion-safe:animate-tape-on); style carries that entrance's delay.
 export function Tape({

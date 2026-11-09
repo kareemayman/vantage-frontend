@@ -638,6 +638,9 @@
   --animate-tape-on: tape-on 0.45s ease-out backwards; /* a strip of tape is pressed on */
   --animate-stamp-on: stamp 0.55s ease-out backwards; /* a rubber stamp slams down */
   --animate-nudge: nudge 0.9s ease-in-out 3; /* an arrow nudges you down the page, 3 times */
+  /* The plan (plan.tsx), once each part scrolls into view (seen:); its delays are AT there */
+  --animate-tick: draw 0.3s ease-in backwards; /* a pen ticks a box: slow down, quick flick up */
+  --animate-circle: draw 0.7s ease-in-out backwards; /* a pen circles a date */
 
   @keyframes turn {
     to {
@@ -1240,13 +1243,15 @@
   /* A photo dropped onto a table, seen from above: it starts closer to you (bigger, a
      little turned), falls flat, speeding up like a real fall, then bounces once. Only the
      polaroid moves; its tilt is on the <figure> around it. --drop-from: how much bigger it
-     starts (the journal's big cover photo starts smaller, or it would hang over the page). */
+     starts (the journal's big cover photo starts smaller, or it would hang over the page).
+     --drop-turn: how it starts turned (the journal's ticket stub starts turned the other way,
+     against its own tilt, or a 320px phone's page edge would cut off a corner). */
   @keyframes drop-in {
     0% {
       opacity: 0;
       scale: var(--drop-from, 1.25);
       translate: 0 -1rem;
-      rotate: 6deg;
+      rotate: var(--drop-turn, 6deg);
       animation-timing-function: ease-in;
     }
     20% {
@@ -1338,6 +1343,20 @@
   @keyframes nudge {
     50% {
       translate: 0 0.25em;
+    }
+  }
+  /* A pen drawing a line. The <path> has pathLength="1", so its length counts as 1, and it's
+     drawn as dashes: one as long as the line, then a gap twice as long. The offset slides the
+     dash on, from 1 (only the gap is on the line: hidden) to 0 (the dash covers it all). Like
+     the pen's mask, the dashes only exist while this plays. */
+  @keyframes draw {
+    from {
+      stroke-dasharray: 1 2;
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dasharray: 1 2;
+      stroke-dashoffset: 0;
     }
   }
 }
