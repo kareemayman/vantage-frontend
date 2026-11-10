@@ -16,11 +16,46 @@ const BEAT = 0.35
 const PACE = 600 // map units per second (the map is 400 wide)
 const EARLY = 0.15 // a stamp starts this much before the pencil arrives, so it lands just after
 
+// How far apart two pins' middles must be, in map units. A pin is 32.5 across with its
+// outline, so this leaves a small gap between them.
+const PIN_ROOM = 40
+
+// Pushes apart any two pins closer than PIN_ROOM, each half the way, along the line between
+// them. Two stops close together on a long trip would otherwise share a spot: The Sports
+// Lover's Point Dume Beach and Venice Skate Park land 12 units apart on a map of California, so
+// day 4 hid day 1. It goes over every pair a few times, because a push can bring a pin too
+// close to a third one. A pencil map doesn't have to be exact, and the list beside it names
+// every stop. Two stops in exactly the same spot (a trip that ends where it began) are pushed
+// apart sideways.
+function spread(points: Point[]) {
+  for (let round = 0; round < 10; round++) {
+    let moved = false
+    for (let i = 0; i < points.length; i++) {
+      for (let j = i + 1; j < points.length; j++) {
+        const [a, b] = [points[i], points[j]]
+        const gap = Math.hypot(b.x - a.x, b.y - a.y)
+        // A hair under PIN_ROOM is enough: a pair pushed to exactly 40 can measure
+        // 39.99999999999999, and it would be pushed again every round
+        if (gap > PIN_ROOM - 0.01) continue
+        // The way from a to b, as a step 1 unit long
+        const [stepX, stepY] = gap ? [(b.x - a.x) / gap, (b.y - a.y) / gap] : [1, 0]
+        const push = (PIN_ROOM - gap) / 2
+        a.x -= stepX * push
+        a.y -= stepY * push
+        b.x += stepX * push
+        b.y += stepY * push
+        moved = true
+      }
+    }
+    if (!moved) return
+  }
+}
+
 // Puts the stops in the map's W×H box by their real coordinates (GeoJSON: [longitude,
 // latitude]), at the same scale both ways, north up. Away from the equator a degree of
 // longitude is shorter than a degree of latitude, so longitudes shrink by the cosine of the
 // latitude. The stops fill the box: three vineyards a few miles apart get as much room as a
-// trip across the country.
+// trip across the country. Then pins that would touch are pushed apart (spread).
 function place(stops: Stop[]) {
   const lats = stops.map((stop) => stop.coordinates[1])
   const shrink = Math.cos((((Math.min(...lats) + Math.max(...lats)) / 2) * Math.PI) / 180)
@@ -36,14 +71,13 @@ function place(stops: Stop[]) {
   const scale = Math.min((W - 120) / (maxX - minX || 1), (H - 100) / (maxY - minY || 1))
   const left = (W - (maxX - minX) * scale) / 2
   const top = (H - (maxY - minY) * scale) / 2
-  // Known gap: two stops close together on a long trip overlap. Today that's The Sports
-  // Lover's first two (Point Dume Beach and Venice Skate Park, 12 units apart on a map of
-  // California): the day 4 pin covers the day 1 pin.
-  return stops.map((stop, i) => ({
+  const points = stops.map((stop, i) => ({
     ...stop,
     x: left + (xs[i] - minX) * scale,
     y: top + (ys[i] - minY) * scale,
   }))
+  spread(points)
+  return points
 }
 
 // A curve's length (a, to b, bending toward c), from 20 straight pieces along it: close
