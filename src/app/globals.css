@@ -645,6 +645,9 @@
      each stop. Each leg sets its own length of time (inline animationDuration): longer legs
      take longer, like a real pencil. */
   --animate-leg: draw 1s ease-in-out backwards;
+  /* Our guides (guides.tsx): an instant photo develops, from dark to the picture, while it
+     gets a shake (wiggle) */
+  --animate-develop: develop 2s ease-in-out backwards;
 
   @keyframes turn {
     to {
@@ -1361,6 +1364,15 @@
     to {
       stroke-dasharray: 1 2;
       stroke-dashoffset: 0;
+    }
+  }
+  /* An instant photo developing: the dark film over the picture fades away */
+  @keyframes develop {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
     }
   }
 }
