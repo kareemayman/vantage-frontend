@@ -32,16 +32,16 @@ export const PRICES = [
   { value: "over1500", label: "Over $1,500", api: { "price[gt]": "1500" } },
 ]
 
+// Best rated first, and more reviews win a tie. Also how the homepage picks its three tours
+// (getFeaturedTours in api.ts).
+export const BEST_RATED = "-ratingsAverage,-ratingsQuantity,-createdAt"
+
 // The first one is the default, and stays out of the URL. Each ends in -createdAt, so tours
 // that tie on everything else always come back in the same order, and the cards don't swap.
 export const SORTS = [
   { value: "price-asc", label: "Price: low to high", api: "price,-ratingsAverage,-createdAt" },
   { value: "price-desc", label: "Price: high to low", api: "-price,-ratingsAverage,-createdAt" },
-  {
-    value: "rating",
-    label: "Rating: best first",
-    api: "-ratingsAverage,-ratingsQuantity,-createdAt",
-  },
+  { value: "rating", label: "Rating: best first", api: BEST_RATED },
   { value: "length", label: "Length: shortest first", api: "duration,price,-createdAt" },
 ]
 

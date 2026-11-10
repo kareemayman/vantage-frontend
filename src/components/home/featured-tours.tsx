@@ -1,32 +1,26 @@
+import Image from "next/image"
 import { ButtonLink } from "@/components/button"
 import { TagHover } from "@/components/home/tag-hover"
 import { ArrowIcon, PinIcon } from "@/components/icons"
 import { Reveal } from "@/components/reveal"
-import { TourScene } from "@/components/scene/tour-scenes"
 import { DIFFICULTY } from "@/components/tours/difficulty"
-import { days, FEATURED_TOURS, type Tour } from "@/lib/tours"
+import { days, type Tour } from "@/lib/tours"
 
-// Where each tour's difficulty stamp sits, so it doesn't cover the drawing (TourScene).
-// Real photos replace the drawings later (backend checklist item 1).
-const STAMPS: Record<string, string> = {
-  "the-sea-explorer": "right-3.5 bottom-3.5 rotate-6",
-  "the-forest-hiker": "top-3.5 right-3.5 -rotate-5",
-  "the-star-gazer": "top-3.5 left-3.5 -rotate-4",
-}
-
-// Each tag hangs a little crooked, from its own wiggly string (the design's angles). One
-// pose per tag: the homepage always shows three tours.
+// Each tag hangs a little crooked, from its own wiggly string (the design's angles), and its
+// difficulty stamp sits in a top corner of the photo, taking turns (photos keep their subject
+// low and in the middle). One pose per tag: the homepage always shows three tours.
 const POSES = [
-  { tilt: "-rotate-[1.5deg]", string: "M30 86C10 60 50 30 24 0" },
-  { tilt: "rotate-1", string: "M30 86C50 60 10 30 36 0" },
-  { tilt: "-rotate-[0.6deg]", string: "M30 86C14 56 46 34 28 0" },
+  { tilt: "-rotate-[1.5deg]", string: "M30 86C10 60 50 30 24 0", stamp: "right-3.5 -rotate-5" },
+  { tilt: "rotate-1", string: "M30 86C50 60 10 30 36 0", stamp: "left-3.5 -rotate-4" },
+  { tilt: "-rotate-[0.6deg]", string: "M30 86C14 56 46 34 28 0", stamp: "right-3.5 rotate-6" },
 ]
 
-// 03 Featured tours (design/HANDOFF.md): the tours as luggage tags. Phones stack them,
-// md shows two with the third centered below, xl hangs all three in a row.
+// 03 Featured tours (design/HANDOFF.md): the three best-rated tours (getFeaturedTours) as
+// luggage tags. Phones stack them, md shows two with the third centered below, xl hangs all
+// three in a row.
 // overflow-x-clip: a swinging tag can poke past the screen's edge; this hides that part
 // instead of letting the page scroll sideways.
-export function FeaturedTours() {
+export function FeaturedTours({ tours }: { tours: Tour[] }) {
   return (
     <section
       aria-labelledby="tours-title"
@@ -64,7 +58,7 @@ export function FeaturedTours() {
         {/* md: four columns, two per tag. A tag alone on the last row (odd:last) starts at
             column 2, which centers it. */}
         <ul className="mx-auto mt-11 grid max-w-md items-start gap-10 md:mt-28 md:max-w-none md:grid-cols-4 md:gap-y-24 xl:grid-cols-3">
-          {FEATURED_TOURS.map((tour, i) => (
+          {tours.map((tour, i) => (
             <li
               key={tour.slug}
               className="@container md:col-span-2 md:odd:last:col-start-2 md:even:mt-7.5 xl:col-span-1 xl:odd:last:col-start-auto"
@@ -119,12 +113,22 @@ function LuggageTag({ tour, pose }: { tour: Tour; pose: (typeof POSES)[number] }
       {/* The eyelet: a ring filled with the page color, so it looks punched through */}
       <div className="mx-auto mb-2.5 size-6 rounded-full border-5 border-sand-400 bg-background @sm:mb-3 @sm:size-7" />
 
-      <div className="relative aspect-3/2 overflow-hidden rounded-[14px] border-2 border-navy-950 @sm:rounded-2xl">
-        <TourScene slug={tour.slug} className="size-full" />
+      <div className="relative aspect-3/2 overflow-hidden rounded-[14px] border-2 border-navy-950 bg-muted @sm:rounded-2xl">
+        {/* The cover photo. alt="": the name right below says which tour it is (like the tour
+            cards on /tours). sizes: the photo's width in the layout, so phones don't download
+            a desktop-sized photo (the tag, minus its border and padding, minus this box's
+            border) */}
+        <Image
+          src={tour.imageCover}
+          alt=""
+          fill
+          sizes="(min-width: 1440px) 358px, (min-width: 1280px) calc(33.33vw - 118px), (min-width: 1024px) calc(50vw - 142px), (min-width: 768px) calc(50vw - 100px), (min-width: 480px) 406px, calc(100vw - 70px)"
+          className="object-cover"
+        />
         {/* The difficulty again, as a stamp. Decoration: the chip below says it. */}
         <span
           aria-hidden
-          className={`absolute rounded-md border-2 border-dashed px-3 py-1.5 font-display text-sm leading-none font-bold tracking-[0.08em] uppercase motion-safe:group-data-playing:animate-thunk ${difficulty.stamp} ${STAMPS[tour.slug]}`}
+          className={`absolute top-3.5 rounded-md border-2 border-dashed px-3 py-1.5 font-display text-sm leading-none font-bold tracking-[0.08em] uppercase motion-safe:group-data-playing:animate-thunk ${difficulty.stamp} ${pose.stamp}`}
         >
           {tour.difficulty}
         </span>

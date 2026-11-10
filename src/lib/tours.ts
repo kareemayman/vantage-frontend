@@ -55,8 +55,9 @@ export type TourStats = {
 // does the math; the frontend only shows the numbers.
 export const TOUR_STATS: TourStats = { toursCount: 3, totalRatings: 21, avgRating: 4.87 }
 
-// The homepage's featured tours, typed in from design/HANDOFF.md for now. Phase 2
-// replaces this list with a fetch from the API; the components that show it stay the same.
+// The homepage's featured tours, typed in from design/HANDOFF.md. The luggage tags now get
+// theirs from the API (getFeaturedTours); "Where we go", "By the numbers" and the reviews
+// still read this list until phase 2 step 6 switches them too, then it goes.
 export const FEATURED_TOURS: Tour[] = [
   {
     name: "The Sea Explorer",

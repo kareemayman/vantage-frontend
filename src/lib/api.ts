@@ -1,6 +1,6 @@
 import "server-only"
 import { cacheLife, cacheTag } from "next/cache"
-import { DEFAULT_SORT, type ApiQuery } from "@/lib/tour-filters"
+import { BEST_RATED, DEFAULT_SORT, type ApiQuery } from "@/lib/tour-filters"
 import type { TourReview } from "@/lib/reviews"
 import type { Tour, TourDetails } from "@/lib/tours"
 
@@ -40,6 +40,13 @@ export async function getTours(query: ApiQuery) {
   }
   const body = await get<{ data: { docs: Tour[] } }>(`/tours?${params}`)
   return body.data.docs
+}
+
+// The homepage's three tours: the best rated (GET /tours?sort=-ratingsAverage,...&limit=3).
+// Not cached itself: getTours saves the answer, and the query never changes, so every visitor
+// shares one copy.
+export function getFeaturedTours() {
+  return getTours({ sort: BEST_RATED, limit: "3" })
 }
 
 // One tour, by its slug, with its guides. The API has no slug endpoint, so this asks for the
