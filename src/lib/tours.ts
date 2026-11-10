@@ -48,16 +48,12 @@ export type Guide = {
 export type TourStats = {
   toursCount: number
   totalRatings: number // the number of reviews, all tours together
-  avgRating: number
+  avgRating: number // the average of every review, not rounded (4.608…)
 }
 
-// Typed in for the three featured tours until phase 2 fetches the real stats. The API
-// does the math; the frontend only shows the numbers.
-export const TOUR_STATS: TourStats = { toursCount: 3, totalRatings: 21, avgRating: 4.87 }
-
 // The homepage's featured tours, typed in from design/HANDOFF.md. The luggage tags now get
-// theirs from the API (getFeaturedTours); "Where we go", "By the numbers" and the reviews
-// still read this list until phase 2 step 6 switches them too, then it goes.
+// theirs from the API (getFeaturedTours); "Where we go" and the reviews still read this list
+// until phase 2 step 6 switches them too, then it goes.
 export const FEATURED_TOURS: Tour[] = [
   {
     name: "The Sea Explorer",

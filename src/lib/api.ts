@@ -2,7 +2,7 @@ import "server-only"
 import { cacheLife, cacheTag } from "next/cache"
 import { BEST_RATED, DEFAULT_SORT, type ApiQuery } from "@/lib/tour-filters"
 import type { TourReview } from "@/lib/reviews"
-import type { Tour, TourDetails } from "@/lib/tours"
+import type { Tour, TourDetails, TourStats } from "@/lib/tours"
 
 // Every call to the Vantage API lives in this file. "server-only" turns any import from a
 // Client Component into a build error, so API_URL (and, from phase 3, the login token)
@@ -47,6 +47,18 @@ export async function getTours(query: ApiQuery) {
 // shares one copy.
 export function getFeaturedTours() {
   return getTours({ sort: BEST_RATED, limit: "3" })
+}
+
+// The site's totals: how many tours, how many reviews, and the average of every review.
+// GET /tours/stats sends { data: { stats: [{ toursCount, totalRatings, avgRating, ... }] } }:
+// one group over every tour. The API does the math; the homepage only shows the numbers.
+export async function getTourStats() {
+  "use cache"
+  cacheLife("days")
+  cacheTag("tours", "reviews") // a new tour or a new review both change the totals
+
+  const body = await get<{ data: { stats: TourStats[] } }>("/tours/stats")
+  return body.data.stats[0]
 }
 
 // One tour, by its slug, with its guides. The API has no slug endpoint, so this asks for the

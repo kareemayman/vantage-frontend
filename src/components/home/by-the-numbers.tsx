@@ -1,25 +1,5 @@
 import { Reveal } from "@/components/reveal"
-import { FEATURED_TOURS, TOUR_STATS } from "@/lib/tours"
-
-// The numbers come from the API's tour stats (getTourStats does the math); typed in as
-// TOUR_STATS until phase 2 fetches them
-const { toursCount, totalRatings, avgRating } = TOUR_STATS
-// "Miami, Banff and Utah": each featured tour's starting place, without its country
-const places = new Intl.ListFormat("en-GB").format([
-  ...new Set(FEATURED_TOURS.map((tour) => tour.startLocation.description.split(",")[0])),
-])
-
-const STATS = [
-  { value: String(toursCount), label: "Summer tours", detail: places },
-  {
-    value: avgRating.toFixed(1), // 4.87 → "4.9"
-    label: "Average rating",
-    detail: `across ${totalRatings} reviews`,
-    star: true,
-    sun: true, // the highlight: sun-colored tiles
-  },
-  { value: String(totalRatings), label: "Happy travelers reviewed", detail: "and counting" },
-]
+import type { TourStats } from "@/lib/tours"
 
 // Seconds per flip: a card's top half falls, then the next card's bottom half
 // (flip-top and flip-bottom in globals.css, 0.1s each)
@@ -29,7 +9,28 @@ const FLIP = 0.2
 // digit, like an airport departure board. Phones: tiles left, words right. md+: three
 // columns, words under the tiles. Every tile size is in em of the row's font size, so
 // one text-* class sizes them all.
-export function ByTheNumbers() {
+export function ByTheNumbers({ stats }: { stats: TourStats }) {
+  // The API's totals (getTourStats): every tour and every review
+  const numbers = [
+    {
+      value: String(stats.toursCount),
+      label: "Summer tours",
+      detail: "from many starting points",
+    },
+    {
+      value: stats.avgRating.toFixed(1), // 4.608… → "4.6"
+      label: "Average rating",
+      detail: `across ${stats.totalRatings} reviews`,
+      star: true,
+      sun: true, // the highlight: sun-colored tiles
+    },
+    {
+      value: String(stats.totalRatings),
+      label: "Happy travelers reviewed",
+      detail: "and counting",
+    },
+  ]
+
   return (
     <section aria-labelledby="numbers-title" className="bg-muted py-14 md:pt-22 md:pb-32">
       <div className="mx-auto max-w-360 px-4 md:px-10 lg:px-20">
@@ -46,7 +47,7 @@ export function ByTheNumbers() {
         </div>
 
         <ul className="mt-6 grid gap-5.5 md:mt-12 md:grid-cols-3 md:gap-10">
-          {STATS.map((stat, i) => (
+          {numbers.map((stat, i) => (
             <li key={stat.label} className="flex items-center gap-4 md:block">
               {/* The tiles are for the eyes; screen readers get the number as text.
                   Phones: the tiles shrink with the screen, so the words beside them
