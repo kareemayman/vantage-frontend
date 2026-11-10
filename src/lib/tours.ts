@@ -1,6 +1,7 @@
 // A tour as the API sends it (../backend/models/tourModel.js), with only the fields
 // the site shows so far. Add fields here as pages need them.
 export type Tour = {
+  _id: string // for asking the API about this tour, e.g. its reviews
   name: string
   slug: string
   duration: number // days
@@ -24,7 +25,6 @@ export const days = (count: number) => `${count} ${count === 1 ? "day" : "days"}
 // Everything a tour's own page (/tours/[slug]) shows: the card's fields and the rest of what
 // GET /tours?slug= sends, with the guides filled in
 export type TourDetails = Tour & {
-  _id: string
   description: string // paragraphs, split by "\n"
   maxGroupSize: number
   priceDiscount?: number // dollars off the price; no seed tour has one yet
@@ -50,48 +50,3 @@ export type TourStats = {
   totalRatings: number // the number of reviews, all tours together
   avgRating: number // the average of every review, not rounded (4.608…)
 }
-
-// The homepage's featured tours, typed in from design/HANDOFF.md. The luggage tags and "Where
-// we go" now get theirs from the API (getFeaturedTours); the reviews still read this list
-// until phase 2 step 6c switches them too, then it goes.
-export const FEATURED_TOURS: Tour[] = [
-  {
-    name: "The Sea Explorer",
-    slug: "the-sea-explorer",
-    duration: 7,
-    difficulty: "medium",
-    price: 497,
-    ratingsAverage: 4.8,
-    ratingsQuantity: 6,
-    summary: "Exploring the jaw-dropping US east coast by foot and by boat.",
-    imageCover: "the-sea-explorer-cover",
-    images: ["the-sea-explorer-1", "the-sea-explorer-2", "the-sea-explorer-3"],
-    startLocation: { description: "Miami, USA", coordinates: [-80.185942, 25.774772] },
-  },
-  {
-    name: "The Forest Hiker",
-    slug: "the-forest-hiker",
-    duration: 5,
-    difficulty: "easy",
-    price: 397,
-    ratingsAverage: 5,
-    ratingsQuantity: 9,
-    summary: "Breathtaking hike through the Canadian Banff National Park.",
-    imageCover: "the-forest-hiker-cover",
-    images: ["the-forest-hiker-1", "the-forest-hiker-2", "the-forest-hiker-3"],
-    startLocation: { description: "Banff, Canada", coordinates: [-115.570154, 51.178456] },
-  },
-  {
-    name: "The Star Gazer",
-    slug: "the-star-gazer",
-    duration: 9,
-    difficulty: "medium",
-    price: 2997,
-    ratingsAverage: 4.8,
-    ratingsQuantity: 6,
-    summary: "The most remote and stunningly beautiful places for seeing the night sky.",
-    imageCover: "the-star-gazer-cover",
-    images: ["the-star-gazer-1", "the-star-gazer-2", "the-star-gazer-3"],
-    startLocation: { description: "Utah, USA", coordinates: [-109.55099, 37.283469] },
-  },
-]

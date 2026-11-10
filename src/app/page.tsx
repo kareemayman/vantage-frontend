@@ -7,7 +7,7 @@ import { Playground } from "@/components/home/playground"
 import { Reviews } from "@/components/home/reviews"
 import { WhereWeGo } from "@/components/home/where-we-go"
 import { PauseOffscreen } from "@/components/pause-offscreen"
-import { getFeaturedTours, getTourStats } from "@/lib/api"
+import { getBestReview, getFeaturedTours, getTourStats } from "@/lib/api"
 
 // Homepage, built section by section from design/HANDOFF.md. The page asks for the data once
 // and hands it to the sections. It's a saved copy ("use cache" in api.ts), so the page is still
@@ -15,6 +15,11 @@ import { getFeaturedTours, getTourStats } from "@/lib/api"
 export default async function Home() {
   // Both questions go out at the same time, instead of the second waiting for the first
   const [tours, stats] = await Promise.all([getFeaturedTours(), getTourStats()])
+  // Each tour's best review, for the polaroids. These need the tours' ids, so they go out once
+  // the tours are here (all three at the same time), and each comes back paired with its tour.
+  const postcards = await Promise.all(
+    tours.map(async (tour) => ({ tour, review: await getBestReview(tour._id) })),
+  )
 
   return (
     <>
@@ -23,7 +28,7 @@ export default async function Home() {
       <FeaturedTours tours={tours} />
       <WhereWeGo tours={tours} />
       <ByTheNumbers stats={stats} />
-      <Reviews />
+      <Reviews postcards={postcards} />
       <Playground />
       <BoardingPass />
       <PauseOffscreen />

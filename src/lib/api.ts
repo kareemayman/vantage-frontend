@@ -76,6 +76,23 @@ export async function getTour(slug: string) {
   return body.data.docs[0] ?? null
 }
 
+// A tour's best review, for the homepage's polaroids: the highest rated, and the newest of
+// those on a tie (the API doesn't send createdAt, but it can still sort by it). null: the tour
+// has no reviews yet.
+// For now: later (Kareem's plan) the reviews will come with the tours, from the tours
+// endpoint, and this call goes.
+export async function getBestReview(tourId: string) {
+  "use cache"
+  cacheLife("days")
+  cacheTag("reviews")
+
+  const body = await get<{ data: { reviews: TourReview[] } }>(
+    `/tours/${tourId}/reviews?sort=-rating,-createdAt&limit=1`,
+  )
+  // at(0), not [0]: TypeScript then knows the list can be empty
+  return body.data.reviews.at(0) ?? null
+}
+
 // One tour's reviews, each with the traveler's name and photo.
 // GET /tours/:id/reviews sends { results, data: { reviews } }.
 export async function getTourReviews(tourId: string) {
