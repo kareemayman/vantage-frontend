@@ -6,11 +6,12 @@ import { ArrowIcon } from "@/components/icons"
 import { Cover } from "@/components/journal/cover"
 import { DayByDay } from "@/components/journal/day-by-day"
 import { Guides } from "@/components/journal/guides"
-import { HEADING, Journal } from "@/components/journal/journal"
+import { HEADING, Journal, WRITE_IN } from "@/components/journal/journal"
 import { Plan } from "@/components/journal/plan"
 import { Snapshots } from "@/components/journal/snapshots"
 import { TravelerNotes } from "@/components/journal/traveler-notes"
 import { PauseOffscreen } from "@/components/pause-offscreen"
+import { Reveal } from "@/components/reveal"
 import { getTour, getTourReviews, getTours } from "@/lib/api"
 
 // One tour's page, e.g. /tours/the-sea-explorer. [slug] in the folder name is a dynamic
@@ -77,13 +78,15 @@ async function TourDetails({ slug }: { slug: string }) {
 }
 
 // About this trip: the description as journal text, written on the lines (leading-8 is the
-// lines' 32px)
+// lines' 32px). The heading writes itself in once it scrolls into view.
 function About({ description }: { description: string }) {
   return (
     <section aria-labelledby="about-title" className="max-w-2xl">
-      <h2 id="about-title" className={HEADING}>
-        about this trip
-      </h2>
+      <Reveal>
+        <h2 id="about-title" className={HEADING}>
+          <span className={WRITE_IN}>about this trip</span>
+        </h2>
+      </Reveal>
       <div className="mt-2 space-y-8 text-lg leading-8 text-pretty">
         {description
           .split("\n")
@@ -96,14 +99,16 @@ function About({ description }: { description: string }) {
   )
 }
 
-// The journal's last line. Booking arrives in phase 5, which adds "Save my seat" here; until
-// then, the way back to every tour.
+// The journal's last line, written in once it scrolls into view. Booking arrives in phase 5,
+// which adds "Save my seat" here; until then, the way back to every tour.
 function LastLine() {
   return (
     <section aria-labelledby="end-title" className="text-center">
-      <h2 id="end-title" className={HEADING}>
-        see you there
-      </h2>
+      <Reveal>
+        <h2 id="end-title" className={HEADING}>
+          <span className={WRITE_IN}>see you there</span>
+        </h2>
+      </Reveal>
       <ButtonLink href="/tours" size="sm" className="mt-6">
         See all tours
         <ArrowIcon className="size-4.5" />

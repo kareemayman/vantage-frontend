@@ -648,6 +648,8 @@
   /* Our guides (guides.tsx): an instant photo develops, from dark to the picture, while it
      gets a shake (wiggle) */
   --animate-develop: develop 2s ease-in-out backwards;
+  /* Notes from past travelers (traveler-notes.tsx): a sticky note is pressed onto the page */
+  --animate-stick-on: stick-on 0.8s backwards;
 
   @keyframes turn {
     to {
@@ -1375,6 +1377,59 @@
       opacity: 0;
     }
   }
+  /* A sticky note pressed onto the page: its sticky top edge goes on first, then the rest
+     flaps down from where your fingers held it up, springs up a little, and settles. It turns
+     on the x axis around its top edge (origin-top), seen in perspective.
+     The one keyframes here that move `transform`: the perspective has to apply after the turn,
+     and only `transform` can put them in that order. It also leaves nothing 3D behind: with a
+     `perspective` class on the parent instead, Chrome kept every note on its own layer after
+     its entrance (measured), and text on a layer of its own is drawn softer.
+     The perspective is 7 times the note's width (cqw: its <li> is a container). Held up, the
+     note's bottom edge is wider, and this keeps that to a few pixels at every width: with a
+     fixed 1500px, a phone-wide note ran 8px past the page's edge (measured). */
+  @keyframes stick-on {
+    0% {
+      opacity: 0;
+      transform: perspective(700cqw) rotateX(55deg);
+      animation-timing-function: ease-in;
+    }
+    25% {
+      opacity: 1;
+    }
+    60% {
+      transform: perspective(700cqw) rotateX(0deg);
+      animation-timing-function: ease-out;
+    }
+    78% {
+      transform: perspective(700cqw) rotateX(10deg);
+      animation-timing-function: ease-in-out;
+    }
+    100% {
+      transform: perspective(700cqw) rotateX(0deg);
+    }
+  }
+}
+
+/* How far a sticky note's corner has peeled up (traveler-notes.tsx). Registered as a length,
+   so it can ease from 0 to its size when the mouse comes over the note: a plain CSS variable
+   can't ease, it jumps. */
+@property --peel {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+/* The note's paper, with its bottom-right corner cut off along a diagonal, --peel from the
+   corner (0: nothing is cut), so the page shows through where the corner has lifted. The five
+   points go around the paper 1px outside its edges: a clip lying exactly on an edge smooths
+   that edge a second time, and it turned lighter (measured). */
+@utility peel-cut {
+  clip-path: polygon(
+    -1px -1px,
+    calc(100% + 1px) -1px,
+    calc(100% + 1px) calc(100% + 1px - var(--peel)),
+    calc(100% + 1px - var(--peel)) calc(100% + 1px),
+    -1px calc(100% + 1px)
+  );
 }
 
 /* Off-screen sections pause their animations (src/components/pause-offscreen.tsx sets
