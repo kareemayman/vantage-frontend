@@ -7,7 +7,7 @@ import { useReducedMotion } from "@/lib/use-reduced-motion"
 // The globe's flights (src/components/scene/globe.tsx). When the globe scrolls into view,
 // the tiny plane flies each flight in turn, and its dashed trail appears behind it.
 // Without JavaScript, or with reduced motion, the globe stays the still picture: every
-// trail drawn, the plane parked over North America.
+// trail drawn, the plane waiting a third of the way along the first flight.
 export function GlobeFlights({ className, children }: { className?: string; children: ReactNode }) {
   const box = useRef<HTMLDivElement>(null)
   const reduced = useReducedMotion()
@@ -26,8 +26,9 @@ export function GlobeFlights({ className, children }: { className?: string; chil
       gsap.set(trails, { strokeDasharray: 1, strokeDashoffset: 1 })
       gsap.set(plane, { opacity: 0, scale: 0.4, transformOrigin: "50% 50%" })
 
-      // One timeline: flight 1, then 2, then 3. It starts once, when the globe's top is
-      // 25% up the screen (like <Reveal>), and ScrollTrigger never replays it.
+      // One timeline: flight 1, then 2, then 3 (the list's order: best rated first). It starts
+      // once, when the globe's top is 25% up the screen (like <Reveal>), and ScrollTrigger
+      // never replays it.
       const trip = gsap.timeline({
         scrollTrigger: { trigger: el, start: "top 75%", once: true },
         defaults: { duration: 1.2, ease: "power1.inOut" },

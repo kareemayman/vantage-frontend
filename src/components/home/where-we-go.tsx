@@ -2,7 +2,7 @@ import Link from "next/link"
 import { GlobeFlights } from "@/components/home/globe-flights"
 import { PinHighlight } from "@/components/home/pin-highlight"
 import { Globe } from "@/components/scene/globe"
-import { FEATURED_TOURS } from "@/lib/tours"
+import type { Tour } from "@/lib/tours"
 
 // Stars, placed like the design's: left and top in %, size in px. Every third one is gold.
 const STARS = [
@@ -23,11 +23,12 @@ function coordinates([lng, lat]: [number, number]) {
   return `${Math.abs(lat).toFixed(1)}°${ns} ${Math.abs(lng).toFixed(1)}°${ew}`
 }
 
-// 04 Where we go (design/HANDOFF.md): where the featured tours start, next to a globe.
+// 04 Where we go (design/HANDOFF.md): where the featured tours start (the same three as the
+// luggage tags, getFeaturedTours), next to a globe with a pin for each.
 // Night in both themes. data-theme="dark" makes the theme tokens inside use their dark
 // values (text, cards, the focus ring), whatever theme the rest of the page is in.
 // Phones: title, globe, list. Desktop: title and list on the left, the globe on the right.
-export function WhereWeGo() {
+export function WhereWeGo({ tours }: { tours: Tour[] }) {
   return (
     <section
       data-theme="dark"
@@ -75,7 +76,7 @@ export function WhereWeGo() {
         {/* @container: the coordinates only show when the list is at least 512px wide
             (@lg:), so a row never wraps onto two lines */}
         <ul className="@container order-1 flex flex-col gap-2.5 md:gap-3 lg:order-0 lg:max-w-140 lg:self-start">
-          {FEATURED_TOURS.map((tour, i) => (
+          {tours.map((tour, i) => (
             <li key={tour.slug}>
               {/* Each row opens its tour. data-slug pairs it with its pin on the globe;
                   data-on lights it up (sun border and dot). The first row starts on. */}
@@ -101,7 +102,7 @@ export function WhereWeGo() {
 
         {/* The plane flies the flights when the globe comes into view */}
         <GlobeFlights className="mx-auto w-full max-w-82.5 sm:max-w-110 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mr-0 lg:max-w-160 lg:self-center">
-          <Globe className="w-full" />
+          <Globe tours={tours} className="w-full" />
         </GlobeFlights>
       </PinHighlight>
     </section>

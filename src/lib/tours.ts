@@ -51,9 +51,9 @@ export type TourStats = {
   avgRating: number // the average of every review, not rounded (4.608…)
 }
 
-// The homepage's featured tours, typed in from design/HANDOFF.md. The luggage tags now get
-// theirs from the API (getFeaturedTours); "Where we go" and the reviews still read this list
-// until phase 2 step 6 switches them too, then it goes.
+// The homepage's featured tours, typed in from design/HANDOFF.md. The luggage tags and "Where
+// we go" now get theirs from the API (getFeaturedTours); the reviews still read this list
+// until phase 2 step 6c switches them too, then it goes.
 export const FEATURED_TOURS: Tour[] = [
   {
     name: "The Sea Explorer",

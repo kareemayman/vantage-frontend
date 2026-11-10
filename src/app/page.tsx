@@ -21,7 +21,7 @@ export default async function Home() {
       <Hero />
       <Journey />
       <FeaturedTours tours={tours} />
-      <WhereWeGo />
+      <WhereWeGo tours={tours} />
       <ByTheNumbers stats={stats} />
       <Reviews />
       <Playground />

@@ -1,3 +1,4 @@
+import { spread } from "@/lib/spread"
 import type { TourDetails } from "@/lib/tours"
 
 type Stop = TourDetails["locations"][number]
@@ -17,39 +18,11 @@ const PACE = 600 // map units per second (the map is 400 wide)
 const EARLY = 0.15 // a stamp starts this much before the pencil arrives, so it lands just after
 
 // How far apart two pins' middles must be, in map units. A pin is 32.5 across with its
-// outline, so this leaves a small gap between them.
+// outline, so this leaves a small gap between them. Two stops close together on a long trip
+// would otherwise share a spot: The Sports Lover's Point Dume Beach and Venice Skate Park land
+// 12 units apart on a map of California, so day 4 hid day 1. spread() pushes them apart. A
+// pencil map doesn't have to be exact, and the list beside it names every stop.
 const PIN_ROOM = 40
-
-// Pushes apart any two pins closer than PIN_ROOM, each half the way, along the line between
-// them. Two stops close together on a long trip would otherwise share a spot: The Sports
-// Lover's Point Dume Beach and Venice Skate Park land 12 units apart on a map of California, so
-// day 4 hid day 1. It goes over every pair a few times, because a push can bring a pin too
-// close to a third one. A pencil map doesn't have to be exact, and the list beside it names
-// every stop. Two stops in exactly the same spot (a trip that ends where it began) are pushed
-// apart sideways.
-function spread(points: Point[]) {
-  for (let round = 0; round < 10; round++) {
-    let moved = false
-    for (let i = 0; i < points.length; i++) {
-      for (let j = i + 1; j < points.length; j++) {
-        const [a, b] = [points[i], points[j]]
-        const gap = Math.hypot(b.x - a.x, b.y - a.y)
-        // A hair under PIN_ROOM is enough: a pair pushed to exactly 40 can measure
-        // 39.99999999999999, and it would be pushed again every round
-        if (gap > PIN_ROOM - 0.01) continue
-        // The way from a to b, as a step 1 unit long
-        const [stepX, stepY] = gap ? [(b.x - a.x) / gap, (b.y - a.y) / gap] : [1, 0]
-        const push = (PIN_ROOM - gap) / 2
-        a.x -= stepX * push
-        a.y -= stepY * push
-        b.x += stepX * push
-        b.y += stepY * push
-        moved = true
-      }
-    }
-    if (!moved) return
-  }
-}
 
 // Puts the stops in the map's W×H box by their real coordinates (GeoJSON: [longitude,
 // latitude]), at the same scale both ways, north up. Away from the equator a degree of
@@ -76,7 +49,7 @@ function place(stops: Stop[]) {
     x: left + (xs[i] - minX) * scale,
     y: top + (ys[i] - minY) * scale,
   }))
-  spread(points)
+  spread(points, PIN_ROOM)
   return points
 }
 
