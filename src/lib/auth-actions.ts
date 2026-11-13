@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation"
 import * as z from "zod"
 import { ApiError, postLogin } from "@/lib/api"
-import { setSession, type Session } from "@/lib/session"
+import { clearSession, setSession, type Session } from "@/lib/session"
 
 // Every Server Action that logs you in or out lives in this file. "use server" makes each
 // exported function callable from the browser: a form gets a reference to it, and Next turns
@@ -56,6 +56,15 @@ export async function logIn(previous: LoginState, formData: FormData): Promise<L
   // 3. Keep it in the session cookie, then go to the homepage. redirect() works by throwing,
   // so it stays outside the try above, whose catch would swallow it.
   await setSession(session)
+  redirect("/")
+}
+
+// The account menu's "Log out". Forgetting the session is all it takes: the API's token can't
+// be cancelled (it stays valid until it runs out, within 2 hours), but once the cookie is gone,
+// nothing has it anymore. Deleting a cookie in a Server Action makes Next re-render the
+// layout, so the navbar goes back to "Log in" and "Sign up". Then home, like after logging in.
+export async function logOut() {
+  await clearSession()
   redirect("/")
 }
 

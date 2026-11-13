@@ -36,6 +36,14 @@ export async function setSession(session: Session) {
   })
 }
 
+// Forgets the session: the response tells the browser to delete the cookie. Like setSession,
+// only in a Server Action (or a route handler). delete() uses path "/", like the cookie, and a
+// browser only deletes a cookie whose name and path both match.
+export async function clearSession() {
+  const cookieStore = await cookies()
+  cookieStore.delete(COOKIE)
+}
+
 // The visitor's session, or null when they're logged out. It reads the request's cookies, so a
 // component that calls it can't be built ahead of time: it has to sit inside a <Suspense>.
 // Zod's parse, unlike safeParse, throws when the shape is wrong, the way JSON.parse throws on

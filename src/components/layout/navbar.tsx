@@ -6,6 +6,7 @@ import { ArrowIcon } from "@/components/icons"
 import { MenuPanel } from "@/components/layout/menu-panel"
 import { Logo } from "@/components/logo"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { logOut } from "@/lib/auth-actions"
 import { getSession, type Session } from "@/lib/session"
 
 // Who's visiting: the name and photo saved in the session at login, or null when logged out
@@ -13,7 +14,6 @@ type Visitor = Session["user"] | null
 
 const TOURS = { href: "/tours", label: "Tours" }
 const LOG_IN = { href: "/login", label: "Log in" }
-const ACCOUNT = { href: "/account", label: "Your account" }
 
 // Server Component. Only ThemeToggle and MenuPanel inside it are Client Components.
 // A frosted pill that floats over the page (fixed), so the hero's sky shows through it.
@@ -53,17 +53,16 @@ async function VisitorNavActions() {
   return <NavActions visitor={session?.user ?? null} />
 }
 
-// The links, the theme switch, "Sign up" or your account, and the phone menu
+// The links, the theme switch, "Sign up" or your account menu, and the phone menu
 function NavActions({ visitor }: { visitor: Visitor }) {
-  // Inline on desktop: Tours, and "Log in" until you are (then your photo is the way to your
-  // account). In the phone menu, "Log in" turns into "Your account".
-  const inlineLinks = visitor ? [TOURS] : [TOURS, LOG_IN]
-  const menuLinks = visitor ? [TOURS, ACCOUNT] : [TOURS, LOG_IN]
+  // Inline on desktop, inside the phone menu on phones: Tours, and "Log in" until you are.
+  // Everything about you (your account, logging out) is in the menu behind your photo.
+  const links = visitor ? [TOURS] : [TOURS, LOG_IN]
 
   return (
     <div className="flex items-center gap-2 md:gap-6.5">
       <ul className="hidden items-center gap-6.5 font-semibold md:flex">
-        {inlineLinks.map((link) => (
+        {links.map((link) => (
           <li key={link.href}>
             <Link href={link.href} className="transition-colors hover:text-primary">
               {link.label}
@@ -85,7 +84,7 @@ function NavActions({ visitor }: { visitor: Visitor }) {
       </ThemeToggle>
 
       {visitor ? (
-        <AccountLink visitor={visitor} />
+        <AccountMenu visitor={visitor} />
       ) : (
         <ButtonLink href="/signup" size="sm">
           Sign up
@@ -93,18 +92,19 @@ function NavActions({ visitor }: { visitor: Visitor }) {
       )}
 
       {/* Phones only. popoverTarget opens/closes the panel with no JavaScript,
-              and the browser tells screen readers whether it's expanded. */}
+          and the browser tells screen readers whether it's expanded. */}
       <button
         type="button"
         popoverTarget="mobile-menu"
         aria-label="Menu"
         className="grid size-11 place-items-center rounded-full transition-colors hover:bg-accent md:hidden"
       >
-        {/* Hamburger while closed, ✕ while open: the nav "has" an open popover */}
+        {/* Hamburger while closed, ✕ while open: the nav "has" this open popover (by its id,
+            because the account menu is a popover in the nav too) */}
         <svg
           aria-hidden
           viewBox="0 0 24 24"
-          className="size-6 fill-none stroke-current stroke-[2.6] group-has-[:popover-open]:hidden"
+          className="size-6 fill-none stroke-current stroke-[2.6] group-has-[#mobile-menu:popover-open]:hidden"
           strokeLinecap="round"
         >
           <path d="M4 7h16M4 12h16M4 17h10" />
@@ -112,7 +112,7 @@ function NavActions({ visitor }: { visitor: Visitor }) {
         <svg
           aria-hidden
           viewBox="0 0 24 24"
-          className="hidden size-6 fill-none stroke-current stroke-[2.6] group-has-[:popover-open]:block"
+          className="hidden size-6 fill-none stroke-current stroke-[2.6] group-has-[#mobile-menu:popover-open]:block"
           strokeLinecap="round"
         >
           <path d="M6 6l12 12M18 6L6 18" />
@@ -120,14 +120,14 @@ function NavActions({ visitor }: { visitor: Visitor }) {
       </button>
 
       {/* Drops in under the pill. starting: is where the open animation starts from.
-              No display class on the panel itself: it would override the browser's
-              "hidden while closed" rule and keep the panel always visible. */}
+          No display class on the panel itself: it would override the browser's
+          "hidden while closed" rule and keep the panel always visible. */}
       <MenuPanel
         id="mobile-menu"
         className="inset-x-3 top-20 bottom-auto w-auto origin-top-right rounded-2xl border-2 border-nav-border bg-background p-2 text-foreground shadow-lg transition duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-reduce:transition-none md:hidden starting:-translate-y-2 starting:scale-95 starting:opacity-0"
       >
         <ul>
-          {menuLinks.map((link) => (
+          {links.map((link) => (
             <li key={link.href}>
               <Link
                 href={link.href}
@@ -157,7 +157,7 @@ function NavActions({ visitor }: { visitor: Visitor }) {
         </ThemeToggle>
 
         {/* w-fit: a tilted full-width box pokes out of the panel (and adds a scrollbar)
-                on wider screens. Only as wide as the text, the tilt stays tiny. */}
+            on wider screens. Only as wide as the text, the tilt stays tiny. */}
         <p className="w-fit -rotate-2 px-4 pt-1 pb-2 font-hand text-2xl text-primary">
           where to next?
         </p>
@@ -166,37 +166,71 @@ function NavActions({ visitor }: { visitor: Visitor }) {
   )
 }
 
-// Your photo, linking to your account (phase 3 step 3 builds that page). A sticker, like "Sign
-// up" (Kareem's pick from five, 2026-11-13): a navy border in both themes and a hard shadow
-// (sun yellow at night), but half as deep (shadow-pop-sm, 2px: 4px looked too deep on a small
-// circle), and a click presses it onto its shadow, 2px. 44px on phones (a big enough tap
-// target), 48px from tablets up. No photo yet (new accounts have none): the first letter of
-// your name on sun yellow. Screen readers hear "Kareem, your account".
-function AccountLink({ visitor }: { visitor: NonNullable<Visitor> }) {
+// Your photo, opening your account menu: your name, your account (phase 3 step 3 builds that
+// page) and "Log out". The photo is a sticker, like "Sign up" (Kareem's pick from five,
+// 2026-11-13): a navy border in both themes and a hard shadow (sun yellow at night), half as
+// deep (shadow-pop-sm, 2px: 4px looked too deep on a small circle), and a click presses it onto
+// its shadow. 44px on phones (a big enough tap target), 48px from tablets up. No photo yet (new
+// accounts have none): the first letter of your name on sun yellow.
+function AccountMenu({ visitor }: { visitor: NonNullable<Visitor> }) {
   const first = visitor.name.split(" ")[0]
 
   return (
-    <Link
-      href={ACCOUNT.href}
-      className="relative grid size-11 place-items-center overflow-hidden rounded-full border-3 border-navy-950 bg-cta text-lg font-extrabold text-cta-foreground shadow-pop-sm transition hover:bg-cta-hover active:translate-x-0.5 active:translate-y-0.5 active:shadow-none motion-reduce:transition-none md:size-12"
-    >
-      {/* fill: the photo covers the circle inside the border; sizes: it's never wider than 48px */}
-      {visitor.photo ? (
-        <Image
-          src={visitor.photo}
-          alt=""
-          fill
-          sizes="48px"
-          loading="eager"
-          className="object-cover"
-        />
-      ) : (
-        <span aria-hidden className="uppercase">
-          {first[0]}
-        </span>
-      )}
-      <span className="sr-only">{first}, your account</span>
-    </Link>
+    <>
+      {/* popoverTarget, like the phone menu: the browser opens and closes the menu, and tells
+          screen readers whether it's open ("Kareem, your account, button, collapsed") */}
+      <button
+        type="button"
+        popoverTarget="account-menu"
+        className="relative grid size-11 place-items-center overflow-hidden rounded-full border-3 border-navy-950 bg-cta text-lg font-extrabold text-cta-foreground shadow-pop-sm transition hover:bg-cta-hover active:translate-x-0.5 active:translate-y-0.5 active:shadow-none motion-reduce:transition-none md:size-12"
+      >
+        {/* fill: the photo covers the circle inside the border; sizes: never wider than 48px */}
+        {visitor.photo ? (
+          <Image
+            src={visitor.photo}
+            alt=""
+            fill
+            sizes="48px"
+            loading="eager"
+            className="object-cover"
+          />
+        ) : (
+          <span aria-hidden className="uppercase">
+            {first[0]}
+          </span>
+        )}
+        <span className="sr-only">{first}, your account</span>
+      </button>
+
+      {/* Drops in under the pill's right end, below your photo, and animates in like the
+          phone menu. "Log out" is a plain form whose action is the Server Action itself, so it
+          even works before the page's JavaScript has loaded. */}
+      <MenuPanel
+        id="account-menu"
+        className="top-20 right-3 bottom-auto left-auto w-60 origin-top-right rounded-2xl border-2 border-nav-border bg-background p-2 text-foreground shadow-lg transition duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-reduce:transition-none md:top-26 md:right-10 starting:-translate-y-2 starting:scale-95 starting:opacity-0"
+      >
+        <p className="px-4 pt-2 pb-3">
+          <span className="block text-sm text-muted-foreground">Logged in as</span>
+          <span className="font-bold">{visitor.name}</span>
+        </p>
+        <Link
+          href="/account"
+          className="flex items-center justify-between rounded-xl px-4 py-3 font-semibold transition-colors hover:bg-accent"
+        >
+          Your account
+          <ArrowIcon className="size-5" />
+        </Link>
+        <hr className="mx-4 my-2 border-t-2 border-dashed border-dash" />
+        <form action={logOut}>
+          <button
+            type="submit"
+            className="w-full rounded-xl px-4 py-3 text-left font-semibold transition-colors hover:bg-accent"
+          >
+            Log out
+          </button>
+        </form>
+      </MenuPanel>
+    </>
   )
 }
 
