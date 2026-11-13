@@ -8,19 +8,51 @@ import type { Tour, TourDetails, TourStats } from "@/lib/tours"
 // Client Component into a build error, so API_URL (and, from phase 3, the login token)
 // can never end up in the browser's JavaScript.
 
-// GETs a path from the API and returns the JSON body. Success is the HTTP status
-// (res.ok), not the body's `status` field: some replies have no JSON body to read
-// (the rate limiter's plain-text message, Render's error page while the API is down).
-async function get<T>(path: string): Promise<T> {
+// An error answer from the API: its HTTP status, and its own message when it sent one (e.g.
+// 401 "Invalid email or password"), so a form can show it
+export class ApiError extends Error {
+  status: number
+  constructor(status: number, message: string) {
+    super(message)
+    this.status = status
+  }
+}
+
+// Sends a request to the API and returns the JSON body. Success is the HTTP status (res.ok),
+// not the body's `status` field. Some replies have no JSON body to read (the rate limiter's
+// plain-text message, Render's error page while the API is down), so `body` can be null.
+async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const apiUrl = process.env.API_URL
   if (!apiUrl) throw new Error("API_URL is missing: add it to .env.local")
 
   // Render's free API naps when it's quiet, and waking it takes 30–60 s. After 90 s it's stuck,
   // so give up: the fetch throws, and the tours page shows its "can't load" note instead of
   // waiting forever.
-  const res = await fetch(`${apiUrl}${path}`, { signal: AbortSignal.timeout(90_000) })
-  if (!res.ok) throw new Error(`GET ${path} failed with ${res.status}`)
-  return res.json()
+  const res = await fetch(`${apiUrl}${path}`, { ...init, signal: AbortSignal.timeout(90_000) })
+  const body = await res.json().catch(() => null)
+  if (!res.ok) {
+    const fallback = `${init.method ?? "GET"} ${path} failed with ${res.status}`
+    throw new ApiError(res.status, body?.message ?? fallback)
+  }
+  return body
+}
+
+const get = <T>(path: string) => request<T>(path)
+
+// Sends `data` as JSON, the way the API's forms expect it (Express's express.json() reads it)
+const post = <T>(path: string, data: unknown) =>
+  request<T>(path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  })
+
+// Logs in: POST /users/login checks the email and password and answers with a token (a JWT,
+// the API's proof of who you are, good for 2 hours). A wrong email or password throws an
+// ApiError with status 401. Never cached: every login must really ask.
+export async function getLoginToken(email: string, password: string) {
+  const body = await post<{ token: string }>("/users/login", { email, password })
+  return body.token
 }
 
 // Tours, cheapest first. `query` takes the API's query options as they'd appear in the URL,

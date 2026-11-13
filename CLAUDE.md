@@ -57,7 +57,7 @@ Browser ──▶ Next.js server on Vercel ──(server-to-server)──▶ Exp
 ```
 
 - **The API owns business logic, validation, and data.** Next.js is the presentation layer plus a thin BFF (session cookie, data fetching, caching). Don't duplicate API rules in Next.js beyond client-side form validation.
-- **Auth: BFF pattern (decided).** Signup, login, resetPassword, and updateMyPassword return a JWT in the JSON body. A Server Action stores it in a first-party httpOnly cookie on the Next.js domain; server-only code forwards it as `Authorization: Bearer <token>` (the API's `protect` reads only that header). The token never reaches client JS, no CORS is needed, and the backend needs no auth changes.
+- **Auth: BFF pattern (decided).** Signup, login, resetPassword, and updateMyPassword return a JWT in the JSON body. A Server Action (`src/lib/auth-actions.ts`) stores it in a first-party httpOnly cookie on the Next.js domain (`session`, set by `src/lib/session.ts`); server-only code forwards it as `Authorization: Bearer <token>` (the API's `protect` reads only that header). The token never reaches client JS, no CORS is needed, and the backend needs no auth changes.
   - Rejected: the API's own `jwt` cookie (third-party across `*.vercel.app` → `*.onrender.com`, blocked by Safari, invisible to the Next server, and `protect` never reads it); token in `localStorage` + Bearer from the browser (readable by any injected script, and the Next server can't see it, so no server-rendered logged-in UI).
   - JWTs live 2h (`JWT_EXPIRES_IN=2h`) with no refresh tokens: match the cookie's `maxAge`, and on a 401 clear the cookie and send the user to login.
   - `updateMyPassword` and `resetPassword` return a **new** token and invalidate the old one, so always replace the cookie.
@@ -80,7 +80,7 @@ Install nothing marked _proposed_ until Kareem confirms it. Versions live in `pa
 | Components | Hybrid: hand-build simple components (Button, Input, Card, Badge, Navbar, modals on native `<dialog>`); shadcn/ui only for complex accessible widgets (date picker, select, dropdown menu, toast), restyled to Vantage tokens. Explain what each shadcn component handles before adding it. | decided |
 | Client state | Zustand, for UI/experience state only (see Conventions) | decided |
 | Server data | Server Components + Server Actions; TanStack Query only if a feature needs client-side caching or polling | proposed |
-| Forms | Zod schemas mirroring the Mongoose validators + `useActionState`; React Hook Form only for complex forms | proposed |
+| Forms | Zod schemas mirroring the Mongoose validators + `useActionState` (see Conventions → Forms); React Hook Form only for complex forms | decided; Zod installed (4.6) in phase 3 step 1a |
 | Animation | GSAP (ScrollTrigger, SplitText, MotionPath) + `@gsap/react` for the scroll story and horizontal sections; Motion (`motion/react`) for UI, layout and page transitions | GSAP installed (3.15), Motion proposed |
 | Smooth scroll | Lenis 1.3, driven by GSAP's ticker (`src/components/smooth-scroll.tsx`). Plain `lenis` for now; `lenis/react` adds a `useLenis()` hook if a component ever needs the instance | installed |
 | 3D | three.js via React Three Fiber + drei | installed (three 0.182, R3F 9.8, drei 10.7; see Conventions → 3D) |
@@ -232,6 +232,12 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
 - **Prefetching** (`partialPrefetching: true`, since Next 16.4): when a `<Link>` comes on screen, it downloads one shared "App Shell" per route, not one copy per link (production only: `next dev` doesn't prefetch). The shell can't hold anything that depends on the URL, so a page that reads `params` or `searchParams` (the tour page, the filters) must read them inside a `<Suspense>` boundary, or the dev overlay flags it ("URL data outside of Suspense"). That never blocks the build. `tours/page.tsx` is the example to copy. Measured on today's homepage: 10 prefetches with the option on or off, because `/tours/[slug]` doesn't exist yet; the saving should show up with step 5.
 - **Next.js changes fast.** Before using a Next.js API, read the version-matched docs in `node_modules/next/dist/docs/`, because training data may be outdated (e.g. `middleware.ts` is now `proxy.ts`, `params`/`searchParams` are Promises, and caching is explicit via `"use cache"`).
 - Zustand is for client UI/experience state only: menus, modals, the booking wizard, the wishlist (`persist`), the sound toggle, easter-egg progress and mini-game scores, and state shared between the R3F canvas and the DOM. Server data (tours, the current user) stays in Server Components. A store holding per-user data goes through a context provider, never a module-level singleton, because that would be shared across requests on the server.
+- **Forms** (the login form is the example to copy: `src/components/auth/login-form.tsx` + `logIn` in `src/lib/auth-actions.ts`):
+  - A Client Component form calls a Server Action through `useActionState` (`[state, formAction, pending]`). The action checks the fields with a Zod schema (`safeParse`, then `z.flattenError(...).fieldErrors`), calls the API through `api.ts`, and returns what the form shows; on success it `redirect()`s, outside any `try`.
+  - `noValidate` on the form: every problem shows the same way, Zod's message under its field (`aria-invalid` + `aria-describedby`), with focus moved to the first field to fix. The API's own answer ("Invalid email or password") goes in a `role="alert"` box keyed by a try counter, so the same message is read out again.
+  - React empties the form after every try: the action returns what was typed (never a password) and the field takes it back as `defaultValue`.
+  - Field ids come from `useId()`: Next keeps visited pages in the document (`<Activity>`), so a plain `id="email"` could clash with another page's.
+  - **Gotchas:** Zod 4's `z.email()` rejects spaces around the address (an `<input type="email">` trims them before sending). A form with a Server Action gets hidden `$ACTION_…` inputs from React, before the real fields, so test scripts must pick fields by `name`.
 - **Popovers and menus** use the native `popover` attribute (`popoverTarget` on the button), so open/close, Esc, tap-outside, and the screen-reader "expanded" state come free.
   - Never put a display class (`flex`, `grid`, `block`) on the `[popover]` element itself: it overrides the browser's hidden-while-closed rule. Style an inner wrapper instead.
   - The layout (navbar) stays mounted across Next.js navigations, so a popover in it must close itself on link clicks (see `src/components/layout/menu-panel.tsx`).
@@ -316,7 +322,7 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
 
 ## Roadmap
 
-**Current phase: 2, Public pages** (its steps are after the homepage list below). Phase 0 is done: scaffold, Prettier, fonts, design tokens (+ `/design` style guide), app shell (navbar, footer, skip link, title template), and the homepage, rebuilt from `design/HANDOFF.md`:
+**Current phase: 3, Auth and account** (Kareem's call on 2026-11-10: phase 2 is done except two postponed steps, 4e-3 and the tour page's switch after backend item 4c, both still to do before deploying). Phase 2's steps are after the homepage list below. Phase 0 is done: scaffold, Prettier, fonts, design tokens (+ `/design` style guide), app shell (navbar, footer, skip link, title template), and the homepage, rebuilt from `design/HANDOFF.md`:
 1. scene tokens ✓
 2. theme switching ✓
 3. navbar ✓ (frosted pill, mobile version, CSS scroll-driven shrink; below 360px the theme icon hides to make room)
@@ -658,6 +664,22 @@ Measured WCAG contrast: white on navy 6.8 ✓, navy on sand 5.8 ✓, navy on sun
      - **Checked:** the dev server at 1440 and 390 (each photo loads; the other polaroids wait for their turn on phones, as before); lint and types. Console clean. No production build.
    - 6d. "By the numbers" from the API ✓ (done before 6b and 6c, because backend item 4b had landed; waiting for Kareem's review): `getTourStats()` (`api.ts`, `"use cache"`, tagged `tours` and `reviews`, since both change the totals) asks `GET /tours/stats` and returns `data.stats[0]`. The page asks for it next to the tours (`Promise.all`, so neither waits for the other) and passes it as a prop. Live numbers: 9 tours, 4.6 (`avgRating` 4.608…, `toFixed(1)`) and 60 reviews. The line under the tour count is "from many starting points" (Kareem's pick on 2026-11-10; it echoes "Where we go"'s title, and needs no data), replacing the featured tours' places, which only fit 3 tours. `TOUR_STATS` is gone. Checked at 1440, 390 and 320 on the dev server; no production build this time (the same pattern as 6a's).
    - 6e. clean up ✓ (done in 6c, because nothing used them after it): `FEATURED_TOURS`, `FEATURED_REVIEWS` with its `Review` type, and the drawings in `tour-scenes.tsx` are gone. That finishes step 6.
+
+**Phase 3 steps** (agreed with Kareem on 2026-11-10; plain pages first, then the design, like the tour page):
+1. log in and out, in three parts:
+   - 1a. the login form → the session cookie ✓ (waiting for Kareem's review):
+     - **Files:** `src/app/login/page.tsx` (static, title "Log in | Vantage"), `src/components/auth/login-form.tsx`, `src/lib/auth-actions.ts` (`logIn`, the Zod schema), `src/lib/session.ts` (`setSession`: `httpOnly`, `secure` in production, `sameSite: "lax"`, `path: "/"`, 2 hours like the API's tokens), and `api.ts`: `get()` became a shared `request()` (`get` and `post` call it), errors are an `ApiError` with the HTTP status and the API's own message, and `getLoginToken()` (`POST /users/login`, never cached).
+     - **What the visitor sees:** an empty or malformed field gets Zod's message, with no API call; a wrong email or password, the API's "Invalid email or password"; too many tries (429), "Too many tries for now…"; anything else (the API down or asleep), "We couldn't log you in just now…", with the details in the server log. The email stays, the password empties, and focus goes to the field to fix. On success: the cookie is set and the visitor goes to the homepage, which doesn't show it yet (1b).
+     - **Checked** (Kareem's dev server): the three error cases, at 1440 and 390; the page can't see the cookie (`document.cookie` empty); console clean. Not checked yet: a successful login (waiting for Kareem's test account), the form without JavaScript.
+   - 1b. the navbar shows who's logged in (`getMe()` with the token, behind a `<Suspense>`: see Next's `authentication-with-cache-components.md` guide).
+   - 1c. log out.
+2. sign up: `/signup`, with Zod.
+3. protected pages: `proxy.ts` and an `/account` page.
+4. the design of these pages. One idea to pitch: your account is a passport (signing up gets you one, logging in shows it at the gate), separate from the boarding pass, which phase 5 uses for bookings.
+5. account settings: name, email, password, delete account.
+6. forgot and reset password (needs backend item 6).
+7. avatar upload (needs backend item 7; designed together).
+8. a one-click demo account (needs a demo user in the seed).
 
 Update these lists as steps complete.
 
