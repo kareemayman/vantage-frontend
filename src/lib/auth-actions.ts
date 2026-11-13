@@ -2,8 +2,8 @@
 
 import { redirect } from "next/navigation"
 import * as z from "zod"
-import { ApiError, getLoginToken } from "@/lib/api"
-import { setSession } from "@/lib/session"
+import { ApiError, postLogin } from "@/lib/api"
+import { setSession, type Session } from "@/lib/session"
 
 // Every Server Action that logs you in or out lives in this file. "use server" makes each
 // exported function callable from the browser: a form gets a reference to it, and Next turns
@@ -42,17 +42,20 @@ export async function logIn(previous: LoginState, formData: FormData): Promise<L
   const fields = LoginFields.safeParse({ email, password: formData.get("password") })
   if (!fields.success) return { errors: z.flattenError(fields.error).fieldErrors, email, tries }
 
-  // 2. Ask the API for a token. fields.data is typed: TypeScript knows both are strings now.
-  let token: string
+  // 2. Ask the API to log you in. fields.data is typed: TypeScript knows both are strings now.
+  // It answers with a token and who you are; the session keeps the token, plus the name and
+  // photo the navbar shows, so no page ever has to ask the API who you are.
+  let session: Session
   try {
-    token = await getLoginToken(fields.data.email, fields.data.password)
+    const { token, user } = await postLogin(fields.data.email, fields.data.password)
+    session = { token, user: { name: user.name, photo: user.photo } }
   } catch (error) {
     return { message: problem(error), email, tries }
   }
 
-  // 3. Keep the token in the session cookie, then go to the homepage. redirect() works by
-  // throwing, so it stays outside the try above, whose catch would swallow it.
-  await setSession(token)
+  // 3. Keep it in the session cookie, then go to the homepage. redirect() works by throwing,
+  // so it stays outside the try above, whose catch would swallow it.
+  await setSession(session)
   redirect("/")
 }
 

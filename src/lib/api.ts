@@ -3,6 +3,7 @@ import { cacheLife, cacheTag } from "next/cache"
 import { BEST_RATED, DEFAULT_SORT, type ApiQuery } from "@/lib/tour-filters"
 import type { TourReview } from "@/lib/reviews"
 import type { Tour, TourDetails, TourStats } from "@/lib/tours"
+import type { User } from "@/lib/users"
 
 // Every call to the Vantage API lives in this file. "server-only" turns any import from a
 // Client Component into a build error, so API_URL (and, from phase 3, the login token)
@@ -48,11 +49,11 @@ const post = <T>(path: string, data: unknown) =>
   })
 
 // Logs in: POST /users/login checks the email and password and answers with a token (a JWT,
-// the API's proof of who you are, good for 2 hours). A wrong email or password throws an
-// ApiError with status 401. Never cached: every login must really ask.
-export async function getLoginToken(email: string, password: string) {
-  const body = await post<{ token: string }>("/users/login", { email, password })
-  return body.token
+// the API's proof of who you are, good for 2 hours) and who you are (`data`). A wrong email or
+// password throws an ApiError with status 401. Never cached: every login must really ask.
+export async function postLogin(email: string, password: string) {
+  const body = await post<{ token: string; data: User }>("/users/login", { email, password })
+  return { token: body.token, user: body.data }
 }
 
 // Tours, cheapest first. `query` takes the API's query options as they'd appear in the URL,

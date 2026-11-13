@@ -296,6 +296,7 @@
   --elevation-xl: 0 24px 48px -12px rgb(29 93 155 / 0.25);
   /* Cartoon "sticker" shadow: hard offset, no blur */
   --elevation-pop: 4px 4px 0 0 var(--color-navy-950);
+  --elevation-pop-sm: 2px 2px 0 0 var(--color-navy-950); /* smaller, for small stickers */
   --elevation-drop-pop: 4px 4px 0 var(--color-navy-950); /* the same, following any shape */
 }
 
@@ -389,6 +390,7 @@
   --elevation-lg: 0 12px 28px -6px rgb(0 6 16 / 0.7), 0 4px 8px -4px rgb(0 6 16 / 0.5);
   --elevation-xl: 0 24px 48px -12px rgb(0 6 16 / 0.8);
   --elevation-pop: 4px 4px 0 0 var(--color-sun-300);
+  --elevation-pop-sm: 2px 2px 0 0 var(--color-sun-300);
   --elevation-drop-pop: 4px 4px 0 var(--color-sun-300);
 }
 
@@ -472,6 +474,7 @@
   --shadow-lg: var(--elevation-lg);
   --shadow-xl: var(--elevation-xl);
   --shadow-pop: var(--elevation-pop);
+  --shadow-pop-sm: var(--elevation-pop-sm); /* the account button in the navbar */
   /* drop-shadow-pop: the sticker shadow as a filter, which follows a shape made of several
      pieces (the tour cards' clouds); box-shadow only follows one box */
   --drop-shadow-pop: var(--elevation-drop-pop);

@@ -15,7 +15,15 @@ export const metadata: Metadata = { title: "Design tokens" } // -> "Design token
 const SCALES = ["navy", "sky", "sun", "sand", "neutral", "lagoon", "coral"]
 const STEPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950]
 const BRAND: Record<string, number> = { navy: 600, sky: 300, sun: 300, sand: 200 }
-const SHADOWS = ["shadow-xs", "shadow-sm", "shadow-md", "shadow-lg", "shadow-xl", "shadow-pop"]
+const SHADOWS = [
+  "shadow-xs",
+  "shadow-sm",
+  "shadow-md",
+  "shadow-lg",
+  "shadow-xl",
+  "shadow-pop",
+  "shadow-pop-sm",
+]
 
 export default function DesignPage() {
   return (
