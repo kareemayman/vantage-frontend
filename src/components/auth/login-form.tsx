@@ -1,7 +1,8 @@
 "use client"
 
-import { useActionState, useEffect, useId, useRef, type ComponentProps } from "react"
+import { useActionState, useEffect, useRef } from "react"
 import { Button } from "@/components/button"
+import { Field } from "@/components/field"
 import { logIn } from "@/lib/auth-actions"
 
 // The login form. useActionState is like useState whose updates come from a Server Action:
@@ -55,38 +56,5 @@ export function LoginForm() {
         {pending ? "Logging in…" : "Log in"}
       </Button>
     </form>
-  )
-}
-
-// A labeled input with its error message under it. useId gives each field a unique id: Next
-// keeps recently visited pages in the document (hidden), so a plain id="email" could clash with
-// another page's. aria-invalid and aria-describedby let screen readers say the field has a
-// problem, and read the message with it.
-function Field({
-  label,
-  error,
-  ...input
-}: ComponentProps<"input"> & { label: string; error?: string }) {
-  const id = useId()
-
-  return (
-    <div>
-      <label htmlFor={id} className="font-bold">
-        {label}
-      </label>
-      <input
-        id={id}
-        required
-        aria-invalid={error ? true : undefined}
-        aria-describedby={error ? `${id}-error` : undefined}
-        className="mt-2 block h-12 w-full rounded-xl border-2 border-input bg-card px-4 aria-invalid:border-destructive"
-        {...input}
-      />
-      {error && (
-        <p id={`${id}-error`} className="mt-2 text-sm font-medium text-destructive">
-          {error}
-        </p>
-      )}
-    </div>
   )
 }

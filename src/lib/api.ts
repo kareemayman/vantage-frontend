@@ -56,6 +56,19 @@ export async function postLogin(email: string, password: string) {
   return { token: body.token, user: body.data }
 }
 
+// Signs up: POST /users/signup creates the account and answers like login, with a token and the
+// new user (`data`). A taken email is an error whose wording differs between the API's
+// development and production modes (see emailTaken in auth-actions.ts). Never cached.
+export async function postSignup(fields: {
+  name: string
+  email: string
+  password: string
+  passwordConfirm: string
+}) {
+  const body = await post<{ token: string; data: User }>("/users/signup", fields)
+  return { token: body.token, user: body.data }
+}
+
 // Tours, cheapest first. `query` takes the API's query options as they'd appear in the URL,
 // e.g. { difficulty: ["easy", "medium"], "price[lte]": "1000", limit: "3" } (filters, sort,
 // fields, limit, page; {} is the whole list). GET /tours sends { results, data: { docs } }.

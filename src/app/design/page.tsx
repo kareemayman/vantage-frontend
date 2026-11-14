@@ -2,6 +2,7 @@
 // Add new components here as they're built.
 import type { Metadata } from "next"
 import { ButtonLink } from "@/components/button"
+import { Field } from "@/components/field"
 import { Logo } from "@/components/logo"
 import { PauseOffscreen } from "@/components/pause-offscreen"
 import { Feather, GullFlying, GullSitting } from "@/components/scene/gull"
@@ -267,14 +268,11 @@ function Sample({ label }: { label: string }) {
         </ButtonLink>
       </div>
 
-      <label className="block space-y-1.5">
-        <span className="text-sm font-semibold">Email address</span>
-        <input
-          type="email"
-          placeholder="you@example.com"
-          className="block w-full rounded-xl border border-input bg-card px-3 py-2.5 placeholder:text-muted-foreground"
-        />
-      </label>
+      {/* The real component: src/components/field.tsx (the login and signup forms) */}
+      <div className="grid gap-5 sm:grid-cols-2">
+        <Field label="Password" type="password" hint="At least 8 characters" />
+        <Field label="Email" type="email" defaultValue="me@" error="Enter a valid email address" />
+      </div>
 
       <div className="grid grid-cols-2 gap-2 text-sm font-medium">
         <p className="rounded-lg bg-success-soft p-3 text-success">Booking confirmed</p>
