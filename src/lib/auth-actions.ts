@@ -23,11 +23,13 @@ const LoginFields = z.object({
 // - message: one for the whole form, when the API says no or can't be reached
 // - email: what was typed, to put back in its field (React empties the form after each try)
 // - tries: counts the tries, so the form can announce the same message twice in a row
+// - ok: you're logged in. The form stamps the postcard, then goes home (usePostmark).
 export type LoginState = {
   errors?: { email?: string[]; password?: string[] }
   message?: string
   email?: string
   tries?: number
+  ok?: boolean
 }
 
 // The login form's action. useActionState calls it with the state it answered last time,
@@ -54,10 +56,11 @@ export async function logIn(previous: LoginState, formData: FormData): Promise<L
     return { message, email, tries }
   }
 
-  // 3. Keep it in the session cookie, then go to the homepage. redirect() works by throwing,
-  // so it stays outside the try above, whose catch would swallow it.
+  // 3. Keep it in the session cookie (setting a cookie makes Next re-render the page, so the
+  // navbar shows you at once), and tell the form it worked. The form goes home itself, once
+  // the postmark has landed: a redirect() from here would leave before it does.
   await setSession(session)
-  redirect("/")
+  return { ok: true }
 }
 
 // The signup form's fields, mirroring the user model's rules (../backend/models/userModel.js):
@@ -91,6 +94,7 @@ export type SignupState = {
   name?: string
   email?: string
   tries?: number
+  ok?: boolean
 }
 
 // The signup form's action: the same three steps as logIn
@@ -121,9 +125,9 @@ export async function signUp(previous: SignupState, formData: FormData): Promise
     return { message, ...typed }
   }
 
-  // 3. You're logged in: keep the session, then go to the homepage
+  // 3. You're logged in: keep the session, and let the form stamp the postcard and go home
   await setSession(session)
-  redirect("/")
+  return { ok: true }
 }
 
 // A taken email, as the API sends it (Kareem's call: read its error, rather than change the API).

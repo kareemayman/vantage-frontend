@@ -54,6 +54,11 @@
   }
 }
 
+/* The login and signup postcards (src/components/auth/postcard.tsx): `sent:` styles anything
+   inside the card (data-postcard) once its form has gone through (the form marks itself
+   data-sent). Like tearing:, :has() lets the postmark react to a form that isn't its parent. */
+@custom-variant sent (&:where([data-postcard]:has([data-sent]) *));
+
 /* Motion follows BOTH the device setting and the site's "Reduce motion" switch
    (src/lib/motion.ts puts data-motion="reduce" on <html>). These replace Tailwind's
    built-in variants, so every motion-safe: / motion-reduce: class obeys the switch.
@@ -653,6 +658,10 @@
   --animate-develop: develop 2s ease-in-out backwards;
   /* Notes from past travelers (traveler-notes.tsx): a sticky note is pressed onto the page */
   --animate-stick-on: stick-on 0.8s backwards;
+
+  /* Log in and sign up (src/components/auth/postcard.tsx), as the page appears: the photo is
+     dropped onto the table (drop-in), then the postcard slides over it. Delays: AT there. */
+  --animate-slide-over: slide-over 0.8s cubic-bezier(0.22, 1, 0.36, 1) backwards;
 
   @keyframes turn {
     to {
@@ -1409,6 +1418,19 @@
     }
     100% {
       transform: perspective(700cqw) rotateX(0deg);
+    }
+  }
+  /* A postcard slid across the table: it starts a little way off (--slide-from, as "x y", in
+     % of its own size), turned, and slows to a stop like paper on a table. There's no `to`:
+     it ends on the card's own place and tilt. */
+  @keyframes slide-over {
+    from {
+      opacity: 0;
+      translate: var(--slide-from, 0 25%);
+      rotate: 6deg;
+    }
+    30% {
+      opacity: 1;
     }
   }
 }

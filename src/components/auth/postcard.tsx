@@ -24,6 +24,10 @@ const SIZES = {
   wide: { card: "lg:w-180 xl:w-225", room: "lg:max-w-5xl xl:max-w-6xl" },
 }
 
+// The entrance, as the page appears: the photo is dropped onto the table (drop-in), then the
+// postcard slides over it (slide-over), starting CARD_AT seconds in, as the photo comes down
+const CARD_AT = 0.3
+
 // The login and signup pages' look (Kareem's pick of three, 2026-11-14): the form written on the
 // back of a postcard, with a stamp and a postmark, and the card's front, a tour photo, peeking
 // out behind it. A physical object, so it stays light at night (data-theme="light"), like the
@@ -43,10 +47,15 @@ export function Postcard(props: PostcardProps) {
           left one holds the title, the note, the footer, a pencil doodle in the room that's
           left, and at its bottom a printed caption about the photo, like a real postcard's.
           The HTML order (title, note, form, footer, doodle, caption) is the phone layout and
-          the reading order. */}
+          the reading order.
+          It slides in from the side away from the photo (--slide-from): from below on phones,
+          from the right on desktop. data-postcard: the box that sent: (globals.css) and
+          usePostmark look in. */}
       <div
         data-theme="light"
-        className={`relative rotate-1 rounded-md bg-white p-6 text-foreground shadow-xl lg:ml-auto lg:grid lg:min-h-120 lg:rotate-[1.8deg] lg:grid-cols-2 lg:grid-rows-[auto_auto_auto_1fr_auto] lg:gap-x-9 lg:p-10 ${size.card}`}
+        data-postcard
+        style={{ animationDelay: `${CARD_AT}s` }}
+        className={`relative rotate-1 rounded-md bg-white p-6 text-foreground shadow-xl [--slide-from:0_25%] motion-safe:animate-slide-over lg:ml-auto lg:grid lg:min-h-120 lg:rotate-[1.8deg] lg:grid-cols-2 lg:grid-rows-[auto_auto_auto_1fr_auto] lg:gap-x-9 lg:p-10 lg:[--slide-from:22%_4%] ${size.card}`}
       >
         <Stamp />
         <h1
@@ -148,6 +157,9 @@ function Doodle() {
 // handwritten on a cream label stuck to the photo: dark ink on cream reads on any photo (Kareem
 // asked for a caption that's always clear), where ink straight on a bright sky could vanish.
 // Decoration (the form is what matters), so screen readers skip it.
+// The outer box has the place and the tilt, the inner one the white border and the drop
+// (drop-in, 10% bigger at first, like the journal's cover photo), so the drop's turn adds to
+// the tilt.
 function PhotoCard({ tour }: { tour: Tour }) {
   const place = tour.startLocation.description.split(",")[0] // "Banff, CAN" → "Banff"
 
@@ -155,26 +167,28 @@ function PhotoCard({ tour }: { tour: Tour }) {
     <div
       aria-hidden
       data-theme="light"
-      className="absolute top-0 left-2 aspect-7/5 w-[70%] -rotate-8 bg-white p-2.5 shadow-lg lg:left-0 lg:w-135 lg:-rotate-7 lg:p-3"
+      className="absolute top-0 left-2 aspect-7/5 w-[70%] -rotate-8 lg:left-0 lg:w-135 lg:-rotate-7"
     >
-      {/* @container: the label below is sized from this box's width (cqw) */}
-      <div className="@container relative size-full overflow-hidden rounded-xs bg-sand-100">
-        {/* eager: it's the biggest thing on the first screen (the page's LCP) */}
-        <Image
-          src={tour.imageCover}
-          alt=""
-          fill
-          loading="eager"
-          sizes="(min-width: 1024px) 516px, (min-width: 496px) 294px, calc(70vw - 54px)"
-          className="object-cover"
-        />
-        {/* Its size follows the photo's width: 10% of it, at most 20px (24px at lg). On a
-            320px phone the photo is 170px wide, and at a fixed 20px "greetings from banff" took
-            two lines there and covered most of the photo that shows (measured: 17px fits). /[1.4]
-            is the line height text-xl had. */}
-        <span className="absolute top-2.5 left-2.5 -rotate-3 rounded-sm bg-sand-50 px-2.5 pb-0.5 font-hand text-[min(1.25rem,10cqw)]/[1.4] text-navy-950 lowercase shadow-sm lg:top-4 lg:left-4 lg:text-2xl">
-          greetings from {place}
-        </span>
+      <div className="size-full bg-white p-2.5 shadow-lg [--drop-from:1.1] motion-safe:animate-drop-in lg:p-3">
+        {/* @container: the label below is sized from this box's width (cqw) */}
+        <div className="@container relative size-full overflow-hidden rounded-xs bg-sand-100">
+          {/* eager: it's the biggest thing on the first screen (the page's LCP) */}
+          <Image
+            src={tour.imageCover}
+            alt=""
+            fill
+            loading="eager"
+            sizes="(min-width: 1024px) 516px, (min-width: 496px) 294px, calc(70vw - 54px)"
+            className="object-cover"
+          />
+          {/* Its size follows the photo's width: 10% of it, at most 20px (24px at lg). On a
+              320px phone the photo is 170px wide, and at a fixed 20px "greetings from banff"
+              took two lines there and covered most of the photo that shows (measured: 17px
+              fits). /[1.4] is the line height text-xl had. */}
+          <span className="absolute top-2.5 left-2.5 -rotate-3 rounded-sm bg-sand-50 px-2.5 pb-0.5 font-hand text-[min(1.25rem,10cqw)]/[1.4] text-navy-950 lowercase shadow-sm lg:top-4 lg:left-4 lg:text-2xl">
+            greetings from {place}
+          </span>
+        </div>
       </div>
     </div>
   )
@@ -194,18 +208,32 @@ function Stamp() {
           </div>
         </div>
       </div>
-      {/* top-9 below 360px wide: there, "SIGN UP" reaches under the ring, so the ring sits
+      {/* The postmark: the stamp stays clean until the form has gone through, then the
+          postmark thunks down onto it (sent:, see Postmark). The tilt is on this box, so the
+          thunk's turn adds to it. data-postmark: usePostmark brings it into view and waits
+          for it to land.
+          top-9 below 360px wide: there, "SIGN UP" reaches under the ring, so the ring sits
           lower, under the title's line */}
-      <Postmark className="absolute top-9 -left-14 w-32 -rotate-12 min-[360px]:top-5 lg:top-6 lg:-left-16 lg:w-44" />
+      <div
+        data-postmark
+        className="absolute top-9 -left-14 w-32 -rotate-12 min-[360px]:top-5 lg:top-6 lg:-left-16 lg:w-44"
+      >
+        <Postmark />
+      </div>
     </div>
   )
 }
 
 // A postmark: a round "VANTAGE · SUMMER" mark in faded ink, with wavy lines running off to the
-// right, across the stamp
-function Postmark({ className }: { className: string }) {
+// right, across the stamp. Hidden until the form is sent; then a rubber stamp slams it down
+// (stamp-on). With reduced motion it just appears.
+function Postmark() {
   return (
-    <svg viewBox="0 0 200 110" fill="none" className={className}>
+    <svg
+      viewBox="0 0 200 110"
+      fill="none"
+      className="invisible block w-full sent:visible motion-safe:sent:animate-stamp-on"
+    >
       <g className="stroke-navy-900/50">
         <circle cx="55" cy="55" r="48" strokeWidth="3" />
         <circle cx="55" cy="55" r="41" strokeWidth="1.5" />

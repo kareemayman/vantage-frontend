@@ -1,15 +1,18 @@
 "use client"
 
 import { useActionState, useEffect, useRef } from "react"
+import { usePostmark } from "@/components/auth/use-postmark"
 import { Button } from "@/components/button"
 import { Field } from "@/components/field"
 import { signUp } from "@/lib/auth-actions"
 
 // The signup form, built like the login form (login-form.tsx explains useActionState): send it,
-// signUp runs on the server, and whatever it returns becomes `state`; on success it redirects.
+// signUp runs on the server, and whatever it returns becomes `state`. On success, the postcard
+// is stamped, then you go home (usePostmark).
 export function SignupForm() {
   const [state, formAction, pending] = useActionState(signUp, {})
   const form = useRef<HTMLFormElement>(null)
+  const sent = usePostmark(state, form)
 
   // After a failed try, put the cursor where the fix goes: the first field marked invalid, or
   // the password when the server couldn't be reached (React has emptied both passwords)
@@ -19,7 +22,14 @@ export function SignupForm() {
   }, [state])
 
   return (
-    <form ref={form} action={formAction} noValidate className="flex flex-col gap-5">
+    // data-sent: the postmark lands (login-form.tsx explains the `|| undefined`)
+    <form
+      ref={form}
+      action={formAction}
+      noValidate
+      data-sent={sent || undefined}
+      className="flex flex-col gap-5"
+    >
       {/* Problems that aren't about one field. key: a new element each try, so the same
           message is read out again. */}
       {state.message && (
@@ -66,8 +76,8 @@ export function SignupForm() {
         autoComplete="new-password"
         error={state.errors?.passwordConfirm?.[0]}
       />
-      <Button type="submit" disabled={pending} className="mt-2 w-full">
-        {pending ? "Creating your account…" : "Create account"}
+      <Button type="submit" disabled={pending || sent} className="mt-2 w-full">
+        {pending || sent ? "Creating your account…" : "Create account"}
       </Button>
     </form>
   )
