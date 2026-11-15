@@ -19,7 +19,7 @@ export function SignupForm() {
   }, [state])
 
   return (
-    <form ref={form} action={formAction} noValidate className="mt-8 flex flex-col gap-5">
+    <form ref={form} action={formAction} noValidate className="flex flex-col gap-5">
       {/* Problems that aren't about one field. key: a new element each try, so the same
           message is read out again. */}
       {state.message && (
@@ -32,6 +32,7 @@ export function SignupForm() {
         </p>
       )}
       <Field
+        look="line"
         label="Name"
         name="name"
         autoComplete="name"
@@ -39,6 +40,7 @@ export function SignupForm() {
         error={state.errors?.name?.[0]}
       />
       <Field
+        look="line"
         label="Email"
         name="email"
         type="email"
@@ -48,6 +50,7 @@ export function SignupForm() {
       />
       {/* new-password: tells password managers to offer a new, strong password */}
       <Field
+        look="line"
         label="Password"
         name="password"
         type="password"
@@ -56,6 +59,7 @@ export function SignupForm() {
         error={state.errors?.password?.[0]}
       />
       <Field
+        look="line"
         label="Confirm password"
         name="passwordConfirm"
         type="password"

@@ -1435,6 +1435,16 @@
   );
 }
 
+/* A postage stamp's punched edge (src/components/auth/postcard.tsx). A mask shows the element
+   wherever the mask is drawn: here, a row of holes every 12px (a see-through circle in each
+   tile, centered on the edge by the -6px shift), plus a solid block over the content box, so
+   the holes only bite into the padding, around the edge. */
+@utility perforated {
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    radial-gradient(circle 4px, transparent 95%, #000) -6px -6px / 12px 12px;
+}
+
 /* Off-screen sections pause their animations (src/components/pause-offscreen.tsx sets
    data-offscreen), so loops nobody can see don't keep the browser redrawing. Outside
    any @layer on purpose: plain CSS beats Tailwind's layered animate-* classes, whatever

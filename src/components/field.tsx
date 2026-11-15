@@ -1,5 +1,12 @@
 import { useId, type ComponentProps } from "react"
 
+// The input's two looks: a box (the default), or a line to write on, like a postcard's address
+// lines (the login and signup postcards)
+const LOOKS = {
+  box: "h-12 rounded-xl border-2 bg-card px-4",
+  line: "h-11 border-b-2 bg-transparent px-1",
+}
+
 // A labeled input with a short note under it: its problem when there is one (red), or else an
 // optional hint (gray, e.g. "At least 8 characters"). Used by the login and signup forms, and
 // shown on /design.
@@ -10,8 +17,14 @@ export function Field({
   label,
   error,
   hint,
+  look = "box",
   ...input
-}: ComponentProps<"input"> & { label: string; error?: string; hint?: string }) {
+}: ComponentProps<"input"> & {
+  label: string
+  error?: string
+  hint?: string
+  look?: keyof typeof LOOKS
+}) {
   const id = useId()
   const note = error ?? hint
 
@@ -25,7 +38,7 @@ export function Field({
         required
         aria-invalid={error ? true : undefined}
         aria-describedby={note ? `${id}-note` : undefined}
-        className="mt-2 block h-12 w-full rounded-xl border-2 border-input bg-card px-4 aria-invalid:border-destructive"
+        className={`mt-2 block w-full border-input aria-invalid:border-destructive ${LOOKS[look]}`}
         {...input}
       />
       {note && (

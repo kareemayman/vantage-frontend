@@ -23,7 +23,7 @@ export function LoginForm() {
   }, [state])
 
   return (
-    <form action={formAction} noValidate className="mt-8 flex flex-col gap-5">
+    <form action={formAction} noValidate className="flex flex-col gap-5">
       {/* The API's answer, for the whole form. role="alert": screen readers read it out as
           soon as it shows. key: a new element each try, so the same message is read again. */}
       {state.message && (
@@ -36,6 +36,7 @@ export function LoginForm() {
         </p>
       )}
       <Field
+        look="line"
         ref={emailRef}
         label="Email"
         name="email"
@@ -45,6 +46,7 @@ export function LoginForm() {
         error={state.errors?.email?.[0]}
       />
       <Field
+        look="line"
         ref={passwordRef}
         label="Password"
         name="password"
