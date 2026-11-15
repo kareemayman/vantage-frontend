@@ -69,6 +69,17 @@ export async function postSignup(fields: {
   return { token: body.token, user: body.data }
 }
 
+// Who you are: GET /users/me, with your login token as "Authorization: Bearer <token>" (the
+// API's `protect` reads only that header). This is the real check: the API verifies the token,
+// so one that has run out, or was replaced by a password change, is a 401. Never cached: it's
+// one person's data, so every request asks again.
+export async function getMe(token: string) {
+  const body = await request<{ data: { doc: User } }>("/users/me", {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  return body.data.doc
+}
+
 // Tours, cheapest first. `query` takes the API's query options as they'd appear in the URL,
 // e.g. { difficulty: ["easy", "medium"], "price[lte]": "1000", limit: "3" } (filters, sort,
 // fields, limit, page; {} is the whole list). GET /tours sends { results, data: { docs } }.

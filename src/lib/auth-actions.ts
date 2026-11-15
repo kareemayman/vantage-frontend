@@ -149,6 +149,14 @@ export async function logOut() {
   redirect("/")
 }
 
+// The account page's "Log in again", when the API has turned the session's token down (a
+// password changed on another device, or the account deleted). The cookie is no use anymore,
+// and only a Server Action can delete it. Like logOut, but on to the login page.
+export async function logInAgain() {
+  await clearSession()
+  redirect("/login")
+}
+
 // What to tell the visitor when the API says no, or can't be reached. `fallback` is the form's
 // own sentence for anything unexpected.
 function problem(error: unknown, fallback: string) {
