@@ -6,7 +6,8 @@ import * as z from "zod"
 // photo), kept together in one cookie on our own site. The browser sends it back with every
 // request to our Next server, which forwards the token to the API as "Authorization: Bearer
 // <token>". The token never reaches the page's JavaScript.
-const COOKIE = "session"
+// Exported for proxy.ts, which checks that it's there.
+export const COOKIE = "session"
 
 // The API's tokens last 2 hours (JWT_EXPIRES_IN in the backend's config.env), so the cookie
 // does too. There's no refresh token: after 2 hours, you log in again.

@@ -23,7 +23,8 @@ const LoginFields = z.object({
 // - message: one for the whole form, when the API says no or can't be reached
 // - email: what was typed, to put back in its field (React empties the form after each try)
 // - tries: counts the tries, so the form can announce the same message twice in a row
-// - ok: you're logged in. The form stamps the postcard, then goes home (usePostmark).
+// - ok: you're logged in. The form stamps the postcard, then goes on (usePostmark): home, or
+//   back where you were going.
 export type LoginState = {
   errors?: { email?: string[]; password?: string[] }
   message?: string
@@ -57,7 +58,7 @@ export async function logIn(previous: LoginState, formData: FormData): Promise<L
   }
 
   // 3. Keep it in the session cookie (setting a cookie makes Next re-render the page, so the
-  // navbar shows you at once), and tell the form it worked. The form goes home itself, once
+  // navbar shows you at once), and tell the form it worked. The form moves on itself, once
   // the postmark has landed: a redirect() from here would leave before it does.
   await setSession(session)
   return { ok: true }
@@ -151,10 +152,11 @@ export async function logOut() {
 
 // The account page's "Log in again", when the API has turned the session's token down (a
 // password changed on another device, or the account deleted). The cookie is no use anymore,
-// and only a Server Action can delete it. Like logOut, but on to the login page.
+// and only a Server Action can delete it. Like logOut, but on to the login page, which brings
+// you back to your account afterward (next, see usePostmark).
 export async function logInAgain() {
   await clearSession()
-  redirect("/login")
+  redirect("/login?next=/account")
 }
 
 // What to tell the visitor when the API says no, or can't be reached. `fallback` is the form's

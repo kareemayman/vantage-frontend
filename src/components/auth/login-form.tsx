@@ -9,7 +9,8 @@ import { logIn } from "@/lib/auth-actions"
 // The login form. useActionState is like useState whose updates come from a Server Action:
 // sending the form runs logIn on the server, and whatever logIn returns becomes `state`.
 // `pending` is true while it runs. On success, logIn answers { ok: true }, and usePostmark
-// stamps the postcard, then goes home; `sent` is true meanwhile.
+// stamps the postcard, then goes on (home, or back where you were going); `sent` is true
+// meanwhile.
 // noValidate: the browser skips its own checks (its bubbles), so every problem shows the same
 // way: Zod's message, under its field.
 export function LoginForm() {

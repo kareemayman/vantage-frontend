@@ -11,8 +11,8 @@ const BEAT = 300
 // 1. this returns true (sent), so the form marks itself data-sent, and the card's postmark
 //    thunks onto the stamp (the sent: variant in globals.css; with reduced motion it just
 //    appears);
-// 2. it loads the homepage while it waits for the postmark to land, plus a beat to see it;
-// 3. it goes home.
+// 2. it loads the next page while it waits for the postmark to land, plus a beat to see it;
+// 3. it goes there: where the proxy was sending you (?next=), or home.
 export function usePostmark(state: { ok?: boolean }, form: RefObject<HTMLFormElement | null>) {
   const router = useRouter()
 
@@ -27,9 +27,10 @@ export function usePostmark(state: { ok?: boolean }, form: RefObject<HTMLFormEle
     let left = false // the page was hidden (or closed) before it was time to go
     const postmark = form.current?.closest("[data-postcard]")?.querySelector("[data-postmark]")
 
-    // Start loading the homepage now, while the postmark lands, so the page changes right on
+    // Start loading the next page now, while the postmark lands, so the page changes right on
     // the beat instead of a network wait later (production only: next dev doesn't prefetch)
-    router.prefetch("/")
+    const to = destination()
+    router.prefetch(to)
 
     // On a phone, the stamp may have scrolled out of view while you filled in the form: bring
     // it back. scrollIntoView keeps the room under the navbar (scroll-pt on <html>).
@@ -45,10 +46,10 @@ export function usePostmark(state: { ok?: boolean }, form: RefObject<HTMLFormEle
       .then(() => new Promise((resolve) => setTimeout(resolve, BEAT)))
       .then(() => {
         if (left) return
-        // One transition: React holds setDone back until the homepage is showing, so the card
+        // One transition: React holds setDone back until the next page is showing, so the card
         // stays stamped to the end
         startTransition(() => {
-          router.push("/")
+          router.push(to)
           setDone(state)
         })
       })
@@ -59,4 +60,20 @@ export function usePostmark(state: { ok?: boolean }, form: RefObject<HTMLFormEle
   }, [sent, state, form, router])
 
   return sent
+}
+
+// Where to go after logging in: `next` from the address bar (proxy.ts sends you to
+// /login?next=%2Faccount), but only a page on this site. Anyone can write a link with any
+// `next`, and following /login?next=https://fake-vantage.com would land you, just logged in, on
+// a lookalike site (an "open redirect"). new URL() reads `next` the way the browser would, so
+// tricks like //fake.com or javascript: show their real origin, and anything not ours goes home.
+function destination() {
+  const next = new URLSearchParams(location.search).get("next")
+  if (!next) return "/"
+  try {
+    const url = new URL(next, location.origin) // a path like /account counts as ours
+    return url.origin === location.origin ? url.pathname + url.search + url.hash : "/"
+  } catch {
+    return "/" // not a URL at all
+  }
 }

@@ -43,9 +43,11 @@ const ROLES = { guide: "Tour guide", "lead-guide": "Lead guide", admin: "Admin" 
 // the token itself.
 async function AccountDetails() {
   const session = await getSession()
-  // Logged out: off to log in. redirect() never returns, so below this, TypeScript knows
-  // `session` isn't null. (Step 3b's proxy.ts will catch this earlier, before the page renders.)
-  if (!session) redirect("/login")
+  // Logged out: off to log in, and back here afterward. proxy.ts already sends anyone without
+  // the cookie there before the page renders; this catches a cookie that's there but broken (an
+  // older format, or edited by hand). redirect() never returns, so below this, TypeScript knows
+  // `session` isn't null.
+  if (!session) redirect("/login?next=/account")
 
   let user: User
   try {
