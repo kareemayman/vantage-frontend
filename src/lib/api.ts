@@ -97,6 +97,18 @@ export async function patchMe(token: string, fields: { name: string; email: stri
   return body.data.user
 }
 
+// Changes your password: PATCH /users/updateMyPassword, with the current one and the new one
+// twice. It answers with a new token (`token`), and the old token stops working: `protect` turns
+// down any token made before the password changed. A wrong current password is a 401 too, like
+// a dead token, with its own message (wrongPassword in auth-actions.ts tells them apart).
+export async function patchMyPassword(
+  token: string,
+  fields: { currentPassword: string; password: string; passwordConfirm: string },
+) {
+  const body = await patch<{ token: string }>("/users/updateMyPassword", fields, token)
+  return body.token
+}
+
 // Tours, cheapest first. `query` takes the API's query options as they'd appear in the URL,
 // e.g. { difficulty: ["easy", "medium"], "price[lte]": "1000", limit: "3" } (filters, sort,
 // fields, limit, page; {} is the whole list). GET /tours sends { results, data: { docs } }.

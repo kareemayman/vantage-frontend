@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation"
 import * as z from "zod"
-import { ApiError, patchMe, postLogin, postSignup } from "@/lib/api"
+import { ApiError, patchMe, patchMyPassword, postLogin, postSignup } from "@/lib/api"
 import { clearSession, getSession, setSession, type Session } from "@/lib/session"
 import type { User } from "@/lib/users"
 
@@ -20,6 +20,8 @@ const NAME = z
   .min(4, "Name must be at least 4 characters")
   .max(40, "Name must be 40 characters or fewer")
 const EMAIL = z.email("Enter a valid email address")
+// A password: at least 8 characters, like the user model's (login, signup, and a new password)
+const PASSWORD = z.string().min(8, "Password must be at least 8 characters long")
 
 // Zod: describe what a valid form looks like once, then check any data against it.
 // z.object({ ... }) is the whole form, each key a field with its rules, and each rule carries
@@ -27,7 +29,7 @@ const EMAIL = z.email("Enter a valid email address")
 // you are); this catches simple slips early, with a message under the right field.
 const LoginFields = z.object({
   email: EMAIL,
-  password: z.string().min(8, "Password must be at least 8 characters long"),
+  password: PASSWORD,
 })
 
 // What the form shows after a try:
@@ -77,7 +79,7 @@ export async function logIn(previous: LoginState, formData: FormData): Promise<L
 }
 
 // The signup form's fields, mirroring the user model's rules (../backend/models/userModel.js):
-// a name and an email (NAME and EMAIL, above), a password of at least 8, and the same password
+// a name, an email and a password (NAME, EMAIL and PASSWORD, above), and the same password
 // twice.
 // .refine() is a rule about the whole form, not one field: it gets every field at once, and
 // `path` says which field's message it is. Zod runs it even when other fields have problems, so
@@ -86,7 +88,7 @@ const SignupFields = z
   .object({
     name: NAME,
     email: EMAIL,
-    password: z.string().min(8, "Password must be at least 8 characters long"),
+    password: PASSWORD,
     passwordConfirm: z.string(),
   })
   .refine((fields) => fields.password === fields.passwordConfirm, {
@@ -211,6 +213,77 @@ export async function updateDetails(
   // page, so the form fills in with what the API saved (an email in lowercase, a trimmed name).
   await setSession({ token: session.token, user: { name: user.name, photo: user.photo } })
   return { saved: true, tries: typed.tries }
+}
+
+// Changing your password: the one you have now (only required: the API checks it), and a new one
+// twice, with signup's rules
+const PasswordFields = z
+  .object({
+    currentPassword: z.string().min(1, "Enter your current password"),
+    password: PASSWORD,
+    passwordConfirm: z.string(),
+  })
+  .refine((fields) => fields.password === fields.passwordConfirm, {
+    error: "The passwords don't match",
+    path: ["passwordConfirm"],
+  })
+
+// What the password form shows after a try. Nothing typed comes back: React empties the form
+// after each try, and passwords are never sent back to the page.
+export type PasswordState = {
+  errors?: { currentPassword?: string[]; password?: string[]; passwordConfirm?: string[] }
+  message?: string
+  tries?: number
+  saved?: boolean
+}
+
+// The account page's "Password" form (PATCH /users/updateMyPassword)
+export async function changePassword(
+  previous: PasswordState,
+  formData: FormData,
+): Promise<PasswordState> {
+  const session = await getSession()
+  if (!session) redirect("/login?next=/account")
+  const tries = (previous.tries ?? 0) + 1
+
+  // 1. Check the fields
+  const fields = PasswordFields.safeParse({
+    currentPassword: formData.get("currentPassword"),
+    password: formData.get("password"),
+    passwordConfirm: formData.get("passwordConfirm"),
+  })
+  if (!fields.success) return { errors: z.flattenError(fields.error).fieldErrors, tries }
+
+  // 2. Ask the API to change it, with your token. It answers with a new token.
+  let token: string
+  try {
+    token = await patchMyPassword(session.token, fields.data)
+  } catch (error) {
+    if (wrongPassword(error)) {
+      return { errors: { currentPassword: ["That's not your current password"] }, tries }
+    }
+    // Any other 401: the session itself is over, like in updateDetails
+    if (error instanceof ApiError && error.status === 401) {
+      await clearSession()
+      redirect("/login?next=/account")
+    }
+    const message = problem(error, "We couldn't change your password just now. Please try again.")
+    return { message, tries }
+  }
+
+  // 3. Changed. The old token stops working now, so the session switches to the new one (with a
+  // fresh 2 hours); your name and photo stay as they were. Without this you'd be logged out.
+  await setSession({ token, user: session.user })
+  return { saved: true, tries }
+}
+
+// A wrong current password. The API answers it with a 401, like a dead token, so only its
+// message tells them apart ("Your current password is incorrect"), like emailTaken. It breaks if
+// the API's wording changes.
+function wrongPassword(error: unknown) {
+  return (
+    error instanceof ApiError && error.status === 401 && /current password/i.test(error.message)
+  )
 }
 
 // The account page's "Log in again", when the API has turned the session's token down (a

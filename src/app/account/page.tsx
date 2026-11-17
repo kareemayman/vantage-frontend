@@ -3,6 +3,7 @@ import Image from "next/image"
 import { redirect } from "next/navigation"
 import { Suspense } from "react"
 import { DetailsForm } from "@/components/account/details-form"
+import { PasswordForm } from "@/components/account/password-form"
 import { Button } from "@/components/button"
 import { PauseOffscreen } from "@/components/pause-offscreen"
 import { ApiError, getMe } from "@/lib/api"
@@ -83,6 +84,12 @@ async function AccountDetails() {
       </h2>
       <div className="mt-4">
         <DetailsForm name={user.name} email={user.email} />
+      </div>
+
+      {/* Changing your password (the email is for password managers: see PasswordForm) */}
+      <h2 className="mt-12 font-display text-3xl font-bold tracking-tight uppercase">Password</h2>
+      <div className="mt-4">
+        <PasswordForm email={user.email} />
       </div>
 
       {/* A plain form, like the account menu's: it works even before the page's JavaScript */}
