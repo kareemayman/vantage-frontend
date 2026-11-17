@@ -9,9 +9,25 @@ import * as z from "zod"
 // Exported for proxy.ts, which checks that it's there.
 export const COOKIE = "session"
 
-// The API's tokens last 2 hours (JWT_EXPIRES_IN in the backend's config.env), so the cookie
-// does too. There's no refresh token: after 2 hours, you log in again.
+// The API's tokens last 2 hours (JWT_EXPIRES_IN in the backend's config.env), and the cookie
+// ends with its token. There's no refresh token: after 2 hours, you log in again.
 const TWO_HOURS = 2 * 60 * 60 // in seconds
+
+// How long a token has left, in seconds. A JWT is three parts joined by dots, and the middle one
+// is plain JSON (in base64url, a URL-safe base64) saying who it's for and when it runs out
+// (`exp`, in seconds since 1970): { "userId": "…", "iat": 1794700000, "exp": 1794707200 }.
+// Reading it needs no secret; only checking the signature (the API's job) does. A fresh token
+// has its whole 2 hours, but one saved again after you edit your name has less. Anything that
+// can't be read (a test's made-up token) gets 2 hours.
+function secondsLeft(token: string) {
+  try {
+    const { exp } = JSON.parse(Buffer.from(token.split(".")[1], "base64url").toString())
+    if (typeof exp === "number") return Math.max(0, exp - Math.floor(Date.now() / 1000))
+  } catch {
+    // not a JWT we can read: fall back to the full 2 hours
+  }
+  return TWO_HOURS
+}
 
 // What the cookie holds, as a Zod schema. It's checked every time it's read, because a cookie
 // comes from the browser and can hold anything: an older format, or a value edited by hand.
@@ -33,7 +49,7 @@ export async function setSession(session: Session) {
     secure: process.env.NODE_ENV === "production", // HTTPS only, once deployed (localhost is http)
     sameSite: "lax", // not sent along when another site posts a form to ours
     path: "/", // sent with every page of the site
-    maxAge: TWO_HOURS, // then the browser deletes it
+    maxAge: secondsLeft(session.token), // the browser deletes it when its token runs out
   })
 }
 

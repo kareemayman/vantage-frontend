@@ -48,6 +48,15 @@ const post = <T>(path: string, data: unknown) =>
     body: JSON.stringify(data),
   })
 
+// The same for a change to your own account, a protected route: your token goes along as
+// "Authorization: Bearer <token>", like getMe's
+const patch = <T>(path: string, data: unknown, token: string) =>
+  request<T>(path, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify(data),
+  })
+
 // Logs in: POST /users/login checks the email and password and answers with a token (a JWT,
 // the API's proof of who you are, good for 2 hours) and who you are (`data`). A wrong email or
 // password throws an ApiError with status 401. Never cached: every login must really ask.
@@ -78,6 +87,14 @@ export async function getMe(token: string) {
     headers: { Authorization: `Bearer ${token}` },
   })
   return body.data.doc
+}
+
+// Saves your name and email: PATCH /users/updateMe, which takes only those two (the password
+// has its own route) and answers with you, updated (`data.user`). A taken email is the same
+// error as at signup (emailTaken in auth-actions.ts).
+export async function patchMe(token: string, fields: { name: string; email: string }) {
+  const body = await patch<{ data: { user: User } }>("/users/updateMe", fields, token)
+  return body.data.user
 }
 
 // Tours, cheapest first. `query` takes the API's query options as they'd appear in the URL,

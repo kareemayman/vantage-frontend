@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Image from "next/image"
 import { redirect } from "next/navigation"
 import { Suspense } from "react"
+import { DetailsForm } from "@/components/account/details-form"
 import { Button } from "@/components/button"
 import { PauseOffscreen } from "@/components/pause-offscreen"
 import { ApiError, getMe } from "@/lib/api"
@@ -66,25 +67,26 @@ async function AccountDetails() {
 
   return (
     <>
-      <div className="mt-8 flex flex-col gap-6 sm:flex-row sm:items-center">
+      {/* Who you are: your photo, your name, and your role if you're staff */}
+      <div className="mt-8 flex items-center gap-5">
         <Avatar user={user} />
-        {/* wrap-anywhere: an email has no spaces, so a long one could only wrap at a dash, and
-            ran past the page's edge on a 320px phone (measured); this lets it break anywhere */}
-        <dl className="grid gap-x-6 gap-y-1 wrap-anywhere sm:grid-cols-[auto_1fr]">
-          <dt className="font-semibold">Name</dt>
-          <dd>{user.name}</dd>
-          <dt className="font-semibold">Email</dt>
-          <dd>{user.email}</dd>
-          {user.role !== "user" && (
-            <>
-              <dt className="font-semibold">Role</dt>
-              <dd>{ROLES[user.role]}</dd>
-            </>
-          )}
-        </dl>
+        <div>
+          <p className="text-2xl font-bold">{user.name}</p>
+          {user.role !== "user" && <p className="text-muted-foreground">{ROLES[user.role]}</p>}
+        </div>
       </div>
+
+      {/* Your name and email, which you can change (a Client Component: it keeps the form's
+          state between tries) */}
+      <h2 className="mt-12 font-display text-3xl font-bold tracking-tight uppercase">
+        Your details
+      </h2>
+      <div className="mt-4">
+        <DetailsForm name={user.name} email={user.email} />
+      </div>
+
       {/* A plain form, like the account menu's: it works even before the page's JavaScript */}
-      <form action={logOut} className="mt-8">
+      <form action={logOut} className="mt-12">
         <Button type="submit" variant="outline" size="sm">
           Log out
         </Button>

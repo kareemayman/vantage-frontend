@@ -2,19 +2,31 @@
 
 import { redirect } from "next/navigation"
 import * as z from "zod"
-import { ApiError, postLogin, postSignup } from "@/lib/api"
-import { clearSession, setSession, type Session } from "@/lib/session"
+import { ApiError, patchMe, postLogin, postSignup } from "@/lib/api"
+import { clearSession, getSession, setSession, type Session } from "@/lib/session"
+import type { User } from "@/lib/users"
 
-// Every Server Action that signs you up, logs you in or logs you out lives in this file.
-// "use server" makes each exported function callable from the browser: a form gets a reference
-// to it, and Next turns the call into a POST request to our server, where the function runs.
+// Every Server Action that signs you up, logs you in or out, or changes your account lives in
+// this file. "use server" makes each exported function callable from the browser: a form gets a
+// reference to it, and Next turns the call into a POST request to our server, where it runs.
+
+// The rules for a name and an email, shared by every form that asks for them (signup and your
+// account's details), so they can't drift apart. They mirror the user model's
+// (../backend/models/userModel.js): a name of 4 to 40 characters, a valid email. .trim() runs
+// before the length check, so a name of spaces doesn't count, and the API gets it without them.
+const NAME = z
+  .string()
+  .trim()
+  .min(4, "Name must be at least 4 characters")
+  .max(40, "Name must be 40 characters or fewer")
+const EMAIL = z.email("Enter a valid email address")
 
 // Zod: describe what a valid form looks like once, then check any data against it.
 // z.object({ ... }) is the whole form, each key a field with its rules, and each rule carries
 // the message to show when it fails. The API still checks everything itself (it decides who
 // you are); this catches simple slips early, with a message under the right field.
 const LoginFields = z.object({
-  email: z.email("Enter a valid email address"),
+  email: EMAIL,
   password: z.string().min(8, "Password must be at least 8 characters long"),
 })
 
@@ -65,20 +77,15 @@ export async function logIn(previous: LoginState, formData: FormData): Promise<L
 }
 
 // The signup form's fields, mirroring the user model's rules (../backend/models/userModel.js):
-// a name of 4 to 40 characters, a valid email, a password of at least 8, and the same password
-// twice. .trim() runs before the length check, so a name of spaces doesn't count, and the API
-// gets the name without them.
+// a name and an email (NAME and EMAIL, above), a password of at least 8, and the same password
+// twice.
 // .refine() is a rule about the whole form, not one field: it gets every field at once, and
 // `path` says which field's message it is. Zod runs it even when other fields have problems, so
 // a short password that also doesn't match shows both messages at once.
 const SignupFields = z
   .object({
-    name: z
-      .string()
-      .trim()
-      .min(4, "Name must be at least 4 characters")
-      .max(40, "Name must be 40 characters or fewer"),
-    email: z.email("Enter a valid email address"),
+    name: NAME,
+    email: EMAIL,
     password: z.string().min(8, "Password must be at least 8 characters long"),
     passwordConfirm: z.string(),
   })
@@ -148,6 +155,62 @@ function emailTaken(error: unknown) {
 export async function logOut() {
   await clearSession()
   redirect("/")
+}
+
+// Your account's details: a name and an email, with signup's rules
+const DetailsFields = z.object({ name: NAME, email: EMAIL })
+
+// What the details form shows after a try: like SignupState, plus `saved` when it worked
+export type DetailsState = {
+  errors?: { name?: string[]; email?: string[] }
+  message?: string
+  name?: string
+  email?: string
+  tries?: number
+  saved?: boolean
+}
+
+// The account page's "Your details" form: saves your name and email (PATCH /users/updateMe)
+export async function updateDetails(
+  previous: DetailsState,
+  formData: FormData,
+): Promise<DetailsState> {
+  // Anyone can send this request, not just the page that shows the form, so the action checks
+  // the session itself (Next's advice: every Server Action authorizes itself)
+  const session = await getSession()
+  if (!session) redirect("/login?next=/account")
+
+  const name = String(formData.get("name") ?? "")
+  const email = String(formData.get("email") ?? "")
+  const typed = { name, email, tries: (previous.tries ?? 0) + 1 }
+
+  // 1. Check the fields
+  const fields = DetailsFields.safeParse({ name, email })
+  if (!fields.success) return { errors: z.flattenError(fields.error).fieldErrors, ...typed }
+
+  // 2. Ask the API to save them, with your token
+  let user: User
+  try {
+    user = await patchMe(session.token, fields.data)
+  } catch (error) {
+    // The API turned the token down (a password changed on another device): the session is over.
+    // An action can delete the cookie (a page can't), so it does, then goes to log in.
+    if (error instanceof ApiError && error.status === 401) {
+      await clearSession()
+      redirect("/login?next=/account")
+    }
+    if (emailTaken(error)) {
+      return { errors: { email: ["There's already an account with this email"] }, ...typed }
+    }
+    const message = problem(error, "We couldn't save your details just now. Please try again.")
+    return { message, ...typed }
+  }
+
+  // 3. Saved. The navbar shows your name from the session, so save it there too (the same
+  // token; setSession keeps its end time). Setting the cookie also makes Next re-render the
+  // page, so the form fills in with what the API saved (an email in lowercase, a trimmed name).
+  await setSession({ token: session.token, user: { name: user.name, photo: user.photo } })
+  return { saved: true, tries: typed.tries }
 }
 
 // The account page's "Log in again", when the API has turned the session's token down (a
