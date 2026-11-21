@@ -1,7 +1,7 @@
 // Living style guide: every design token in light and dark, side by side.
 // Add new components here as they're built.
 import type { Metadata } from "next"
-import { ButtonLink } from "@/components/button"
+import { Button, ButtonLink } from "@/components/button"
 import { Field } from "@/components/field"
 import { Logo } from "@/components/logo"
 import { PauseOffscreen } from "@/components/pause-offscreen"
@@ -266,6 +266,9 @@ function Sample({ label }: { label: string }) {
         <ButtonLink href="#" variant="primary" size="sm">
           View tour
         </ButtonLink>
+        <Button variant="destructive" size="sm">
+          Delete my account
+        </Button>
       </div>
 
       {/* The real component: src/components/field.tsx (the login and signup forms) */}

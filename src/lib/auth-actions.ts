@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation"
 import * as z from "zod"
-import { ApiError, patchMe, patchMyPassword, postLogin, postSignup } from "@/lib/api"
+import { ApiError, deleteMe, patchMe, patchMyPassword, postLogin, postSignup } from "@/lib/api"
 import { clearSession, getSession, setSession, type Session } from "@/lib/session"
 import type { User } from "@/lib/users"
 
@@ -284,6 +284,32 @@ function wrongPassword(error: unknown) {
   return (
     error instanceof ApiError && error.status === 401 && /current password/i.test(error.message)
   )
+}
+
+// What the "are you sure?" box shows after a try that didn't work. A try that works never
+// comes back: it goes home.
+export type DeleteState = { message?: string; tries?: number }
+
+// The account page's "Yes, delete it" (DELETE /users/deleteMe). No fields to check: the form is
+// just the button, so the action only takes the state.
+export async function deleteAccount(previous: DeleteState): Promise<DeleteState> {
+  const session = await getSession()
+  if (!session) redirect("/login?next=/account")
+
+  try {
+    await deleteMe(session.token)
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 401) {
+      await clearSession()
+      redirect("/login?next=/account")
+    }
+    const message = problem(error, "We couldn't delete your account just now. Please try again.")
+    return { message, tries: (previous.tries ?? 0) + 1 }
+  }
+
+  // Gone: forget the session and go home, like logging out (the navbar shows "Log in" again)
+  await clearSession()
+  redirect("/")
 }
 
 // The account page's "Log in again", when the API has turned the session's token down (a

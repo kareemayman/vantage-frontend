@@ -12,6 +12,8 @@ const VARIANTS = {
   // Navy (sky in dark mode): everyday links, e.g. "View tour"
   primary:
     "bg-primary font-bold text-primary-foreground hover:bg-primary-hover active:bg-primary-active",
+  // Coral: an action you can't take back, e.g. "Delete my account"
+  destructive: "bg-destructive font-bold text-destructive-foreground hover:bg-destructive-hover",
 }
 
 const SIZES = {

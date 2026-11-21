@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Image from "next/image"
 import { redirect } from "next/navigation"
 import { Suspense } from "react"
+import { DeleteAccount } from "@/components/account/delete-account"
 import { DetailsForm } from "@/components/account/details-form"
 import { PasswordForm } from "@/components/account/password-form"
 import { Button } from "@/components/button"
@@ -98,6 +99,17 @@ async function AccountDetails() {
           Log out
         </Button>
       </form>
+
+      {/* Last on the page, away from everyday buttons: the one you can't take back */}
+      <h2 className="mt-16 font-display text-3xl font-bold tracking-tight uppercase">
+        Delete your account
+      </h2>
+      <p className="mt-2 max-w-md text-muted-foreground">
+        This logs you out and removes your account. You can&apos;t undo it.
+      </p>
+      <div className="mt-4">
+        <DeleteAccount />
+      </div>
     </>
   )
 }

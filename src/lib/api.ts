@@ -109,6 +109,16 @@ export async function patchMyPassword(
   return body.token
 }
 
+// Deletes your account: DELETE /users/deleteMe. The API only marks it inactive (`active:
+// false`), so it disappears from every search, and answers 204 with no body (request() reads
+// that as null).
+export async function deleteMe(token: string) {
+  await request<null>("/users/deleteMe", {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}
+
 // Tours, cheapest first. `query` takes the API's query options as they'd appear in the URL,
 // e.g. { difficulty: ["easy", "medium"], "price[lte]": "1000", limit: "3" } (filters, sort,
 // fields, limit, page; {} is the whole list). GET /tours sends { results, data: { docs } }.
