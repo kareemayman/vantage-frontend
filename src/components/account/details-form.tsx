@@ -1,14 +1,23 @@
 "use client"
 
-import { useActionState, useEffect, useRef } from "react"
+import { useActionState, useEffect, useRef, type ReactNode } from "react"
 import { Button } from "@/components/button"
 import { Field } from "@/components/field"
 import { updateDetails } from "@/lib/auth-actions"
 
-// Your name and email on the account page, filled in with what the API has now, and saved by
-// updateDetails. Built like the signup form (signup-form.tsx): Zod's messages under the fields,
-// the API's answer in a box, and the cursor on the first field to fix.
-export function DetailsForm({ name, email }: { name: string; email: string }) {
+// Your name and email on the passport's photo page, filled in with what the API has now, and
+// saved by updateDetails. Built like the signup form (signup-form.tsx): Zod's messages under the
+// fields, the API's answer in a box, and the cursor on the first field to fix.
+// children: printed between the fields and the button (the passport's "Role" line).
+export function DetailsForm({
+  name,
+  email,
+  children,
+}: {
+  name: string
+  email: string
+  children?: ReactNode
+}) {
   const [state, formAction, pending] = useActionState(updateDetails, {})
   const form = useRef<HTMLFormElement>(null)
 
@@ -18,7 +27,7 @@ export function DetailsForm({ name, email }: { name: string; email: string }) {
   }, [state])
 
   return (
-    <form ref={form} action={formAction} noValidate className="flex max-w-md flex-col gap-5">
+    <form ref={form} action={formAction} noValidate className="flex flex-col gap-4">
       {/* key: a new element each try, so the same message is read out again */}
       {state.message && (
         <p
@@ -32,6 +41,7 @@ export function DetailsForm({ name, email }: { name: string; email: string }) {
       {/* After a failed try: what you typed. Otherwise: what the API has (after a save, the
           page re-renders with the saved values). */}
       <Field
+        look="passport"
         label="Name"
         name="name"
         autoComplete="name"
@@ -39,6 +49,7 @@ export function DetailsForm({ name, email }: { name: string; email: string }) {
         error={state.errors?.name?.[0]}
       />
       <Field
+        look="passport"
         label="Email"
         name="email"
         type="email"
@@ -46,7 +57,8 @@ export function DetailsForm({ name, email }: { name: string; email: string }) {
         defaultValue={state.email ?? email}
         error={state.errors?.email?.[0]}
       />
-      <div className="flex items-center gap-4">
+      {children}
+      <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-2">
         <Button type="submit" size="sm" disabled={pending}>
           {pending ? "Saving…" : "Save changes"}
         </Button>

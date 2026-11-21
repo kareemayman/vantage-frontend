@@ -5,8 +5,8 @@ import { Button } from "@/components/button"
 import { Field } from "@/components/field"
 import { changePassword } from "@/lib/auth-actions"
 
-// Changing your password on the account page, saved by changePassword. Built like the details
-// form (details-form.tsx), but nothing typed comes back after a try: these are passwords.
+// Changing your password, on the passport's second page, saved by changePassword. Built like the
+// details form (details-form.tsx), but nothing typed comes back after a try: these are passwords.
 // `email`: for password managers, below.
 export function PasswordForm({ email }: { email: string }) {
   const [state, formAction, pending] = useActionState(changePassword, {})
@@ -24,7 +24,7 @@ export function PasswordForm({ email }: { email: string }) {
   }, [state])
 
   return (
-    <form ref={form} action={formAction} noValidate className="flex max-w-md flex-col gap-5">
+    <form ref={form} action={formAction} noValidate className="flex flex-col gap-4">
       {/* Password managers save a password for an account, so a change form should say which
           account: a hidden username box (Chrome's advice for change-password forms). No `name`,
           so it isn't sent with the form. */}
@@ -39,6 +39,7 @@ export function PasswordForm({ email }: { email: string }) {
         </p>
       )}
       <Field
+        look="passport"
         label="Current password"
         name="currentPassword"
         type="password"
@@ -47,6 +48,7 @@ export function PasswordForm({ email }: { email: string }) {
       />
       {/* new-password: password managers offer a new, strong one */}
       <Field
+        look="passport"
         label="New password"
         name="password"
         type="password"
@@ -55,13 +57,14 @@ export function PasswordForm({ email }: { email: string }) {
         error={state.errors?.password?.[0]}
       />
       <Field
+        look="passport"
         label="Confirm new password"
         name="passwordConfirm"
         type="password"
         autoComplete="new-password"
         error={state.errors?.passwordConfirm?.[0]}
       />
-      <div className="flex items-center gap-4">
+      <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-2">
         <Button type="submit" size="sm" disabled={pending}>
           {pending ? "Changing…" : "Change password"}
         </Button>

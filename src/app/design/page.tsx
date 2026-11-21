@@ -271,10 +271,13 @@ function Sample({ label }: { label: string }) {
         </Button>
       </div>
 
-      {/* The real component: src/components/field.tsx (the login and signup forms) */}
+      {/* The real component: src/components/field.tsx, in its three looks: a box (the default),
+          a line (the login and signup postcards) and a passport's line (the account page) */}
       <div className="grid gap-5 sm:grid-cols-2">
         <Field label="Password" type="password" hint="At least 8 characters" />
         <Field label="Email" type="email" defaultValue="me@" error="Enter a valid email address" />
+        <Field look="line" label="Email" type="email" defaultValue="lourdes@example.com" />
+        <Field look="passport" label="Name" defaultValue="Lourdes Browning" />
       </div>
 
       <div className="grid grid-cols-2 gap-2 text-sm font-medium">

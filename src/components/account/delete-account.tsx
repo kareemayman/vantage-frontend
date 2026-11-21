@@ -46,7 +46,7 @@ export function DeleteAccount() {
           <h3 id={titleId} className="font-display text-2xl font-bold tracking-tight uppercase">
             Delete your account?
           </h3>
-          <p>You&apos;ll be logged out, and you can&apos;t undo this.</p>
+          <p className="text-pretty">You&apos;ll be logged out, and you can&apos;t undo this.</p>
           {/* key: a new element each try, so the same message is read out again */}
           {state.message && (
             <p

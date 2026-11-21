@@ -1,10 +1,8 @@
 import type { Metadata } from "next"
-import Image from "next/image"
 import { redirect } from "next/navigation"
 import { Suspense } from "react"
 import { DeleteAccount } from "@/components/account/delete-account"
-import { DetailsForm } from "@/components/account/details-form"
-import { PasswordForm } from "@/components/account/password-form"
+import { Passport } from "@/components/account/passport"
 import { Button } from "@/components/button"
 import { PauseOffscreen } from "@/components/pause-offscreen"
 import { ApiError, getMe } from "@/lib/api"
@@ -17,17 +15,22 @@ export const metadata: Metadata = {
   robots: { index: false }, // one person's page: search engines shouldn't list it
 }
 
-// Your account, plain for now (phase 3 step 3a). Its design comes once step 5 adds the settings
-// (your name, email and password). The title is built ahead of time, like any page; everything
-// about you streams in per request, behind <Suspense>, because it reads your session cookie.
+// Your account: your passport (src/components/account/passport.tsx), with a greeting and "Log
+// out" above it and "Delete your account" below. The title is built ahead of time, like any
+// page; everything about you streams in per request, behind <Suspense>, because it reads your
+// session cookie.
+// lg:pr-16: room on the right for the passport's "trips" tab, which sticks out of its cover.
 export default function AccountPage() {
   return (
     <>
       <section
         aria-labelledby="account-title"
-        className="mx-auto max-w-6xl px-6 pt-28 pb-24 md:pt-36"
+        className="mx-auto max-w-6xl px-6 pt-28 pb-24 md:pt-36 lg:pr-16"
       >
-        <h1 id="account-title" className="font-display text-5xl font-bold tracking-tight uppercase">
+        <h1
+          id="account-title"
+          className="font-display text-[2.625rem] leading-none font-bold tracking-tight uppercase md:text-5xl lg:text-6xl"
+        >
           Your account
         </h1>
         <Suspense fallback={<p className="mt-6 text-muted-foreground">Loading your account…</p>}>
@@ -38,9 +41,6 @@ export default function AccountPage() {
     </>
   )
 }
-
-// Staff roles, in words. A traveler's role ("user") isn't worth showing.
-const ROLES = { guide: "Tour guide", "lead-guide": "Lead guide", admin: "Admin" }
 
 // You, as the API knows you. The navbar only trusts the cookie; this asks the API, which checks
 // the token itself.
@@ -67,66 +67,43 @@ async function AccountDetails() {
     )
   }
 
+  // Your first name, lowercase like every handwritten note ("Lourdes Browning" → "lourdes")
+  const first = user.name.split(" ")[0].toLowerCase()
+
   return (
     <>
-      {/* Who you are: your photo, your name, and your role if you're staff */}
-      <div className="mt-8 flex items-center gap-5">
-        <Avatar user={user} />
-        <div>
-          <p className="text-2xl font-bold">{user.name}</p>
-          {user.role !== "user" && <p className="text-muted-foreground">{ROLES[user.role]}</p>}
-        </div>
+      {/* A greeting under the title, and "Log out": a plain form, like the account menu's,
+          so it works even before the page's JavaScript */}
+      <div className="mt-2 flex flex-wrap items-center justify-between gap-4">
+        <p className="inline-block -rotate-2 font-hand text-[1.75rem] text-primary">hi, {first}!</p>
+        <form action={logOut}>
+          <Button type="submit" variant="outline" size="sm">
+            Log out
+          </Button>
+        </form>
       </div>
 
-      {/* Your name and email, which you can change (a Client Component: it keeps the form's
-          state between tries) */}
-      <h2 className="mt-12 font-display text-3xl font-bold tracking-tight uppercase">
-        Your details
-      </h2>
-      <div className="mt-4">
-        <DetailsForm name={user.name} email={user.email} />
-      </div>
-
-      {/* Changing your password (the email is for password managers: see PasswordForm) */}
-      <h2 className="mt-12 font-display text-3xl font-bold tracking-tight uppercase">Password</h2>
-      <div className="mt-4">
-        <PasswordForm email={user.email} />
-      </div>
-
-      {/* A plain form, like the account menu's: it works even before the page's JavaScript */}
-      <form action={logOut} className="mt-12">
-        <Button type="submit" variant="outline" size="sm">
-          Log out
-        </Button>
-      </form>
+      <Passport user={user} />
 
       {/* Last on the page, away from everyday buttons: the one you can't take back */}
-      <h2 className="mt-16 font-display text-3xl font-bold tracking-tight uppercase">
-        Delete your account
-      </h2>
-      <p className="mt-2 max-w-md text-muted-foreground">
-        This logs you out and removes your account. You can&apos;t undo it.
-      </p>
-      <div className="mt-4">
+      <section
+        aria-labelledby="delete-title"
+        className="mt-16 flex flex-wrap items-center justify-between gap-x-8 gap-y-4 rounded-2xl border-2 border-dashed border-border px-6 py-5"
+      >
+        <div>
+          <h2
+            id="delete-title"
+            className="font-display text-2xl font-bold tracking-tight uppercase"
+          >
+            Delete your account
+          </h2>
+          <p className="mt-1 text-pretty text-muted-foreground">
+            This logs you out and removes your account. You can&apos;t undo it.
+          </p>
+        </div>
         <DeleteAccount />
-      </div>
+      </section>
     </>
-  )
-}
-
-// Your photo, or the first letter of your name on sun yellow, like the navbar's account button.
-// alt="": your name is right next to it.
-function Avatar({ user }: { user: User }) {
-  return (
-    <div className="relative grid size-24 shrink-0 place-items-center overflow-hidden rounded-full border-3 border-navy-950 bg-cta text-4xl font-extrabold text-cta-foreground">
-      {user.photo ? (
-        <Image src={user.photo} alt="" fill sizes="96px" className="object-cover" />
-      ) : (
-        <span aria-hidden className="uppercase">
-          {user.name[0]}
-        </span>
-      )}
-    </div>
   )
 }
 

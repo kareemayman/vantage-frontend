@@ -1467,6 +1467,82 @@
     radial-gradient(circle 4px, transparent 95%, #000) -6px -6px / 12px 12px;
 }
 
+/* A passport's page (the account page, src/components/account/passport.tsx): warm paper with
+   two faint sets of rings printed on it, like the fine patterns on a real passport's pages */
+@utility passport-paper {
+  background-color: color-mix(in oklab, var(--color-sand-50) 85%, var(--color-sand-200));
+  background-image:
+    repeating-radial-gradient(
+      circle at 18% 30%,
+      transparent 0 9px,
+      color-mix(in oklab, var(--color-navy-600) 6%, transparent) 9px 10px
+    ),
+    repeating-radial-gradient(
+      circle at 85% 80%,
+      transparent 0 13px,
+      color-mix(in oklab, var(--color-sun-300) 14%, transparent) 13px 14px
+    );
+}
+
+/* The passport photo, printed into the page (passport.tsx), and the marks printed over it.
+   print-fade: its edges fade into the paper. A mask shows the element only where the mask is
+   drawn. One gradient fades it in from the sides, one from the top and bottom, and `intersect`
+   keeps only the part inside both, so all four edges fade. The bottom starts sooner, so the
+   shoulders melt into the page. */
+@utility print-fade {
+  mask:
+    linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent),
+    linear-gradient(transparent, #000 9%, #000 74%, transparent);
+  mask-composite: intersect;
+}
+
+/* The photo's small faded copy (a "ghost image", like on real passports): it fades out all
+   around from its middle */
+@utility ghost-fade {
+  mask: radial-gradient(closest-side, #000 50%, transparent);
+}
+
+/* A fine screen of dots over a printed picture, like the dots in a magazine photo */
+@utility print-dots {
+  background: radial-gradient(
+      circle,
+      color-mix(in oklab, var(--color-navy-950) 16%, transparent) 0.55px,
+      transparent 0.9px
+    )
+    0 0 / 3px 3px;
+}
+
+/* Security lines: two sets of thin waves printed across the photo (navy-800 and navy-600; a
+   data URL can't read CSS variables, so the colors are written out), offset so they cross */
+@utility security-lines {
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='8'%3E%3Cpath d='M0 4 Q7 0 14 4 T28 4' fill='none' stroke='%23063e6f' stroke-opacity='.5' stroke-width='.6'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='38' height='11'%3E%3Cpath d='M0 5.5 Q9.5 0 19 5.5 T38 5.5' fill='none' stroke='%231d5d9b' stroke-opacity='.35' stroke-width='.6'/%3E%3C/svg%3E");
+  background-position:
+    0 0,
+    0 3px;
+}
+
+/* The hologram seal on the photo's corner: a round rainbow, cut by its mask down to thin rings
+   plus thin rays (two mask layers add up), so it reads as a shiny printed emblem. The lilac is
+   sky and coral mixed: the palette has no purple. */
+@utility hologram {
+  border-radius: 50%;
+  background: conic-gradient(
+    from 10deg,
+    var(--color-sky-300),
+    var(--color-sky-200),
+    var(--color-sun-300),
+    var(--color-sunset),
+    var(--color-coral-400),
+    color-mix(in oklab, var(--color-sky-300), var(--color-coral-400)),
+    var(--color-sky-300)
+  );
+  mask:
+    repeating-radial-gradient(circle, #000 0 1px, transparent 1px 4px),
+    repeating-conic-gradient(#000 0 1.2deg, transparent 1.2deg 10deg);
+}
+
 /* Off-screen sections pause their animations (src/components/pause-offscreen.tsx sets
    data-offscreen), so loops nobody can see don't keep the browser redrawing. Outside
    any @layer on purpose: plain CSS beats Tailwind's layered animate-* classes, whatever
