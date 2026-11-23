@@ -14,63 +14,181 @@ const ROLES = { user: "Traveler", guide: "Tour guide", "lead-guide": "Lead guide
 // login postcard and the tour page's journal.
 // lg+: a spread, the two pages side by side, tilted a little. Below that, the pages stack inside
 // the cover.
+// It opens as the page appears: the closed cover lifts away (FrontCover), and on lg+ the photo
+// page's half comes down on the other side of the spine (Half).
 export function Passport({ user }: { user: User }) {
   return (
     <div className="mt-10 lg:mt-14">
-      {/* The cover: navy around the pages. dark: still applies inside data-theme="light" (it
-          asks about <html>), so at night a faint ring keeps the cover apart from the dark page. */}
+      {/* The cover: navy around the pages, in two halves (Half), because the photo page's half
+          swings open on its own. Behind them, a plate in the cover's shape (Plate) casts the
+          shadow, and fills the hairline where the halves meet. While the passport opens on lg+,
+          only the closed half has one: the second plate, which takes the first one's place until
+          the left half lands (cover-full and cover-half in globals.css).
+          --fold-depth: how far away you watch the opening from (its perspective), 3.5 times as
+          far as what turns is wide: the whole cover below lg, a half on lg+. It's in cqw (% of
+          the cover's width: the cover is a container), so it looks the same at every width. */}
       <div
         data-theme="light"
-        className="relative grid gap-2.5 rounded-2xl bg-navy-800 p-2.5 text-foreground shadow-xl lg:rotate-[-0.8deg] lg:grid-cols-2 lg:gap-0 lg:rounded-[22px] lg:p-3 dark:ring-2 dark:ring-white/15"
+        className="@container relative grid text-foreground [--fold-depth:350cqw] lg:rotate-[-0.8deg] lg:grid-cols-2 lg:[--fold-depth:175cqw]"
       >
-        <Page side="left" number={2}>
-          {/* The page's printed heading. Screen readers get "Your details" instead. */}
-          <div aria-hidden className="flex items-center justify-between gap-3">
-            <span className="text-[11px] font-extrabold tracking-[0.3em] text-navy-600 uppercase">
-              Passport
-            </span>
-            <span className="flex items-center gap-1.5 font-display text-base font-bold tracking-[0.08em] uppercase">
-              <Logo className="size-4.5" />
-              Vantage
-            </span>
-          </div>
-          <h2 className="sr-only">Your details</h2>
-          {/* The photo beside the form once the page is at least 24rem wide inside (@sm: the
+        <Plate className="rounded-[15px] lg:rounded-[21px] lg:motion-safe:animate-cover-full" />
+        <Plate className="invisible left-[calc(50%+1px)] rounded-r-[21px] max-lg:hidden lg:motion-safe:animate-cover-half" />
+
+        <Half side="left">
+          <Page side="left" number={2}>
+            {/* The page's printed heading. Screen readers get "Your details" instead. */}
+            <div aria-hidden className="flex items-center justify-between gap-3">
+              <span className="text-[11px] font-extrabold tracking-[0.3em] text-navy-600 uppercase">
+                Passport
+              </span>
+              <span className="flex items-center gap-1.5 font-display text-base font-bold tracking-[0.08em] uppercase">
+                <Logo className="size-4.5" />
+                Vantage
+              </span>
+            </div>
+            <h2 className="sr-only">Your details</h2>
+            {/* The photo beside the form once the page is at least 24rem wide inside (@sm: the
               page is a container), which leaves the fields room for a long email. On phones
               they'd be too thin (an email got cut off at 375px), so the photo sits above. */}
-          <div className="mt-5 grid items-start gap-4 lg:mt-6 lg:gap-6 @sm:grid-cols-[auto_minmax(0,1fr)]">
-            <IdPhoto user={user} />
-            <DetailsForm name={user.name} email={user.email}>
-              <dl>
-                <dt className="text-xs font-bold tracking-[0.14em] text-muted-foreground uppercase">
-                  Role
-                </dt>
-                <dd className="mt-1 font-semibold">{ROLES[user.role]}</dd>
-              </dl>
-            </DetailsForm>
-          </div>
-          {/* mt-auto: the code line sits at the bottom of the page, however tall the form is */}
-          <p
-            aria-hidden
-            className="mt-auto overflow-hidden pt-7 font-mono text-xs tracking-[0.12em] whitespace-nowrap text-navy-900/60 lg:text-sm"
-          >
-            {machineLine(user.name)}
-          </p>
-        </Page>
+            <div className="mt-5 grid items-start gap-4 lg:mt-6 lg:gap-6 @sm:grid-cols-[auto_minmax(0,1fr)]">
+              <IdPhoto user={user} />
+              <DetailsForm name={user.name} email={user.email}>
+                <dl>
+                  <dt className="text-xs font-bold tracking-[0.14em] text-muted-foreground uppercase">
+                    Role
+                  </dt>
+                  <dd className="mt-1 font-semibold">{ROLES[user.role]}</dd>
+                </dl>
+              </DetailsForm>
+            </div>
+            {/* mt-auto: the code line sits at the bottom of the page, however tall the form is */}
+            <p
+              aria-hidden
+              className="mt-auto overflow-hidden pt-7 font-mono text-xs tracking-[0.12em] whitespace-nowrap text-navy-900/60 lg:text-sm"
+            >
+              {machineLine(user.name)}
+            </p>
+          </Page>
+        </Half>
 
-        <Page side="right" number={3}>
-          <h2 className="text-[11px] font-extrabold tracking-[0.3em] text-navy-600 uppercase">
-            Password
-          </h2>
-          <div className="mt-3">
-            <PasswordForm email={user.email} />
-          </div>
-          <InkStamp />
-        </Page>
+        <Half side="right">
+          <Page side="right" number={3}>
+            <h2 className="text-[11px] font-extrabold tracking-[0.3em] text-navy-600 uppercase">
+              Password
+            </h2>
+            <div className="mt-3">
+              <PasswordForm email={user.email} />
+            </div>
+            <InkStamp />
+          </Page>
+        </Half>
+
+        {/* Over both halves: the closed cover, until it lifts away */}
+        <FrontCover />
 
         <TripsTab />
       </div>
     </div>
+  )
+}
+
+// The cover's shape behind the halves: its navy, its shadow and, at night, a faint ring that keeps
+// the cover apart from the dark page. 1px smaller all around, with corners 1px tighter, so only
+// the halves draw the cover's edge (smoothed twice, it looked bolder); the ring is 3px, 1px of it
+// under the halves. dark: still applies inside data-theme="light" (it asks about <html>).
+function Plate({ className }: { className: string }) {
+  return (
+    <span
+      aria-hidden
+      className={`absolute inset-px bg-navy-800 shadow-xl dark:ring-3 dark:ring-white/15 ${className}`}
+    />
+  )
+}
+
+// One half of the cover: a page with navy around it. Below lg the halves stack: the top one is
+// rounded at the top, the bottom one at the bottom, and each has 5px of navy between the pages.
+// lg+ they sit side by side, with no navy at the spine, where the pages meet. `grid`: the page
+// fills the half, so both pages are as tall as the taller one. `relative`: it paints over the
+// plates (a positioned box paints over the positioned ones before it).
+// lg+, the left half opens (cover-drop in globals.css): as the page appears, it stands on its
+// edge at the spine (origin-right), hidden, until the cover has lifted; then it comes down flat.
+function Half({ side, children }: { side: "left" | "right"; children: ReactNode }) {
+  const shape =
+    side === "left"
+      ? "rounded-t-2xl pb-1.25 lg:rounded-l-[22px] lg:rounded-tr-none lg:pr-0 origin-right lg:motion-safe:animate-cover-drop"
+      : "rounded-b-2xl pt-1.25 lg:rounded-r-[22px] lg:rounded-bl-none lg:pl-0"
+
+  return <div className={`relative grid bg-navy-800 p-2.5 lg:p-3 ${shape}`}>{children}</div>
+}
+
+// The passport, closed: its navy front cover, printed in gold like a real one (the place, a
+// crest, "Passport", and the chip mark). It lies over the whole passport below lg, and over the
+// right half on lg+, where the closed passport is half as wide. As the page appears it lifts away
+// (cover-lift in globals.css): it turns on its left edge, toward you, until it stands on that
+// edge, where it can't be seen anymore. On lg+ that edge is the spine, and it turns on its
+// middle (origin-left), like the photo page's half (origin-right), which then comes down on the
+// other side (Half): together, one cover opening. Below lg it turns on its top-left corner
+// (origin-top-left), so as it comes toward you it only grows downward: turning on the middle of
+// its edge, it grew up over the greeting and "Log out" too.
+// Below lg the art starts near the top (gap-14), where it's on a phone's first screen.
+// It's hidden (invisible) whenever it isn't lifting: afterward, and with reduced motion.
+// Decoration.
+function FrontCover() {
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none invisible absolute inset-0 flex origin-top-left flex-col items-center gap-14 rounded-2xl bg-navy-800 pt-14 pb-10 text-sun-300 motion-safe:animate-cover-lift lg:left-1/2 lg:origin-left lg:justify-between lg:gap-0 lg:rounded-l-none lg:rounded-r-[22px] lg:py-14"
+    >
+      {/* Wide letter spacing also adds a gap after the last letter; the same gap before the
+          first one (pl) keeps each word centered */}
+      <span className="pl-[0.4em] font-display text-base font-bold tracking-[0.4em] uppercase">
+        Vantage
+      </span>
+      <span className="flex flex-col items-center gap-5">
+        <Crest />
+        <span className="pl-[0.3em] font-display text-3xl tracking-[0.3em] uppercase">
+          Passport
+        </span>
+      </span>
+      <ChipMark />
+    </div>
+  )
+}
+
+// The cover's crest: the logo's sunset as a gold stamp (the sun half set on the sea, with
+// rays), inside two rings
+function Crest() {
+  return (
+    <svg
+      viewBox="0 0 80 80"
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      className="size-24 lg:size-32"
+    >
+      <circle cx="40" cy="40" r="37" strokeWidth="2" />
+      <circle cx="40" cy="40" r="32" />
+      <path d="M27 46a13 13 0 0 1 26 0Z" fill="currentColor" stroke="none" />
+      <path
+        d="M40 29v-5M48.5 31.3l2.5-4.3M54.7 37.5l4.3-2.5M31.5 31.3l-2.5-4.3M25.3 37.5l-4.3-2.5"
+        strokeWidth="2"
+      />
+      <path
+        d="M16 46h48M20 52q5-2.5 10 0t10 0t10 0t10 0M28 58q3-1.5 6 0t6 0t6 0t6 0"
+        strokeWidth="1.6"
+      />
+    </svg>
+  )
+}
+
+// The mark on the cover of a passport with a chip inside
+function ChipMark() {
+  return (
+    <svg viewBox="0 0 40 26" fill="none" stroke="currentColor" strokeWidth="2" className="w-10">
+      <rect x="1" y="1" width="38" height="24" rx="4" />
+      <circle cx="20" cy="13" r="6" />
+      <path d="M1 13h13M26 13h13" />
+    </svg>
   )
 }
 

@@ -20,12 +20,14 @@ export const metadata: Metadata = {
 // page; everything about you streams in per request, behind <Suspense>, because it reads your
 // session cookie.
 // lg:pr-16: room on the right for the passport's "trips" tab, which sticks out of its cover.
+// max-lg:overflow-x-clip: as the passport opens, its cover swings toward you and grows past the
+// screen's right edge for a moment, which made tablets scroll sideways.
 export default function AccountPage() {
   return (
     <>
       <section
         aria-labelledby="account-title"
-        className="mx-auto max-w-6xl px-6 pt-28 pb-24 md:pt-36 lg:pr-16"
+        className="mx-auto max-w-6xl px-6 pt-28 pb-24 max-lg:overflow-x-clip md:pt-36 lg:pr-16"
       >
         <h1
           id="account-title"
@@ -33,7 +35,11 @@ export default function AccountPage() {
         >
           Your account
         </h1>
-        <Suspense fallback={<p className="mt-6 text-muted-foreground">Loading your account…</p>}>
+        {/* The note is a screen tall, so the footer stays below the fold while it shows. Any
+            shorter, and the footer would jump down as the passport arrives. */}
+        <Suspense
+          fallback={<p className="mt-6 min-h-svh text-muted-foreground">Loading your account…</p>}
+        >
           <AccountDetails />
         </Suspense>
       </section>
@@ -72,10 +78,13 @@ async function AccountDetails() {
 
   return (
     <>
-      {/* A greeting under the title, and "Log out": a plain form, like the account menu's,
-          so it works even before the page's JavaScript */}
+      {/* A greeting under the title, which writes itself in as the page appears (write, like
+          the journal's handwriting), and "Log out": a plain form, like the account menu's, so it
+          works even before the page's JavaScript */}
       <div className="mt-2 flex flex-wrap items-center justify-between gap-4">
-        <p className="inline-block -rotate-2 font-hand text-[1.75rem] text-primary">hi, {first}!</p>
+        <p className="inline-block -rotate-2 font-hand text-[1.75rem] text-primary motion-safe:animate-write">
+          hi, {first}!
+        </p>
         <form action={logOut}>
           <Button type="submit" variant="outline" size="sm">
             Log out

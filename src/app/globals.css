@@ -663,6 +663,16 @@
      dropped onto the table (drop-in), then the postcard slides over it. Delays: AT there. */
   --animate-slide-over: slide-over 0.8s cubic-bezier(0.22, 1, 0.36, 1) backwards;
 
+  /* Your account (src/components/account/passport.tsx), as the page appears: the passport
+     opens, from 0.3s. Its closed cover lifts toward you (cover-lift, 0.4s); then, at 0.7s, the
+     photo page's half comes down on the other side of the spine (cover-drop, 0.48s: it lands at
+     48%, so at 0.93s, and bounces). Until that landing, cover-full and cover-half swap the
+     plates behind it. Change one of these, and move the others to match. */
+  --animate-cover-lift: cover-lift 0.4s ease-in 0.3s backwards;
+  --animate-cover-drop: cover-drop 0.48s 0.7s backwards;
+  --animate-cover-full: cover-full 0.93s;
+  --animate-cover-half: cover-half 0.93s;
+
   @keyframes turn {
     to {
       rotate: 1turn;
@@ -1431,6 +1441,58 @@
     }
     30% {
       opacity: 1;
+    }
+  }
+  /* A passport's cover lifting toward you: it turns on its left edge until it stands on that
+     edge, where it can't be seen. The cover is hidden whenever this isn't playing, so both
+     frames show it. Like stick-on, it moves `transform`, with the perspective first.
+     --fold-depth: how far away you watch from (set on the passport's cover). */
+  @keyframes cover-lift {
+    from {
+      visibility: visible;
+      transform: perspective(var(--fold-depth, 1800px)) rotateY(0deg);
+    }
+    to {
+      visibility: visible;
+      transform: perspective(var(--fold-depth, 1800px)) rotateY(-90deg);
+    }
+  }
+  /* ...then the other half comes down, turning on its right edge: from standing on it (hidden
+     until its turn) to flat, as fast as the cover went up (linear: no stop at the top), and it
+     bounces once, lifting a little off the table */
+  @keyframes cover-drop {
+    from {
+      visibility: hidden;
+      transform: perspective(var(--fold-depth, 1800px)) rotateY(90deg);
+      animation-timing-function: linear;
+    }
+    48% {
+      visibility: visible;
+      transform: perspective(var(--fold-depth, 1800px)) rotateY(0deg);
+      animation-timing-function: ease-out;
+    }
+    74% {
+      transform: perspective(var(--fold-depth, 1800px)) rotateY(7deg);
+      animation-timing-function: ease-in;
+    }
+    to {
+      transform: perspective(var(--fold-depth, 1800px)) rotateY(0deg);
+    }
+  }
+  /* ...and until it lands, the plate behind the whole cover (its shadow) hides and the closed
+     half's own plate shows, so the shadow goes all around the closed passport. Nothing moves or
+     changes size (that would count as a layout shift): they only show and hide, and when this
+     ends, each goes back to normal. */
+  @keyframes cover-full {
+    from,
+    to {
+      visibility: hidden;
+    }
+  }
+  @keyframes cover-half {
+    from,
+    to {
+      visibility: visible;
     }
   }
 }
