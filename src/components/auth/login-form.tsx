@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useActionState, useEffect, useRef } from "react"
 import { usePostmark } from "@/components/auth/use-postmark"
 import { Button } from "@/components/button"
@@ -67,6 +68,14 @@ export function LoginForm() {
         autoComplete="current-password"
         error={state.errors?.password?.[0]}
       />
+      {/* Under the password, where you'd look when it's the one you've forgotten. -mt-2 pulls it
+          closer to the field it's about. */}
+      <Link
+        href="/forgot-password"
+        className="-mt-2 self-end text-sm font-semibold text-primary underline-offset-4 hover:underline"
+      >
+        Forgot your password?
+      </Link>
       <Button type="submit" disabled={pending || sent} className="mt-2 w-full">
         {pending || sent ? "Logging in…" : "Log in"}
       </Button>

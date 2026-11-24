@@ -8,6 +8,11 @@ type PostcardProps = {
   tour?: Tour // its photo is the postcard's front, peeking out behind it (none: no photo)
   titleId: string // the title's id, so the page's <section> can name itself after it
   title: string
+  // A title with long words ("Forgot your password?"). On phones it wraps before the stamp
+  // instead of running under it, and gets a little smaller below ~370px wide, so its longest
+  // word fits (measured: "PASSWORD?" is 183px, and a 320px phone has 161px beside the stamp).
+  // Its two or three lines push the note below the stamp, so the note can use the full width.
+  longTitle?: boolean
   note: string // handwritten, lowercase
   footer: ReactNode // e.g. "New here? Create an account"
   wide?: boolean // a wider card, for a longer form (signup)
@@ -36,7 +41,7 @@ const CARD_AT = 0.3
 // card, the message on the left, a line, the form on the right under the stamp, and the photo
 // tilted behind its left half.
 export function Postcard(props: PostcardProps) {
-  const { tour, titleId, title, note, footer, wide, children } = props
+  const { tour, titleId, title, longTitle, note, footer, wide, children } = props
   const size = SIZES[wide ? "wide" : "normal"]
 
   return (
@@ -58,16 +63,20 @@ export function Postcard(props: PostcardProps) {
         className={`relative rotate-1 rounded-md bg-white p-6 text-foreground shadow-xl [--slide-from:0_25%] motion-safe:animate-slide-over lg:ml-auto lg:grid lg:min-h-120 lg:rotate-[1.8deg] lg:grid-cols-2 lg:grid-rows-[auto_auto_auto_1fr_auto] lg:gap-x-9 lg:p-10 lg:[--slide-from:22%_4%] ${size.card}`}
       >
         <Stamp />
+        {/* longTitle: 4.5rem is the stamp's corner, measured, plus a few px */}
         <h1
           id={titleId}
-          className="font-display text-[2.375rem] leading-none font-bold tracking-tight uppercase lg:text-5xl"
+          className={`font-display leading-none font-bold tracking-tight uppercase lg:max-w-none lg:text-5xl ${longTitle ? "max-w-[calc(100%-4.5rem)] text-[min(2.375rem,10.25vw)]" : "text-[2.375rem]"}`}
         >
           {title}
         </h1>
-        {/* Phones: it wraps before the postmark, whose ring starts about 7.5rem from the right
-            edge of the card's content (measured), so 8.5rem keeps at least 15px between them
-            at any width. A fixed 11rem ran into the ring below 375px wide. */}
-        <p className="mt-2 max-w-[min(11rem,calc(100%-8.5rem))] font-hand text-2xl text-navy-800 lg:mt-4 lg:max-w-none lg:text-[1.75rem]">
+        {/* Phones: beside a short title, the note wraps before the postmark, whose ring starts
+            about 7.5rem from the right edge of the card's content (measured), so 8.5rem keeps at
+            least 15px between them at any width. A fixed 11rem ran into the ring below 375px
+            wide. Under a long title, it's already below the stamp. */}
+        <p
+          className={`mt-2 font-hand text-2xl text-pretty text-navy-800 lg:mt-4 lg:max-w-none lg:text-[1.75rem] ${longTitle ? "" : "max-w-[min(11rem,calc(100%-8.5rem))]"}`}
+        >
           {note}
         </p>
         {/* lg: the line down the middle is this column's left border; pt-28 leaves the stamp

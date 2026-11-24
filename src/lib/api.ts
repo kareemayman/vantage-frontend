@@ -78,6 +78,13 @@ export async function postSignup(fields: {
   return { token: body.token, user: body.data }
 }
 
+// Forgot your password: POST /users/forgotPassword makes a reset link that works for 10 minutes
+// and emails it (FRONTEND_URL/reset-password/<token>). An email with no account is a 404, and
+// an email that couldn't be sent a 500. Never cached.
+export async function postForgotPassword(email: string) {
+  await post<{ message: string }>("/users/forgotPassword", { email })
+}
+
 // Who you are: GET /users/me, with your login token as "Authorization: Bearer <token>" (the
 // API's `protect` reads only that header). This is the real check: the API verifies the token,
 // so one that has run out, or was replaced by a password change, is a 401. Never cached: it's

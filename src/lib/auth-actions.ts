@@ -2,7 +2,15 @@
 
 import { redirect } from "next/navigation"
 import * as z from "zod"
-import { ApiError, deleteMe, patchMe, patchMyPassword, postLogin, postSignup } from "@/lib/api"
+import {
+  ApiError,
+  deleteMe,
+  patchMe,
+  patchMyPassword,
+  postForgotPassword,
+  postLogin,
+  postSignup,
+} from "@/lib/api"
 import { clearSession, getSession, setSession, type Session } from "@/lib/session"
 import type { User } from "@/lib/users"
 
@@ -148,6 +156,46 @@ function emailTaken(error: unknown) {
   return (
     error instanceof ApiError && /duplicate/i.test(error.message) && /email/i.test(error.message)
   )
+}
+
+// What the "Forgot your password?" form shows after a try: like LoginState, but `sent` when the
+// email has gone out (the card is stamped and says to check your email)
+export type ResetRequestState = {
+  errors?: { email?: string[] }
+  message?: string
+  email?: string
+  tries?: number
+  sent?: boolean
+}
+
+// The "Forgot your password?" form's action: asks the API to email you a link to pick a new
+// password (it opens /reset-password/<token>)
+export async function requestReset(
+  previous: ResetRequestState,
+  formData: FormData,
+): Promise<ResetRequestState> {
+  const email = String(formData.get("email") ?? "")
+  const tries = (previous.tries ?? 0) + 1
+
+  // 1. Check the email
+  const fields = z.object({ email: EMAIL }).safeParse({ email })
+  if (!fields.success) return { errors: z.flattenError(fields.error).fieldErrors, email, tries }
+
+  // 2. Ask the API to send it. An email with no account (the API's 404) gets the same answer as
+  // one that has an account (Kareem's call, 2026-11-24): otherwise anyone could use this page
+  // to find out who has an account here. Someone who mistypes their address just gets no email,
+  // and the card says to check it.
+  try {
+    await postForgotPassword(fields.data.email)
+  } catch (error) {
+    if (!(error instanceof ApiError && error.status === 404)) {
+      const message = problem(error, "We couldn't send the email just now. Please try again.")
+      return { message, email, tries }
+    }
+  }
+
+  // 3. Sent: the card is stamped and says where the email went
+  return { sent: true, email: fields.data.email, tries }
 }
 
 // The account menu's "Log out". Forgetting the session is all it takes: the API's token can't
