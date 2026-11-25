@@ -7,6 +7,7 @@ import {
   deleteMe,
   patchMe,
   patchMyPassword,
+  patchResetPassword,
   postForgotPassword,
   postLogin,
   postSignup,
@@ -196,6 +197,65 @@ export async function requestReset(
 
   // 3. Sent: the card is stamped and says where the email went
   return { sent: true, email: fields.data.email, tries }
+}
+
+// Picking a new password from the reset email's link: the new one twice, with signup's rules
+const ResetFields = z
+  .object({
+    password: PASSWORD,
+    passwordConfirm: z.string(),
+  })
+  .refine((fields) => fields.password === fields.passwordConfirm, {
+    error: "The passwords don't match",
+    path: ["passwordConfirm"],
+  })
+
+// What the reset form shows after a try: like PasswordState, plus `expired` when the link no
+// longer works (the form gives way to a note), and `ok` once you're logged in (the form stamps
+// the postcard and goes home, like login's)
+export type ResetState = {
+  errors?: { password?: string[]; passwordConfirm?: string[] }
+  message?: string
+  tries?: number
+  expired?: boolean
+  ok?: boolean
+}
+
+// The reset page's form (PATCH /users/resetPassword/:token). The link's token comes in a hidden
+// field. Anyone can send any token: the API checks it, and only a real, recent one works.
+export async function resetPassword(previous: ResetState, formData: FormData): Promise<ResetState> {
+  const token = String(formData.get("token") ?? "")
+  const tries = (previous.tries ?? 0) + 1
+
+  // 1. Check the fields
+  const fields = ResetFields.safeParse({
+    password: formData.get("password"),
+    passwordConfirm: formData.get("passwordConfirm"),
+  })
+  if (!fields.success) return { errors: z.flattenError(fields.error).fieldErrors, tries }
+
+  // 2. Ask the API to save it. It answers like login: a token and who you are.
+  let session: Session
+  try {
+    const { token: loginToken, user } = await patchResetPassword(token, fields.data)
+    session = { token: loginToken, user: { name: user.name, photo: user.photo } }
+  } catch (error) {
+    if (linkExpired(error)) return { expired: true, tries }
+    const message = problem(error, "We couldn't save your new password just now. Please try again.")
+    return { message, tries }
+  }
+
+  // 3. You're logged in with the new password: keep the session, and let the form stamp the
+  // postcard and go home
+  await setSession(session)
+  return { ok: true }
+}
+
+// A reset link that's too old (10 minutes) or already used. The API answers 400 "Token is
+// invalid or has expired", the same status as a missing field, so only its message tells them
+// apart, like emailTaken. It breaks if the API's wording changes.
+function linkExpired(error: unknown) {
+  return error instanceof ApiError && error.status === 400 && /expired/i.test(error.message)
 }
 
 // The account menu's "Log out". Forgetting the session is all it takes: the API's token can't

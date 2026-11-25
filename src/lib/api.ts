@@ -85,6 +85,25 @@ export async function postForgotPassword(email: string) {
   await post<{ message: string }>("/users/forgotPassword", { email })
 }
 
+// Picks a new password with the link's token (the one from the reset email, not a login token):
+// PATCH /users/resetPassword/:token answers like login, with a new login token and who you are.
+// A token that's too old or already used is a 400 ("Token is invalid or has expired"). The
+// token comes from the page's address, so it goes through encodeURIComponent. Never cached.
+export async function patchResetPassword(
+  resetToken: string,
+  fields: { password: string; passwordConfirm: string },
+) {
+  const body = await request<{ token: string; data: User }>(
+    `/users/resetPassword/${encodeURIComponent(resetToken)}`,
+    {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(fields),
+    },
+  )
+  return { token: body.token, user: body.data }
+}
+
 // Who you are: GET /users/me, with your login token as "Authorization: Bearer <token>" (the
 // API's `protect` reads only that header). This is the real check: the API verifies the token,
 // so one that has run out, or was replaced by a password change, is a 401. Never cached: it's
