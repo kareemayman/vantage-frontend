@@ -19,33 +19,71 @@ const LATE = 60 // seconds: longer than the API usually takes to wake up
 // island to you, the words, a clock, and "Keep browsing". That button, or Esc, closes the room,
 // and the wait carries on behind it. On the map, a 3D plane flies the route and circles your pin
 // while you wait (room-scene.tsx); with reduced motion or without 3D, a flat one sits still.
+// When the answer arrives, the plane lands at your pin and the room lifts away.
 // It's rendered once, in the root layout. Whatever waits says so with useWaiting
 // (src/lib/waiting.ts).
 export function WaitingRoom() {
   useNotesFromServer()
   const since = useWaitingSince()
+  // The room of the current wait. It stays a moment after the wait ends, while it leaves (the
+  // plane lands, the room lifts away), so it's kept in state instead of read straight from the
+  // store. A new wait gets its room at once: setting state while rendering, when a value has
+  // changed, is React's way to keep state in step with it without an extra render.
+  const [shown, setShown] = useState<number | null>(null)
+  if (since !== null && since !== shown) setShown(since)
+  if (shown === null) return null
   // key: a new room for each wait, so the clock and "Keep browsing" start over
-  return since === null ? null : <Room key={since} since={since} />
+  return <Room key={shown} since={shown} ended={since !== shown} onGone={() => setShown(null)} />
 }
 
 // The 3D plane (src/components/three/room-scene.tsx), once its file has loaded
-type Scene = ComponentType<{ onFlying: () => void }>
+type Scene = ComponentType<{ onFlying: () => void; landing: boolean; onLanded: () => void }>
 
-function Room({ since }: { since: number }) {
+// ms from when the room starts lifting until it's gone: the lift's beat and length in
+// globals.css (--animate-room-lift: 0.25s + 0.45s), with a little to spare
+const ROOM_GONE = 750
+
+type RoomProps = {
+  since: number // when the wait began (Date.now() time)
+  ended: boolean // the wait is over: the room leaves
+  onGone: () => void // it has left: take it away
+}
+
+function Room({ since, ended, onGone }: RoomProps) {
   const [seconds, setSeconds] = useState(0)
   const [closed, setClosed] = useState(false) // closed with "Keep browsing" or Esc
   const [Scene, setScene] = useState<Scene | null>(null)
   const [broken, setBroken] = useState(false) // the 3D file didn't load
   const [airborne, setAirborne] = useState(false) // the 3D plane has drawn its first frame
+  const [landed, setLanded] = useState(false) // after the wait: the 3D plane is down
   const room = useRef<HTMLDialogElement>(null)
   const titleId = useId()
   const textId = useId()
   const reduced = useReducedMotion()
   const can3D = useCanDraw3D() // more than 2 cores and WebGL 2 (src/lib/can-draw-3d.ts)
+  // Showing: the wait has been long enough, and you haven't closed it. It stays true while the
+  // room leaves (the clock stops, so `seconds` stays put).
   const open = seconds >= SHOW_AFTER && !closed
   // The 3D plane flies while the room is open, unless motion is reduced, the device is too
   // weak, or its file didn't load. Otherwise the flat plane stays where it's drawn.
   const flying = open && can3D && !reduced && !broken
+  // After the wait: the plane lands if it's already in the air, and the room lifts away once it's
+  // down (or right away, with no 3D plane to land)
+  const canLand = flying && Scene !== null && airborne
+  const lifting = ended && open && (landed || !canLand)
+
+  // After the wait, the room goes: right away if it never showed (most waits end within 3 s) or
+  // you closed it, and otherwise once it has lifted away
+  useEffect(() => {
+    if (!ended) return
+    if (!open) {
+      onGone()
+      return
+    }
+    if (!lifting) return
+    const gone = setTimeout(onGone, ROOM_GONE)
+    return () => clearTimeout(gone)
+  }, [ended, open, lifting, onGone])
 
   // Load the 3D plane (three.js, ~240 KB) when the room opens, not before: most waits end
   // sooner, and never need it. A plain import() in the browser, like the tours page's plane: it
@@ -60,11 +98,12 @@ function Room({ since }: { since: number }) {
   }, [flying])
 
   // The clock, like the tours page's waiting note: it counts from when the wait began, because
-  // intervals can run late
+  // intervals can run late. It stops when the answer arrives.
   useEffect(() => {
+    if (ended) return
     const tick = setInterval(() => setSeconds(Math.floor((Date.now() - since) / 1000)), 1000)
     return () => clearInterval(tick)
-  }, [since])
+  }, [since, ended])
 
   // Open the <dialog> once the wait is long enough. showModal() makes it modal, like the delete
   // box: the page behind can't be clicked or tabbed to, Esc closes it, and the focus goes back
@@ -73,10 +112,14 @@ function Room({ since }: { since: number }) {
     const box = room.current
     if (!open || !box) return
     box.showModal()
-    // When the wait ends, close at once. React only removes the room in its next render, after
-    // the form's own effects, and those can't put the cursor on a field while the room still
-    // covers the page.
-    const stop = onWaitEnd(() => box.close())
+    // When the wait ends, stop blocking the page at once: React only gets to the room in its
+    // next render, after the form's own effects, and those can't put the cursor on a field
+    // while a modal dialog covers the page. So it closes now. But it stays on screen while the
+    // plane lands and it lifts away: data-leaving makes the CSS below show it, closed.
+    const stop = onWaitEnd(() => {
+      box.dataset.leaving = ""
+      box.close()
+    })
     return () => {
       stop()
       box.close()
@@ -84,28 +127,43 @@ function Room({ since }: { since: number }) {
   }, [open])
 
   return (
-    // No display class on the <dialog> itself (it would show while closed); the layout goes on
-    // the div inside. It fills the screen: no margin, no size limits, no border.
+    // Display classes on a <dialog> would show it while closed, so they only apply while it
+    // leaves (data-leaving:): then it's closed on purpose, but stays on screen, fixed over the
+    // page and the navbar (z-50), until it has lifted away. Otherwise the layout goes on the div
+    // inside. It fills the screen: no margin, no size limits, no border.
     // data-lenis-prevent: the wheel scrolls the room (on a short screen), not the page behind.
     // aria-describedby: screen readers read the sentence along with the title when it opens.
-    // onClose: whatever closed it (the button, Esc), it stays closed for the rest of this wait.
+    // aria-hidden once the wait is over: the room is only a picture on its way out.
+    // onClose: if you closed it (the button, Esc), it stays closed for the rest of this wait.
+    // Not when the wait's end closed it (data-leaving): it still has to leave.
     <dialog
       ref={room}
       data-waiting-room
       data-lenis-prevent
+      data-lifting={lifting || undefined}
       aria-labelledby={titleId}
       aria-describedby={textId}
-      onClose={() => setClosed(true)}
-      className="m-0 size-full max-h-none max-w-none overflow-y-auto overscroll-contain border-0 bg-scene-sky p-0 text-foreground backdrop:bg-transparent motion-safe:animate-fade-in"
-      style={{ animationDuration: "0.4s" }}
+      aria-hidden={ended || undefined}
+      onClose={(event) => {
+        if (!event.currentTarget.hasAttribute("data-leaving")) setClosed(true)
+      }}
+      className="m-0 size-full max-h-none max-w-none overflow-y-auto overscroll-contain border-0 bg-scene-sky p-0 text-foreground backdrop:bg-transparent data-leaving:fixed data-leaving:inset-0 data-leaving:z-60 data-leaving:block motion-safe:animate-room-in data-lifting:motion-safe:animate-room-lift data-lifting:motion-reduce:animate-room-fade"
     >
       <div className="grid min-h-full place-items-center px-6 py-8">
         <div className="flex w-full max-w-xl flex-col items-center text-center">
           {/* The map's height is half its width: on a short laptop, it shrinks so the words and
               the button still fit under it (22rem is their height, measured) */}
           <div className="w-[min(100%,max(14rem,calc((100svh-22rem)*2)))]">
+            {/* The 3D plane doesn't start once the wait is over, if it wasn't flying yet: the
+                room is already lifting away */}
             <RoomMap plane={!(flying && Scene && airborne)}>
-              {flying && Scene && <Scene onFlying={() => setAirborne(true)} />}
+              {flying && Scene && (airborne || !ended) && (
+                <Scene
+                  onFlying={() => setAirborne(true)}
+                  landing={ended}
+                  onLanded={() => setLanded(true)}
+                />
+              )}
             </RoomMap>
           </div>
           <p className="mt-6 -rotate-2 font-hand text-2xl text-primary">no need to refresh</p>
@@ -125,11 +183,13 @@ function Room({ since }: { since: number }) {
           <p className="mt-4 font-display text-3xl font-bold text-primary tabular-nums">
             {Math.floor(seconds / 60)}:{String(seconds % 60).padStart(2, "0")}
           </p>
-          {/* autoFocus: the cursor starts here when the room opens (there's nothing else) */}
+          {/* autoFocus: the cursor starts here when the room opens (there's nothing else).
+              disabled once the wait is over, so Tab can't land on the room as it leaves. */}
           <Button
             variant="outline"
             size="sm"
             autoFocus
+            disabled={ended}
             className="mt-5"
             onClick={() => room.current?.close()}
           >

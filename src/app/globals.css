@@ -672,6 +672,13 @@
   --animate-cover-drop: cover-drop 0.48s 0.7s backwards;
   --animate-cover-full: cover-full 0.93s;
   --animate-cover-half: cover-half 0.93s;
+  /* The waiting room (waiting-room.tsx): it fades in when it opens. When the answer arrives
+     (after the plane has landed, if it flies), it waits a beat, then lifts away: up and out, or
+     with reduced motion, just a fade. ROOM_GONE in waiting-room.tsx must stay at least as long
+     as the lift's delay plus its length (0.25s + 0.45s). */
+  --animate-room-in: fade-in 0.4s ease-out backwards;
+  --animate-room-lift: room-lift 0.45s ease-in 0.25s forwards;
+  --animate-room-fade: room-fade 0.3s ease-in 0.25s forwards;
 
   @keyframes turn {
     to {
@@ -1495,6 +1502,17 @@
       visibility: visible;
     }
   }
+  @keyframes room-lift {
+    to {
+      translate: 0 -3rem;
+      opacity: 0;
+    }
+  }
+  @keyframes room-fade {
+    to {
+      opacity: 0;
+    }
+  }
 }
 
 /* How far a sticky note's corner has peeled up (traveler-notes.tsx). Registered as a length,
@@ -1623,8 +1641,10 @@
 
 /* While the waiting room is open (src/components/waiting-room.tsx), the page behind it doesn't
    scroll: the room covers the whole screen, so a wheel or a swipe over it would move a page you
-   can't see. :has() asks <html> whether an open room is anywhere inside it. */
-:root:has(dialog[data-waiting-room][open]) {
+   can't see. :has() asks <html> whether an open room is anywhere inside it. Also while it
+   leaves (data-leaving: the plane lands, the room lifts away), or the page's scrollbar would come
+   back mid-landing and the room, 15px narrower, would jump sideways. */
+:root:has(dialog[data-waiting-room]:is([open], [data-leaving])) {
   overflow: hidden;
 }
 

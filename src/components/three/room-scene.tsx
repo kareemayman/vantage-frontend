@@ -2,12 +2,21 @@ import { Canvas, useFrame } from "@react-three/fiber"
 import { useRef } from "react"
 import * as THREE from "three"
 import { PLANE_LENGTH, PlaneModel, useOutlineColor } from "@/components/three/plane-model"
-import { fly, MAP, setOff, type Flight } from "@/components/room-route"
+import {
+  fly,
+  land,
+  landFrom,
+  MAP,
+  setOff,
+  type Flight,
+  type Landing,
+} from "@/components/room-route"
 
-// The waiting room's 3D plane (phase 7 step 7b), loaded by waiting-room.tsx when the room
-// opens. A see-through canvas over the map, the same size, with the camera looking straight
+// The waiting room's 3D plane (phase 7 steps 7b and 7c), loaded by waiting-room.tsx when the
+// room opens. A see-through canvas over the map, the same size, with the camera looking straight
 // down. The plane flies the rest of the dotted route, then circles your pin (room-route.ts
-// says how it steers), with its shadow on the sea.
+// says how it steers), with its shadow on the sea. When the answer arrives, it lands at your
+// pin: it comes down, so its shadow slides in under it, and stops.
 // The camera is orthographic (no perspective), and it shows exactly the map's 600 × 300
 // units, whatever size the map is drawn at. (0, 0) is the map's middle, with y going up.
 
@@ -15,10 +24,17 @@ import { fly, MAP, setOff, type Flight } from "@/components/room-route"
 // plane's
 const SUN = new THREE.Vector3(-0.3, 0.55, 1)
 const HEIGHT = 40 // how high it flies over the sea, in map units
-const SIZE = 54 // its length on the map, like the drawn plane's
+// Its middle's height once it has landed: about the body's radius, so its belly sits on the
+// sea. At 0, its low wings would dip under the shadow's sheet.
+const AFLOAT = 8
+const SIZE = 54 // its length on the map, like the drawn plane's, while it flies
+const SMALLER = 0.1 // how much smaller it looks on the water, as if it went farther away
 
 // onFlying: called once the first frame is drawn, so the drawn plane can go away
-export function RoomScene({ onFlying }: { onFlying: () => void }) {
+// landing: the answer has arrived, so it lands. onLanded: called once it's down.
+type SceneProps = { onFlying: () => void; landing: boolean; onLanded: () => void }
+
+export function RoomScene(props: SceneProps) {
   return (
     <Canvas
       orthographic
@@ -46,7 +62,7 @@ export function RoomScene({ onFlying }: { onFlying: () => void }) {
         shadow-camera-near={1}
         shadow-camera-far={3000}
       />
-      <Pilot onFlying={onFlying} />
+      <Pilot {...props} />
     </Canvas>
   )
 }
@@ -57,13 +73,15 @@ const X = new THREE.Vector3(1, 0, 0)
 const TOP_UP = new THREE.Quaternion().setFromAxisAngle(X, Math.PI / 2)
 const lean = new THREE.Quaternion()
 
-function Pilot({ onFlying }: { onFlying: () => void }) {
+function Pilot({ onFlying, landing, onLanded }: SceneProps) {
   const plane = useRef<THREE.Group>(null)
   const sheet = useRef<THREE.Mesh>(null)
   const flight = useRef<Flight | null>(null) // null until the first frame
+  const descent = useRef<Landing | null>(null) // planned when the landing starts
+  const down = useRef(false) // it has landed (and said so)
   const outline = useOutlineColor() // lighter at night, so it shows on the dark sea
 
-  // Before each frame: fly on a little, then put the plane and its shadow where it is
+  // Before each frame: fly (or land) on a little, then put the plane and its shadow where it is
   useFrame(({ camera, size }, delta) => {
     const group = plane.current
     const shadow = sheet.current
@@ -79,20 +97,36 @@ function Pilot({ onFlying }: { onFlying: () => void }) {
     const first = flight.current === null
     flight.current ??= setOff()
     // A long gap between frames (the tab was hidden) isn't flying time
-    fly(flight.current, first ? 0 : Math.min(delta, 0.05))
+    const seconds = first ? 0 : Math.min(delta, 0.05)
+    // How far it has come down: 0 in flight, 1 on the water
+    let lowered = 0
+    if (landing) {
+      // The landing starts from wherever it is when the answer arrives
+      descent.current ??= landFrom(flight.current)
+      const step = land(descent.current, flight.current, seconds)
+      lowered = step.down
+      if (step.landed && !down.current) {
+        down.current = true
+        onLanded()
+      }
+    } else {
+      fly(flight.current, seconds)
+    }
     const { x, y, heading, roll } = flight.current
+    const height = HEIGHT - (HEIGHT - AFLOAT) * lowered
 
     // From the map's units (x right, y down, (0, 0) at the top left) to the scene's
-    group.position.set(x - MAP.width / 2, MAP.height / 2 - y, HEIGHT)
+    group.position.set(x - MAP.width / 2, MAP.height / 2 - y, height)
     // Turned to its heading (the scene's y goes up, so the angle flips), its top toward us,
     // then leaning around its own nose-to-tail line (the model's right wing is +z)
     group.quaternion.setFromAxisAngle(Z, -heading).multiply(TOP_UP)
     group.quaternion.multiply(lean.setFromAxisAngle(X, roll))
-    group.scale.setScalar(SIZE / PLANE_LENGTH)
+    group.scale.setScalar((SIZE / PLANE_LENGTH) * (1 - SMALLER * lowered))
 
     // The shadow's sheet sits on the sea where the sun throws it, just big enough for it.
-    // Its shader runs on every pixel it covers, so a small one costs less.
-    const fall = HEIGHT / SUN.z
+    // Its shader runs on every pixel it covers, so a small one costs less. The lower the plane,
+    // the closer under it the shadow falls.
+    const fall = height / SUN.z
     shadow.position.set(group.position.x - SUN.x * fall, group.position.y - SUN.y * fall, 0)
     shadow.scale.setScalar(SIZE * 1.6)
 

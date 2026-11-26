@@ -107,4 +107,66 @@ export function fly(flight: Flight, seconds: number) {
   flight.roll += (lean - flight.roll) * (1 - Math.exp(-4 * seconds))
 }
 
+// ---- The landing (step 7c) ----
+// When the answer arrives, the plane leaves its path and lands at your pin: one smooth curve
+// (a cubic Bézier: a start, two pulls, an end) from where it is to the water at the pin's foot.
+// It leaves the way it was heading, as fast as it was flying, slows to a stop as it arrives,
+// and comes down on the way (room-scene.tsx turns `down` into height, so the shadow slides in
+// under it).
+const TOUCHDOWN = { x: 486, y: 170 } // on the water at your pin's foot, in its ripple
+
+type Point = { x: number; y: number }
+export type Landing = { a: Point; b: Point; c: Point; d: Point; duration: number; time: number }
+
+export function landFrom(flight: Flight): Landing {
+  const a = { x: flight.x, y: flight.y }
+  const d = TOUCHDOWN
+  // Farther away takes longer, but never long: the answer is already here (seconds)
+  const duration = clamp(Math.hypot(d.x - a.x, d.y - a.y) / 90, 0.6, 1.3)
+  // The first pull decides how it leaves: straight on, at its flying speed (a cubic curve sets
+  // off at 3 × the first pull's distance per duration)
+  const reach = (SPEED * duration) / 3
+  const b = {
+    x: a.x + Math.cos(flight.heading) * reach,
+    y: a.y + Math.sin(flight.heading) * reach,
+  }
+  // The second pull sits just short of the end, on the line from the first: it arrives heading
+  // that way
+  const toward = Math.atan2(d.y - b.y, d.x - b.x)
+  const c = { x: d.x - Math.cos(toward) * 4, y: d.y - Math.sin(toward) * 4 }
+  return { a, b, c, d, duration, time: 0 }
+}
+
+// One frame of the landing: moves `flight` along the curve (in place, like fly), and says how
+// far down it has come (0 at its usual height, 1 on the water) and whether it has landed
+export function land(landing: Landing, flight: Flight, seconds: number) {
+  landing.time = Math.min(landing.duration, landing.time + seconds)
+  const u = landing.time / landing.duration // how much of its time has gone, 0 to 1
+  // How far along the curve: as fast as it was flying at first, slowing to a stop at the end
+  const t = u + u * u - u * u * u
+  const s = 1 - t
+  const { a, b, c, d } = landing
+  const at = (p: number, q: number, r: number, w: number) =>
+    s * s * s * p + 3 * s * s * t * q + 3 * s * t * t * r + t * t * t * w
+  const slope = (p: number, q: number, r: number, w: number) =>
+    s * s * (q - p) + 2 * s * t * (r - q) + t * t * (w - r)
+  const x = at(a.x, b.x, c.x, d.x)
+  const y = at(a.y, b.y, c.y, d.y)
+  const heading = Math.atan2(slope(a.y, b.y, c.y, d.y), slope(a.x, b.x, c.x, d.x))
+
+  // Down gently at first and at the end (a smoothstep), level by touchdown
+  const down = u * u * (3 - 2 * u)
+  // It leans into the curve like in flight (how much it turned for how far it went), less and
+  // less as it comes down
+  const moved = Math.hypot(x - flight.x, y - flight.y)
+  const turned = heading - flight.heading
+  const curve = moved > 0 ? Math.atan2(Math.sin(turned), Math.cos(turned)) / moved : 0
+  const lean = clamp(curve * LEAN, -MOST_LEAN, MOST_LEAN) * (1 - down)
+  flight.roll += (lean - flight.roll) * (1 - Math.exp(-8 * seconds))
+  flight.x = x
+  flight.y = y
+  flight.heading = heading
+  return { down, landed: u >= 1 }
+}
+
 const clamp = (value: number, low: number, high: number) => Math.min(high, Math.max(low, value))
