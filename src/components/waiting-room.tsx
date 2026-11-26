@@ -1,10 +1,13 @@
 "use client"
 
-import { useEffect, useId, useRef, useState } from "react"
+import { useEffect, useId, useRef, useState, type ComponentType, type ReactNode } from "react"
 import { Button } from "@/components/button"
+import { PARKED, ROUTE } from "@/components/room-route"
 import { Palm } from "@/components/scene/beach"
 import { PlaneTop } from "@/components/scene/plane"
 import { Cloud } from "@/components/scene/sky"
+import { useCanDraw3D } from "@/lib/can-draw-3d"
+import { useReducedMotion } from "@/lib/use-reduced-motion"
 import { onWaitEnd, useNotesFromServer, useWaitingSince } from "@/lib/waiting"
 
 const SHOW_AFTER = 3 // seconds of waiting before the room opens. A normal answer takes 1–2.
@@ -14,7 +17,8 @@ const LATE = 60 // seconds: longer than the API usually takes to wake up
 // minute to wake up. When something has waited for it for a few seconds (a form, the account
 // page), a full-screen room opens over the page: a little map with the plane on its way from our
 // island to you, the words, a clock, and "Keep browsing". That button, or Esc, closes the room,
-// and the wait carries on behind it.
+// and the wait carries on behind it. On the map, a 3D plane flies the route and circles your pin
+// while you wait (room-scene.tsx); with reduced motion or without 3D, a flat one sits still.
 // It's rendered once, in the root layout. Whatever waits says so with useWaiting
 // (src/lib/waiting.ts).
 export function WaitingRoom() {
@@ -24,13 +28,36 @@ export function WaitingRoom() {
   return since === null ? null : <Room key={since} since={since} />
 }
 
+// The 3D plane (src/components/three/room-scene.tsx), once its file has loaded
+type Scene = ComponentType<{ onFlying: () => void }>
+
 function Room({ since }: { since: number }) {
   const [seconds, setSeconds] = useState(0)
   const [closed, setClosed] = useState(false) // closed with "Keep browsing" or Esc
+  const [Scene, setScene] = useState<Scene | null>(null)
+  const [broken, setBroken] = useState(false) // the 3D file didn't load
+  const [airborne, setAirborne] = useState(false) // the 3D plane has drawn its first frame
   const room = useRef<HTMLDialogElement>(null)
   const titleId = useId()
   const textId = useId()
+  const reduced = useReducedMotion()
+  const can3D = useCanDraw3D() // more than 2 cores and WebGL 2 (src/lib/can-draw-3d.ts)
   const open = seconds >= SHOW_AFTER && !closed
+  // The 3D plane flies while the room is open, unless motion is reduced, the device is too
+  // weak, or its file didn't load. Otherwise the flat plane stays where it's drawn.
+  const flying = open && can3D && !reduced && !broken
+
+  // Load the 3D plane (three.js, ~240 KB) when the room opens, not before: most waits end
+  // sooner, and never need it. A plain import() in the browser, like the tours page's plane: it
+  // comes as its own file, the browser keeps it for the next wait, and if it fails (offline),
+  // the flat plane stays.
+  useEffect(() => {
+    if (!flying) return
+    import("@/components/three/room-scene")
+      // A function that returns it: given a function, setState would call it
+      .then((file) => setScene(() => file.RoomScene))
+      .catch(() => setBroken(true))
+  }, [flying])
 
   // The clock, like the tours page's waiting note: it counts from when the wait began, because
   // intervals can run late
@@ -77,7 +104,9 @@ function Room({ since }: { since: number }) {
           {/* The map's height is half its width: on a short laptop, it shrinks so the words and
               the button still fit under it (22rem is their height, measured) */}
           <div className="w-[min(100%,max(14rem,calc((100svh-22rem)*2)))]">
-            <RoomMap />
+            <RoomMap plane={!(flying && Scene && airborne)}>
+              {flying && Scene && <Scene onFlying={() => setAirborne(true)} />}
+            </RoomMap>
           </div>
           <p className="mt-6 -rotate-2 font-hand text-2xl text-primary">no need to refresh</p>
           <h2
@@ -112,30 +141,8 @@ function Room({ since }: { since: number }) {
   )
 }
 
-// The dotted route: a curve from the island to your pin, in the map's units (600 × 300). It's a
-// quadratic Bézier curve: it starts at FROM, ends at TO, and bends toward PULL on the way, like
-// a flight path drawn on a map.
-const FROM = { x: 202, y: 176 }
-const PULL = { x: 330, y: 28 }
-const TO = { x: 474, y: 150 }
-const ROUTE = `M${FROM.x} ${FROM.y}Q${PULL.x} ${PULL.y} ${TO.x} ${TO.y}`
-
-// The point `t` of the way along the route (0 at the island, 1 at you), and the way it heads
-// there, in degrees: the curve's formula, and its slope
-function along(t: number) {
-  const u = 1 - t
-  const at = (a: number, b: number, c: number) => u * u * a + 2 * u * t * b + t * t * c
-  const slope = (a: number, b: number, c: number) => u * (b - a) + t * (c - b)
-  const heading = Math.atan2(slope(FROM.y, PULL.y, TO.y), slope(FROM.x, PULL.x, TO.x))
-  return {
-    x: at(FROM.x, PULL.x, TO.x),
-    y: at(FROM.y, PULL.y, TO.y),
-    angle: (heading * 180) / Math.PI,
-  }
-}
-
-// The plane in the picture: 40% of the way, nose along the route
-const PLANE = along(0.4)
+// The drawn plane: 40% of the way along the route, nose along it, in degrees for SVG's rotate()
+const PLANE = { x: PARKED.x, y: PARKED.y, angle: (PARKED.heading * 180) / Math.PI }
 
 // Little waves on the sea, placed by hand clear of the island, the pin and the route
 const WAVES = [
@@ -153,11 +160,13 @@ const WAVES = [
 // The picture: the sea from above, our island with its palm on the left, you as a pin on the
 // right, and the plane on the dotted route between them. Decoration: screen readers get the
 // words under it instead.
-function RoomMap() {
+// plane: draw the flat plane (false once the 3D one flies). children: the 3D plane's canvas,
+// laid over the map (the box is `relative`, and its rounded corners clip the canvas too).
+function RoomMap({ plane, children }: { plane: boolean; children?: ReactNode }) {
   return (
     <div
       aria-hidden
-      className="overflow-hidden rounded-3xl border-4 border-outline bg-scene-sea shadow-pop"
+      className="relative overflow-hidden rounded-3xl border-4 border-outline bg-scene-sea shadow-pop"
     >
       <svg viewBox="0 0 600 300" className="block w-full">
         <g
@@ -226,23 +235,29 @@ function RoomMap() {
           you
         </text>
 
-        {/* The plane's shadow on the sea below it: down and to the right (the sun is up to the
-            left), turned the way the plane points. A body and a pair of wings. */}
-        <g
-          transform={`translate(${PLANE.x + 12} ${PLANE.y + 22}) rotate(${PLANE.angle})`}
-          className="fill-navy-950/20"
-        >
-          <ellipse rx="25" ry="5" />
-          <ellipse cx="-2" rx="7" ry="24" />
-        </g>
-        {/* The plane, its middle on the route: the drawing is 56 across, so it starts 28 back */}
-        <g transform={`translate(${PLANE.x} ${PLANE.y}) rotate(${PLANE.angle})`}>
-          <PlaneTop x="-28" y="-28" width="56" height="56" />
-        </g>
+        {plane && (
+          <>
+            {/* The plane's shadow on the sea below it: down and to the right (the sun is up to
+                the left), turned the way the plane points. A body and a pair of wings. */}
+            <g
+              transform={`translate(${PLANE.x + 12} ${PLANE.y + 22}) rotate(${PLANE.angle})`}
+              className="fill-navy-950/20"
+            >
+              <ellipse rx="25" ry="5" />
+              <ellipse cx="-2" rx="7" ry="24" />
+            </g>
+            {/* The plane, its middle on the route: the drawing is 56 across, so it starts 28
+                back */}
+            <g transform={`translate(${PLANE.x} ${PLANE.y}) rotate(${PLANE.angle})`}>
+              <PlaneTop x="-28" y="-28" width="56" height="56" />
+            </g>
+          </>
+        )}
 
         {/* A cloud drifting past the corner, cut off by the map's edge */}
         <Cloud x="482" y="-18" width="160" height="88" />
       </svg>
+      {children}
     </div>
   )
 }

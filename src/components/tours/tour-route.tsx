@@ -4,7 +4,6 @@ import {
   useEffect,
   useRef,
   useState,
-  useSyncExternalStore,
   type ComponentType,
   type ReactNode,
   type RefObject,
@@ -19,6 +18,7 @@ import {
 } from "@/components/tours/flight"
 import { RoutePlane } from "@/components/tours/route-plane"
 import { calm, findWind, type Wind } from "@/components/tours/wind"
+import { useCanDraw3D } from "@/lib/can-draw-3d"
 import { useReducedMotion } from "@/lib/use-reduced-motion"
 import { wheelPace } from "@/lib/wheel-pace"
 
@@ -33,16 +33,6 @@ type Scene = ComponentType<{
 // The mouse wheel scrolls this page at this speed (1 is normal), so there's time to watch
 // the plane's tricks
 const WHEEL_PACE = 0.4
-
-// Is this device up to drawing 3D: more than 2 processor cores, and WebGL 2? Asked once, in
-// the browser. useSyncExternalStore reads it the way useReducedMotion reads the motion
-// setting; the server can't know, so it says no.
-let capable: boolean | undefined
-const canDraw3D = () =>
-  (capable ??=
-    navigator.hardwareConcurrency > 2 &&
-    Boolean(document.createElement("canvas").getContext("webgl2")))
-const neverChanges = () => () => {}
 
 // The tours page's route: the plane's flight down the page, and its dotted trail.
 // CSS places the start (data-route-start), a stop beside each card (data-route-stop in
@@ -66,7 +56,7 @@ export function TourRoute({ listKey, children }: { listKey: string; children: Re
   const [Scene, setScene] = useState<Scene | null>(null)
   const [broken, setBroken] = useState(false) // the 3D file didn't load
   const reduced = useReducedMotion()
-  const can3D = useSyncExternalStore(neverChanges, canDraw3D, () => false)
+  const can3D = useCanDraw3D() // more than 2 cores and WebGL 2 (src/lib/can-draw-3d.ts)
   const flying = can3D && !reduced && !broken
 
   // Plan the flight from where everything landed

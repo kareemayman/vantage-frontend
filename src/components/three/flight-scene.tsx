@@ -1,7 +1,7 @@
 import { Canvas, useFrame, useThree } from "@react-three/fiber"
-import { useEffect, useLayoutEffect, useRef, useSyncExternalStore, type RefObject } from "react"
+import { useEffect, useLayoutEffect, useRef, type RefObject } from "react"
 import * as THREE from "three"
-import { PLANE_LENGTH, PlaneModel } from "@/components/three/plane-model"
+import { PLANE_LENGTH, PlaneModel, useOutlineColor } from "@/components/three/plane-model"
 import {
   growth,
   poseAt,
@@ -118,17 +118,6 @@ const X = new THREE.Vector3(1, 0, 0)
 const TOP_UP = new THREE.Quaternion().setFromAxisAngle(X, Math.PI / 2)
 const turn = new THREE.Quaternion()
 
-// The cards' outline color (--outline: navy by day, a lighter navy at night), so the
-// plane's outline doesn't vanish on the night sky (like the flat plane's). It's read again
-// whenever the theme flips (data-theme on <html>).
-function onThemeChange(onChange: () => void) {
-  const observer = new MutationObserver(onChange)
-  observer.observe(document.documentElement, { attributeFilter: ["data-theme"] })
-  return () => observer.disconnect()
-}
-const outlineColor = () =>
-  getComputedStyle(document.documentElement).getPropertyValue("--outline").trim()
-
 // Is the route on screen? From where it is on the page and the scroll
 function onScreen({ top, height }: Place) {
   const y = top - scrollY
@@ -143,7 +132,7 @@ function Pilot({ flight, place, trail, wind, frameRef }: PilotProps) {
   const plane = useRef<THREE.Group>(null)
   const sheet = useRef<THREE.Mesh>(null)
   const invalidate = useThree((state) => state.invalidate)
-  const outline = useSyncExternalStore(onThemeChange, outlineColor, () => "#002244")
+  const outline = useOutlineColor() // lighter at night, so it shows on the night sky
   const progress = useRef<number | null>(null) // the sample it's at; null: not placed yet
   const entrance = useRef<number | null>(null) // how far through it, 0 to 1; null: not decided
   const dotsShown = useRef(-1)

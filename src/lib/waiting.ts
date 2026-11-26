@@ -10,27 +10,31 @@ import { useEffect, useSyncExternalStore } from "react"
 // It only lives in the browser: the server renders "nothing is waiting" (getServerSnapshot),
 // and only effects change it, so it's never shared between visitors on the server.
 
-let count = 0 // how many things are waiting right now
-let since: number | null = null // when the current wait began; null while nothing waits
-const listeners = new Set<() => void>()
+let count = 0 // how many things are waiting right now (two forms could wait at once)
+let since: number | null = null // when the wait began; null while nothing waits
+const listeners = new Set<() => void>() // who wants to hear when `since` changes (the room)
 
-// One more, or one fewer, thing waiting. `since` only changes when the first wait starts and
-// when the last one ends, so two waits in a row that overlap count as one long wait.
-function change(by: 1 | -1) {
-  count += by
-  const before = since
-  since = count === 0 ? null : (since ?? Date.now())
-  if (since !== before) listeners.forEach((listen) => listen())
-}
+const tellListeners = () => listeners.forEach((listen) => listen())
 
-// Something starts waiting. Call the function it returns when it's done (more calls do nothing).
+// Something starts waiting. It gets back a "done" function to call when its wait is over.
 function start() {
-  change(1)
+  count++
+  // The first thing waiting starts the clock. A second one joining in doesn't restart it.
+  if (count === 1) {
+    since = Date.now()
+    tellListeners()
+  }
+
   let done = false
   return () => {
-    if (done) return
+    if (done) return // already said it's done: don't count it twice
     done = true
-    change(-1)
+    count--
+    // The last thing waiting is done: the wait is over
+    if (count === 0) {
+      since = null
+      tellListeners()
+    }
   }
 }
 

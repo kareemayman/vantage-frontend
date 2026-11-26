@@ -1,5 +1,5 @@
 import { useFrame, type ThreeElements } from "@react-three/fiber"
-import { createContext, use, useRef } from "react"
+import { createContext, use, useRef, useSyncExternalStore } from "react"
 import * as THREE from "three"
 import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js"
 
@@ -163,6 +163,22 @@ function Part({ shape, color, ...props }: PartProps) {
       </mesh>
     </mesh>
   )
+}
+
+// The cards' outline color (--outline: navy by day, a lighter navy at night), for a scene
+// that flies the plane over something dark at night (the tours page's sky, the waiting room's
+// sea), so its outline doesn't vanish there, like the flat plane's. It's read again whenever
+// the theme flips (data-theme on <html>).
+function onThemeChange(onChange: () => void) {
+  const observer = new MutationObserver(onChange)
+  observer.observe(document.documentElement, { attributeFilter: ["data-theme"] })
+  return () => observer.disconnect()
+}
+const outlineColor = () =>
+  getComputedStyle(document.documentElement).getPropertyValue("--outline").trim()
+
+export function useOutlineColor() {
+  return useSyncExternalStore(onThemeChange, outlineColor, () => NAVY_950)
 }
 
 type PlaneModelProps = ThreeElements["group"] & {
