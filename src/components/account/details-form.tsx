@@ -4,6 +4,7 @@ import { useActionState, useEffect, useRef, type ReactNode } from "react"
 import { Button } from "@/components/button"
 import { Field } from "@/components/field"
 import { updateDetails } from "@/lib/auth-actions"
+import { useWaiting } from "@/lib/waiting"
 
 // Your name and email on the passport's photo page, filled in with what the API has now, and
 // saved by updateDetails. Built like the signup form (signup-form.tsx): Zod's messages under the
@@ -19,6 +20,7 @@ export function DetailsForm({
   children?: ReactNode
 }) {
   const [state, formAction, pending] = useActionState(updateDetails, {})
+  useWaiting(pending) // a long wait opens the waiting room (waiting-room.tsx)
   const form = useRef<HTMLFormElement>(null)
 
   useEffect(() => {

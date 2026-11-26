@@ -1621,6 +1621,13 @@
   animation-play-state: running;
 }
 
+/* While the waiting room is open (src/components/waiting-room.tsx), the page behind it doesn't
+   scroll: the room covers the whole screen, so a wheel or a swipe over it would move a page you
+   can't see. :has() asks <html> whether an open room is anywhere inside it. */
+:root:has(dialog[data-waiting-room][open]) {
+  overflow: hidden;
+}
+
 /* Theme "sunset wipe" (src/lib/theme.ts): switch off the browser's default
    cross-fade so only our growing circle animates */
 ::view-transition-old(root),

@@ -5,6 +5,7 @@ import { usePostmark } from "@/components/auth/use-postmark"
 import { Button, ButtonLink } from "@/components/button"
 import { Field } from "@/components/field"
 import { resetPassword } from "@/lib/auth-actions"
+import { useWaiting } from "@/lib/waiting"
 
 // The reset page's form: the new password twice, sent with the email link's token (from the
 // page's address, in a hidden field). Like login: resetPassword answers { ok: true } once you're
@@ -14,6 +15,7 @@ import { resetPassword } from "@/lib/auth-actions"
 // is read (see the page).
 export function ResetForm({ token = "" }: { token?: string }) {
   const [state, formAction, pending] = useActionState(resetPassword, {})
+  useWaiting(pending) // a long wait opens the waiting room (waiting-room.tsx)
   const form = useRef<HTMLFormElement>(null)
   const sent = usePostmark(state, form)
   const passwordRef = useRef<HTMLInputElement>(null)

@@ -5,6 +5,7 @@ import { DeleteAccount } from "@/components/account/delete-account"
 import { Passport } from "@/components/account/passport"
 import { Button } from "@/components/button"
 import { PauseOffscreen } from "@/components/pause-offscreen"
+import { Waiting } from "@/components/waiting"
 import { ApiError, getMe } from "@/lib/api"
 import { logInAgain, logOut } from "@/lib/auth-actions"
 import { getSession } from "@/lib/session"
@@ -36,9 +37,14 @@ export default function AccountPage() {
           Your account
         </h1>
         {/* The note is a screen tall, so the footer stays below the fold while it shows. Any
-            shorter, and the footer would jump down as the passport arrives. */}
+            shorter, and the footer would jump down as the passport arrives. <Waiting>: if the
+            API is slow to answer, the waiting room opens over it. */}
         <Suspense
-          fallback={<p className="mt-6 min-h-svh text-muted-foreground">Loading your account…</p>}
+          fallback={
+            <Waiting>
+              <p className="mt-6 min-h-svh text-muted-foreground">Loading your account…</p>
+            </Waiting>
+          }
         >
           <AccountDetails />
         </Suspense>

@@ -3,6 +3,7 @@ import { Figtree, Oswald, Shadows_Into_Light } from "next/font/google"
 import { Footer } from "@/components/layout/footer"
 import { Navbar } from "@/components/layout/navbar"
 import { SmoothScroll } from "@/components/smooth-scroll"
+import { WaitingRoom } from "@/components/waiting-room"
 import { motionInitScript } from "@/lib/motion"
 import { themeInitScript } from "@/lib/theme"
 import "./globals.css"
@@ -72,6 +73,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           {children}
         </main>
         <Footer />
+        {/* Opens over everything when the API is slow to answer (draws nothing otherwise) */}
+        <WaitingRoom />
       </body>
     </html>
   )

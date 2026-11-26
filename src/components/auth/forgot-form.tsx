@@ -4,6 +4,7 @@ import { useActionState, useEffect, useRef, useState } from "react"
 import { Button } from "@/components/button"
 import { Field } from "@/components/field"
 import { requestReset } from "@/lib/auth-actions"
+import { useWaiting } from "@/lib/waiting"
 
 // The "Forgot your password?" form: your email, and "Email me a link". Like the login form, it
 // sends a Server Action (requestReset) through useActionState. Once the email has gone out, the
@@ -12,6 +13,7 @@ import { requestReset } from "@/lib/auth-actions"
 // login, the page stays: there's nowhere to go until the email arrives.
 export function ForgotForm() {
   const [state, formAction, pending] = useActionState(requestReset, {})
+  useWaiting(pending) // a long wait opens the waiting room (waiting-room.tsx)
   // The note you closed with "try again" (to fix the address, or send it once more). The action's
   // state stays { sent: true } until the next try, so this remembers which one you've moved on
   // from (like `done` in usePostmark).

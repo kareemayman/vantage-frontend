@@ -6,6 +6,7 @@ import { usePostmark } from "@/components/auth/use-postmark"
 import { Button } from "@/components/button"
 import { Field } from "@/components/field"
 import { logIn } from "@/lib/auth-actions"
+import { useWaiting } from "@/lib/waiting"
 
 // The login form. useActionState is like useState whose updates come from a Server Action:
 // sending the form runs logIn on the server, and whatever logIn returns becomes `state`.
@@ -16,6 +17,7 @@ import { logIn } from "@/lib/auth-actions"
 // way: Zod's message, under its field.
 export function LoginForm() {
   const [state, formAction, pending] = useActionState(logIn, {})
+  useWaiting(pending) // a long wait opens the waiting room (waiting-room.tsx)
   const form = useRef<HTMLFormElement>(null)
   const sent = usePostmark(state, form)
   const emailRef = useRef<HTMLInputElement>(null)

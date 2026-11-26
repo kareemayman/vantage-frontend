@@ -12,6 +12,7 @@ import { Snapshots } from "@/components/journal/snapshots"
 import { TravelerNotes } from "@/components/journal/traveler-notes"
 import { PauseOffscreen } from "@/components/pause-offscreen"
 import { Reveal } from "@/components/reveal"
+import { Waiting } from "@/components/waiting"
 import { getTour, getTourReviews, getTours } from "@/lib/api"
 
 // One tour's page, e.g. /tours/the-sea-explorer. [slug] in the folder name is a dynamic
@@ -33,13 +34,16 @@ export async function generateMetadata({ params }: PageProps<"/tours/[slug]">): 
 
 // The slug is URL data, so it's read inside <Suspense>, like the filters on /tours: the part
 // outside is the shell every "View tour" link prefetches (partialPrefetching), and the tour
-// itself streams in. The 9 built pages arrive whole.
+// itself streams in. The 9 built pages arrive whole. <Waiting>: a tour that has to be asked of
+// the API (one added after the build) opens the waiting room if the API is slow.
 export default function TourPage({ params }: PageProps<"/tours/[slug]">) {
   return (
     <Suspense
       fallback={
         <Journal>
-          <p className="font-hand text-3xl text-primary">loading the tour…</p>
+          <Waiting>
+            <p className="font-hand text-3xl text-primary">loading the tour…</p>
+          </Waiting>
         </Journal>
       }
     >

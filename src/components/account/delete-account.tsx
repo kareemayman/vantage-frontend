@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useId, useRef } from "react"
 import { Button } from "@/components/button"
 import { deleteAccount } from "@/lib/auth-actions"
+import { useWaiting } from "@/lib/waiting"
 
 // "Delete my account", with an "are you sure?" box first. The box is a native <dialog>:
 // dialog.showModal() opens it on top of the page, and the browser does the rest. The page behind
@@ -11,6 +12,7 @@ import { deleteAccount } from "@/lib/auth-actions"
 // popovers, but modal: you must answer before doing anything else.
 export function DeleteAccount() {
   const [state, formAction, pending] = useActionState(deleteAccount, {})
+  useWaiting(pending) // a long wait opens the waiting room (waiting-room.tsx)
   const dialog = useRef<HTMLDialogElement>(null)
   const confirm = useRef<HTMLButtonElement>(null)
   const titleId = useId()

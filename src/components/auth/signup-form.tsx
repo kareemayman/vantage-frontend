@@ -5,12 +5,14 @@ import { usePostmark } from "@/components/auth/use-postmark"
 import { Button } from "@/components/button"
 import { Field } from "@/components/field"
 import { signUp } from "@/lib/auth-actions"
+import { useWaiting } from "@/lib/waiting"
 
 // The signup form, built like the login form (login-form.tsx explains useActionState): send it,
 // signUp runs on the server, and whatever it returns becomes `state`. On success, the postcard
 // is stamped, then you go home (usePostmark).
 export function SignupForm() {
   const [state, formAction, pending] = useActionState(signUp, {})
+  useWaiting(pending) // a long wait opens the waiting room (waiting-room.tsx)
   const form = useRef<HTMLFormElement>(null)
   const sent = usePostmark(state, form)
 

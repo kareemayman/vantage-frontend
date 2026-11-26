@@ -4,12 +4,14 @@ import { useActionState, useEffect, useRef } from "react"
 import { Button } from "@/components/button"
 import { Field } from "@/components/field"
 import { changePassword } from "@/lib/auth-actions"
+import { useWaiting } from "@/lib/waiting"
 
 // Changing your password, on the passport's second page, saved by changePassword. Built like the
 // details form (details-form.tsx), but nothing typed comes back after a try: these are passwords.
 // `email`: for password managers, below.
 export function PasswordForm({ email }: { email: string }) {
   const [state, formAction, pending] = useActionState(changePassword, {})
+  useWaiting(pending) // a long wait opens the waiting room (waiting-room.tsx)
   const form = useRef<HTMLFormElement>(null)
 
   // After a failed try, put the cursor where the fix goes: the first field with a problem, or
